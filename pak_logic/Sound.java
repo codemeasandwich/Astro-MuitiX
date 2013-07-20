@@ -29,7 +29,7 @@ public class Sound
 			sound_Start  = 	new File("data/");
 			sound_Killed = 	new File("data/explosion.wav");
 			sound_AtroHit=  new File("data/AstroHit.wav");
-			sound_Alive  = 	new File("data/Live");
+			sound_Alive  = 	new File("data/Live.wav");
 			sound_Shoot  = 	new File("data/shoot.wav");
 			sound = true;
 		System.out.println("Done");

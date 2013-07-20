@@ -17,7 +17,8 @@ public class Game
 	private Core Perent;
 	private PApplet Display;
 	private Level myLevel;
-	private Defender myDefender;
+	//private Defender myDefender;
+	private DefenderManager defenderStore; 
 	private Random generator;
 	private PFont fontA,fontB,fontC,fontD;
 	private byte[] netIn;
@@ -49,10 +50,12 @@ public class Game
 		fontD = Display.loadFont("InterplanetaryCrap-48.vlw");
 		Display.textFont(fontA, 18);
 		
-		myDefender = new Defender(this, Display,Perent.getLocalAddress());
+		defenderStore = new DefenderManager();
+		defenderStore.setMyDefender(new Defender(this, Display,Perent.getLocalAddress()));
+		//myDefender = new Defender(this, Display,Perent.getLocalAddress());
 		myLevel = new Level(this, Display);
 		
-		addDefender(myDefender,false);
+		addDefender(defenderStore.getMymyDefender(),false);
 		System.out.println("Game..Done");
 	}
 	
@@ -122,17 +125,17 @@ public class Game
 	
 	public void killDefender()
 	{
-		Perent.sendSocketMessage(myDefender.getID(),
-				myDefender.getID().toString(),
+		Perent.sendSocketMessage(defenderStore.getMymyDefender().getID(),
+				defenderStore.getMymyDefender().getID().toString(),
 				NetworkInterface.SHIPKILLED,
 				false);
 		
-		myDefender.killDefender();
+		defenderStore.getMymyDefender().killDefender();
 	}
 
 	public Defender getDefender()
 	{
-		return myDefender;
+		return defenderStore.getMymyDefender();
 	}
 	
 	public void updateNet(boolean Incoming)
@@ -224,7 +227,7 @@ public class Game
 		Display.popMatrix();
 	}
 	
-	private void crazyLand()
+	public void crazyLand()//private void crazyLand()
 	{
 		crazyLandCount++;
 		Display.translate(Display.width/2,Display.height/2);
@@ -274,7 +277,7 @@ public class Game
 	public boolean HitTest(float[] fire)
 	{
 		//return myLevel.HitTest(fire);
-		return myDefender.HitTest(fire);
+		return defenderStore.getMymyDefender().HitTest(fire);
 	}
 	
 	public InetAddress HitTestAllShips(DefenderShot fire)

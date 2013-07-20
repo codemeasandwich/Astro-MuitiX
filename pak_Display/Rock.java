@@ -2,7 +2,7 @@ package pak_Display;
 
 import pak_logic.RockManager;
 import processing.core.PApplet;
-import processing.core.PFont;
+//import processing.core.PFont;
 
 import java.io.Serializable;
 import java.util.Random;
@@ -27,7 +27,7 @@ public class Rock implements Serializable
 	private float speed;
 	private RockManager perent;
 	private int ID;
-	private static PFont fontA;
+	//private static PFont fontA;
 	RockBang myBang;
 	
 	public Rock(RockManager inputPerent,PApplet inputDisplay)
@@ -116,7 +116,7 @@ public class Rock implements Serializable
 		}
 		
 	}
-	
+	/*
 	private void showXYZ()
 	{
 		Display.stroke(255,0,0);
@@ -127,7 +127,7 @@ public class Rock implements Serializable
 		Display.line(0, 0, -40, 0, 0, 40); //Z is Blue
 		Display.stroke(0);
 	}
-	
+	*/
 	private float size2scale(byte inputSize)
 	{
 		float scale = 1;

@@ -3,7 +3,7 @@ package pak_Display;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Iterator;
+//import java.util.Iterator;
 //import pak_Core.Core;
 import pak_Net.NetworkInterface;
 import pak_logic.*;
@@ -310,16 +310,5 @@ public class Defender implements Serializable
 	public void setHeading(float inputHeading)
 	{
 		heading = inputHeading;
-	}
-	
-	private void showXYZ()
-	{
-		Display.stroke(255,0,0);
-		Display.line(-40, 0, 0, 40, 0, 0); //X is red
-		Display.stroke(0,255,0);
-		Display.line(0, -40, 0, 0, 40, 0); //Y is green
-		Display.stroke(0,0,255);
-		Display.line(0, 0, -40, 0, 0, 40); //Z is Blue
-		Display.stroke(0);
 	}
 }

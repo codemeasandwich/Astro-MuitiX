@@ -1,7 +1,6 @@
 package pak_logic;
 
 import java.util.ArrayList;
-
 import pak_Display.Defender;
 
 public class DefenderManager
@@ -10,13 +9,11 @@ public class DefenderManager
 	private ArrayList<Defender> arrayDefender;
 	
 	public DefenderManager()
-	{
-		
-	}
+	{}
 	
 	public void draw()
 	{
-		
+		myDefender.draw();
 	}
 	
 	public boolean setMyDefender(Defender inputDefender)
@@ -30,6 +27,11 @@ public class DefenderManager
 		{
 			return false;
 		}
+	}
+	
+	public Defender getMymyDefender()
+	{
+		return myDefender;
 	}
 	
 	public void addDefender(Defender inputDefender)
