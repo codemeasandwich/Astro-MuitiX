@@ -1,19 +1,23 @@
 package pak_Net;
 
-public class NetWrap
+import java.io.Serializable;
+
+public class NetWrap implements Serializable
 {
+
+	private static final long serialVersionUID = 1L;
 	Object aObject;
-	String ClassName;
+	byte type;
 	boolean toReturn;
 	
-	public NetWrap(Object inputObject,String inputClassName)
+	public NetWrap(Object inputObject, byte inputType)
 	{
-		this(inputObject, inputClassName, false);
+		this(inputObject, inputType, false);
 	}
-	public NetWrap(Object inputObject,String inputClassName, boolean inputToReturn)
+	public NetWrap(Object inputObject, byte inputType, boolean inputToReturn)
 	{
 		aObject = inputObject;
-		ClassName = inputClassName;
+		type = inputType;
 		toReturn = inputToReturn;
 	}
 	
@@ -23,11 +27,12 @@ public class NetWrap
 		return "NetWrap";
 	}
 	
-	public String getObjectClassName()
+	public byte getType()
 	{
-		return ClassName;
+		return type;
 	}
-	public boolean getToReturn()
+	
+	public boolean returnToSender()
 	{
 		return toReturn;
 	}

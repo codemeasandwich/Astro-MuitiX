@@ -22,26 +22,27 @@ public class Core
 	private KeyboardInput myKeyboard;
 
 	private NetworkInterface net;
-	private String LocalAddress;
+	private InetAddress LocalAddress;
 	private String Title;
 	private String version;
 	private String userName;
 	private String CompName;
 	private Game myGame;
-	private boolean commandkeyInput;
+	private String Error;
 	
 	public Core(PApplet inputPerent)
 	{
+		System.out.println("Core..");
 			//1st
 			perent = inputPerent;
-			version = "014b";
+			version = "015b";
 			Title = "Astro-MultiX";
 			userName = System.getProperty("user.name");
-			commandkeyInput = true;
+			Error = "";
 			
 			try// throws UnknownHostException
 			{
-				LocalAddress = "/"+InetAddress.getLocalHost().getHostAddress();
+				LocalAddress = InetAddress.getLocalHost();
 				CompName = InetAddress.getLocalHost().getHostName();
 			}
 			catch (UnknownHostException uHE)
@@ -53,20 +54,25 @@ public class Core
 			myGame = new Game(this,perent);
 			net = new NetworkInterface(this);
 			myKeyboard = new KeyboardInput(this, inputPerent);
+			
+			System.out.println("Core..Done");
 	}
 	
-	public String getLocalAddress()
+	public InetAddress getLocalAddress()
 	{
 		return LocalAddress;
 	}
-	public void setCommandkeyInput(boolean val)
+	
+	public void setError(String inputError)
 	{
-		commandkeyInput = val;
+		Error = inputError;
 	}
+	
 	public String getUserName()
 	{
 		return userName;
 	}
+	
 	public String getCompName()
 	{
 		return CompName;
@@ -74,13 +80,20 @@ public class Core
 	
 	public void draw()
 	{
-		if(commandkeyInput)
-		{
-			if(perent.keyPressed && !myGame.getDefender().getkilled())
+		perent.background(0);
+		
+			if(perent.keyPressed)
 			{ perent.keyPressed = !myKeyboard.test(perent.keyCode); }
-		}
-		//true if key found so set pessed to false i.e. not need any more
 
+		//true if key found so set pessed to false i.e. not need any more
+		if(!Error.isEmpty())
+		{
+				perent.fill(255,100,100);
+				perent.textAlign(PApplet.CENTER);
+				perent.textFont(myGame.getFont('A'), 12);
+				perent.text(Error,perent.width/2, perent.height/1.2f);
+		}
+		
 		myGame.draw();
 	}
 
@@ -93,9 +106,18 @@ public class Core
 	{
 		myGame.fireDefender();
 	}
+	
 	public void killDefender()
 	{
 		myGame.killDefender();
+	}
+	public void killDefender(InetAddress ID)
+	{
+		myGame.killDefender(ID);
+	}
+	public void ReSpawnDefender(InetAddress ID)
+	{
+		myGame.ReSpawnDefender(ID);
 	}
 	
 	public void zoneInDefender()
@@ -122,6 +144,7 @@ public class Core
 	{
 		return myGame.getScore();
 	}
+	
 	public void updateNet(boolean Incoming)
 	{
 		myGame.updateNet(Incoming);
@@ -151,4 +174,20 @@ public class Core
 	{
 		myGame.ReceiveShotLocation(inputLocation);
 	}
+	public void sendSocketMessage( 
+			InetAddress Address,  Object objToSend,
+			byte Type, boolean returnThis)
+	{
+		net.Send2NetWap(Address,objToSend,Type,returnThis);
+	}
+	
+	public InetAddress HitTest(int[] fireXY)
+	{
+		return myGame.HitTest(fireXY);
+	}
+	public void SendShotRemove(String id)
+	{
+		net.SendShotRemove(id);
+	}
+	
 }

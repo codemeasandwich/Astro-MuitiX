@@ -11,7 +11,9 @@ public class KeyboardInput
 	
 	public KeyboardInput(Core inputPerent, PApplet inputDisplay)
 	{
+		System.out.print("KeyboardInput:");
 		perent = inputPerent;
+		System.out.println("Done");
 	}
 	
 	public boolean test(int keyCode)
@@ -22,6 +24,7 @@ public class KeyboardInput
 		
 		switch(keyCode)
 		{
+		
 		case(PConstants.RIGHT):
 			perent.moveDefender(Defender.RIGHT);
 			foundKey = true;

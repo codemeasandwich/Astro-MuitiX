@@ -9,7 +9,10 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+
 import pak_Display.Defender;
+//import pak_Display.DefenderShot;
 
 import pak_Core.Core;
 
@@ -22,25 +25,70 @@ public class NetworkInterface
 	private StringBuilder Location;
 	private String SendDefenderLocation_ID;
 	private String SendShotLocation_ID;
+	private String SendShotRemove_ID;
 	private String lastDefenderLocation;
 	private boolean error;
-	private Thread Thread4ReturnShip;
-	private Thread Thread4SendShip;
+	private Thread Thread4Return2NetWap;
+	private Thread Thread4Send2NetWap;
 	private ServerSocket ServerSocket4ReturnShip;
 	private Socket incomingListen2User;
-	private String[] aLiveNames;
+	private ArrayList<InetAddress> aLiveAddresses;
 	private boolean[] aLiveBool;
+	
+	public static final byte STRING = -1;
+	public static final byte HIT_TEST = 0;
+	public static final byte SHIP = 1;
+	public static final byte SHIPKILLED = 2;
+	public static final byte SHIPALIVE = 3;
+	public static final byte ROCKS = 4;
+	
+	private String typeConveter(byte val)
+	{
+		String rString = "?";
+		
+		switch(val)
+		{
+			case STRING:
+				rString = "String";
+			break;
+			
+			case HIT_TEST:
+				rString = "Hit Test";
+			break;
+			
+			case SHIP:
+				rString = "Ship";
+			break;
+			
+			case SHIPKILLED:
+				rString = "Ship Killed";
+			break;
+			
+			case SHIPALIVE:
+				rString = "Ship Alive";
+			break;
+			
+			case ROCKS:
+				rString = "Rock";
+			break;
+		}
+		
+		return rString;
+	}
 	
 	public NetworkInterface(Core inputPerent)
 	{
+		System.out.print("NetworkInterface:");
 		Perent = inputPerent;
 		error = false;
+		aLiveAddresses = new ArrayList<InetAddress>();
 		
 		 try
 		 {
-			 SendDefenderLocation_ID = "ship:";
-			 SendShotLocation_ID = "shot:";
-			 lastDefenderLocation = "";
+			SendDefenderLocation_ID = "ship:";
+			SendShotLocation_ID = "shot:";
+			SendShotRemove_ID = "Rshot:";
+			lastDefenderLocation = "";
 			netGroup = InetAddress.getByName(Core.GroupIP);
 			broadcastSocket = new MulticastSocket(Core.GroupPort);//send & recive on this
 			broadcastSocket.joinGroup(netGroup);
@@ -49,14 +97,15 @@ public class NetworkInterface
 		 }
 		 catch (IOException e) 
 		 {
+			 Perent.setError("NetworkInterface():"+e.toString());
 			 System.out.println("NetworkInterface():"+e.toString());
 			 error = true;
 		 }
 		 
 		 Listen4broadcasts();
-		 Listen4Sockets();
+		 Listen4NetWrap();
 		 sent(Perent.version());
-		 
+		 System.out.println("Done");
 	}
 	
 	public void aLiveTest()
@@ -72,19 +121,22 @@ public class NetworkInterface
 			Location.append(":");
 			Location.append(y);
 			Location.append(":");
-			if(String.valueOf(heading).length()>7)
-				Location.append((String.valueOf(heading)).substring(0, 7));
+			
+			if(String.valueOf(heading).length()>4)
+			{	Location.append((String.valueOf(heading)).substring(0, 4));}
 			else
-				Location.append(String.valueOf(heading));
+			{	Location.append(String.valueOf(heading));}
+			
 			Location.append(":");
-			if(String.valueOf(drift).length()>7)
-				Location.append((String.valueOf(drift)).substring(0, 7));
+			
+			if(String.valueOf(drift).length()>4)
+			{	Location.append((String.valueOf(drift)).substring(0, 4));}
 			else
-				Location.append(String.valueOf(drift));
+			{	Location.append(String.valueOf(drift));}
 			
 			//with in the rounding of numbers it may not show any change
 			if(false == lastDefenderLocation.equals(Location.toString()))
-			{	
+			{
 				lastDefenderLocation = Location.toString();
 				sent(lastDefenderLocation);
 			}
@@ -101,34 +153,89 @@ public class NetworkInterface
 			Location.append((String.valueOf(heading)).substring(0, 4));//0.49
 			sent(Location.toString());
 	}
+	public void SendShotRemove(String id)
+	{
+		sent(SendShotRemove_ID+id);
+	}
 	
-	public void sent(String ver)// throws IOException
+	private void sent(String ver)// throws IOException
 	{
 		if(!error)
 		{
-		try
-		 {
-			 DatagramPacket Message = new DatagramPacket(
-					 ver.getBytes(), 
-					 ver.length(), 
-					 netGroup,
-					 Core.GroupPort);
-			 broadcastSocket.send(Message);
-		 }
-		 catch (IOException e) 
-		 {
-			 System.out.println("Sending broadcast"+e.toString());
-			 error = true;
-		 }
+			//System.out.println("Send:"+ver);
+			try
+			{
+				 DatagramPacket Message = new DatagramPacket(
+						 ver.getBytes(), 
+						 ver.length(), 
+						 netGroup,
+						 Core.GroupPort);
+				 broadcastSocket.send(Message);
+			}
+			catch (IOException e) 
+			{
+				Perent.setError("Sending broadcast"+e.toString());
+				 System.out.println("Sending broadcast"+e.toString());
+				 error = true;
+			}
 		}
+	}
+
+	public void Send2NetWap(
+			final InetAddress Address,
+			final Object objToSend,
+			final byte Type,
+			final boolean returnThis)
+	{
+		Thread4Send2NetWap
+		 = new Thread(new Runnable()
+			{
+				public void run()
+	            {
+					try
+					{
+						if(Address == Perent.getLocalAddress())
+						{
+                			for(InetAddress address: aLiveAddresses)
+                			{
+                				Send2NetWap(address,objToSend,Type,returnThis);
+                			}
+						}
+						else
+						{
+							System.out.println("Send2NetWap:"+Type+" "+Address.toString());
+							Socket socket_SendMyShip = 
+								new Socket(Address,Core.socketPort);
+							
+							ObjectOutputStream oOutputStream = 
+								new ObjectOutputStream(socket_SendMyShip.getOutputStream());
+							
+							NetWrap wrap = new NetWrap(objToSend,Type,returnThis);
+							
+							oOutputStream.writeObject(wrap);
+									oOutputStream.flush();
+									oOutputStream.close();
+								socket_SendMyShip.close();
+								//System.out.println("Send2NetWap:Sent"+" "+Address.toString());
+						}
+					}
+					catch(Exception ex)
+			        {
+						//Perent.setError("SendShip("+Address.toString()+") "+ ex.toString());
+						Perent.killDefender(Address);
+						System.out.println("SendShip("+Address.toString()+") "+ ex.toString());
+			        }
+	            }
+			});
+		Thread4Send2NetWap.start();
 	}
 	
 	
 	//====================================================
 	
-	private void Listen4Sockets()
+	private void Listen4NetWrap()
 	{
-		Thread4ReturnShip = new Thread(new Runnable()
+		Thread4Return2NetWap = new Thread(new Runnable()
 		{
 			public void run()
 		    {
@@ -136,35 +243,68 @@ public class NetworkInterface
 				{
 					while(true)
 					{
-						System.out.println("Thread4ReturnShip");
 						//Will with till a clint trys to connect
 						incomingListen2User = ServerSocket4ReturnShip.accept();//Livelockb
-						System.out.println("Thread4ReturnShip accept()");
 						DataInputStream dis = new DataInputStream(incomingListen2User.getInputStream());
-						System.out.println("Thread4ReturnShip DataInputStream");
 						ObjectInputStream ois = new ObjectInputStream(dis);
-						//Object inObj = (Object)ois.readObject();
-						Defender inObj = (Defender)ois.readObject();
-						System.out.println("Defender RECIVING: "+inObj.toString());
-						
-						//if(inObj.toString().startsWith("Defender"))//works
-						//{
-							Perent.addDefender(inObj,true);
-							System.out.println("ADDED");
-							if(true == inObj.returnShip)
+						NetWrap incomingWrap = (NetWrap)ois.readObject();
+						//System.out.println("Return2NetWap:"+typeConveter(incomingWrap.getType())+" "+incomingListen2User.getInetAddress().toString());
+						if(incomingWrap.getType() == NetworkInterface.SHIP)
+						{
+                			boolean found = false;
+                			
+                			for/*each*/ (InetAddress address: aLiveAddresses)
+                			{
+                				if(incomingListen2User.getInetAddress().equals(address))
+                				{
+                					found = true;
+                					break;//End loop
+                				}
+                			}
+                			
+                			if(!found)
+                			{
+                				aLiveAddresses.add(incomingListen2User.getInetAddress());
+                			}
+							
+							Perent.addDefender((Defender)incomingWrap.getObject(),true);
+							
+							if(true == incomingWrap.returnToSender())
 							{
-							SendShip(incomingListen2User.getInetAddress(),false);
+		              			Send2NetWap(
+	 	              					incomingListen2User.getInetAddress(),
+	                					Perent.getDefender(),
+	                					NetworkInterface.SHIP,
+	                					false);
+		              			//System.out.println("Return to: "+incomingListen2User.getInetAddress().toString());
 							}
-						//}
+							
+						}
+						else if(incomingWrap.getType() == NetworkInterface.HIT_TEST)
+						{
+							if(Perent.HitTest((int[])incomingWrap.getObject()).equals(Perent.getLocalAddress()))
+							{
+								Perent.killDefender();
+							}
+						}
+						else if(incomingWrap.getType() == NetworkInterface.SHIPKILLED)
+						{
+							Perent.killDefender(incomingListen2User.getInetAddress());
+						}
+						else if(incomingWrap.getType() == NetworkInterface.SHIPALIVE)
+						{
+							Perent.ReSpawnDefender(incomingListen2User.getInetAddress());
+						}
 					}
 				}
 				catch(Exception e2)
 				{
+					Perent.setError("Listen4connect = new Thread "+e2.toString());
 					System.out.println("Listen4connect = new Thread "+e2.toString()); 
 				}
 		    }
 		});
-		Thread4ReturnShip.start();
+		Thread4Return2NetWap.start();
 	}
 	
 	private void Listen4broadcasts()
@@ -174,7 +314,7 @@ public class NetworkInterface
 			public void run()
             {
 	        	while(true)
-	            {								//			  x   y  hading
+	            {
 	        		byte[] buf = new byte[64];// will need to find the byte leagn of this???
 	        		//Frames with fewer than 64 bytes are padded out to 64 bytes with the Pad field.
 
@@ -186,7 +326,7 @@ public class NetworkInterface
 	                	String incomingData = new String(incomingPacket.getData());
 	                	incomingData = incomingData.trim();
 	                	
-	                	if(false == incomingPacket.getAddress().toString().equals(Perent.getLocalAddress()))
+	                	if(false == incomingPacket.getAddress().equals(Perent.getLocalAddress()))
 	                	{
 	                		Perent.updateNet(true);
 	                		
@@ -207,7 +347,12 @@ public class NetworkInterface
 	                		else if(incomingData.equals(Perent.version()))
 	                		{
 	                			System.out.println(Perent.version()+" : "+incomingPacket.getAddress().toString());
-	                			SendShip(incomingPacket.getAddress(),true);
+
+	                			Send2NetWap(
+	                					incomingPacket.getAddress(),
+	                					Perent.getDefender(),
+	                					NetworkInterface.SHIP,
+	                					true);
 		            		}
 	                	}
 	                	else
@@ -217,42 +362,12 @@ public class NetworkInterface
 	                }
 	                catch(Exception ex)
 	                {
+	                	Perent.setError("Sending Listen for broadcasts: "+ex.toString());
 	                	System.out.println("Sending Listen for broadcasts: "+ex.toString());
 	                } 	
 	            }
             }});
 		ListenThread.start();
 	}
-	private void SendShip(final InetAddress Address,final boolean returnShip)
-	{
-		Thread4SendShip
-		 = new Thread(new Runnable()
-			{
-				public void run()
-	            {
-					try
-					{
-						System.out.println("Thread4SendShip");
-						Socket socket_SendMyShip = 
-							new Socket(Address,Core.socketPort);
-						System.out.println("Thread4SendShip socket_SendMyShip");
-						ObjectOutputStream oOutputStream = 
-							new ObjectOutputStream(socket_SendMyShip.getOutputStream());
-						System.out.println("Thread4SendShip ObjectOutputStream");
-						Defender myDefender = Perent.getDefender();
-						myDefender.returnShip = returnShip;
-						oOutputStream.writeObject(myDefender);
-								oOutputStream.flush();
-								oOutputStream.close();
-							socket_SendMyShip.close();
-						System.out.println("Defender SENT");
-					}
-					catch(Exception ex)
-			        {
-						System.out.println("SendShip("+Address.toString()+") "+ ex.toString());
-			        }
-	            }
-			});
-		Thread4SendShip.start();
-	}
+
 }

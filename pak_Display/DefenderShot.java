@@ -36,6 +36,11 @@ public class DefenderShot
 		TTL--;
 	}
 	
+	public void kill()
+	{
+		TTL = 0;
+	}
+	
 	public float getHeading()
 	{
 		return heading;

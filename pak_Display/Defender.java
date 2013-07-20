@@ -1,8 +1,11 @@
 package pak_Display;
 
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Iterator;
 //import pak_Core.Core;
+import pak_Net.NetworkInterface;
 import pak_logic.*;
 import processing.core.PApplet;
 
@@ -11,7 +14,8 @@ public class Defender implements Serializable
 	private static final long serialVersionUID = 1L;
 	private transient PApplet Display;
 	private transient Game Perent;
-	private String ID;
+	//private String ID;
+	private InetAddress ID;
 	private float drift;
 	private float heading;
 	private float stepsize;
@@ -21,7 +25,6 @@ public class Defender implements Serializable
 	private transient ArrayList<DefenderShot> arrayShots;
 	private boolean shipScaleGrow;
 	private boolean isFake;
-	public boolean returnShip;
 
 	private DefenderModel model;
 	
@@ -30,31 +33,27 @@ public class Defender implements Serializable
 	public static final byte LEFT = 3;
 	public static final byte BACK = 4;
 	
-	public Defender (Game inputPerent, PApplet inputDisplay)
-	{
-		this(inputPerent,inputDisplay, "0");
-		
+
 		 /* default values that Java initializes variables to
 		 # null for objects
 		 # 0 for integer types of all lengths (byte, char, short, int, long)
 		 # 0.0 for float types (float and double)
 		 # false for booleans
 		 */
-	}
 	
-	public Defender (Game inputPerent, PApplet inputDisplay, String inputID)
+	public Defender (Game inputPerent, PApplet inputDisplay, InetAddress inputID)
 	{
+		System.out.println("Defender..");
 		Perent = inputPerent;
 		Display = inputDisplay;
 		ID = inputID;
-		returnShip = false;
 		isFake = false;
 		shipXY = new float[]{Perent.getRandom(Display.getWidth()),
 							 Perent.getRandom(Display.getHeight())};
 
 		drift 	 	  = 0.0f;
 		heading 	  = 1.570796325f;
-		stepsize 	  = 1.2f;
+		stepsize 	  = 1.5f;
 		rotate 		  = 0.1f;
 		shipScale     = 1.5f;
 		shipScaleGrow = false;
@@ -62,6 +61,8 @@ public class Defender implements Serializable
 		
 		ModelLoader load3D = new ModelLoader(Display);
 		model = load3D.LoadXMLDefender("data/shipModel.xml");
+		model.addPerent(this);
+		System.out.println("Defender..Done");
 	}
 	
 	public void reBuild(Game inputPerent, PApplet inputDisplay)
@@ -87,15 +88,21 @@ public class Defender implements Serializable
 	{
 		return  "Defender";
 	}
+	public void ReSpawnDefender()
+	{
+		model.ReSpawn();
+	}
 	
 	public void zoneIn()
 	{
 		shipScaleGrow = true;
 	}
-	public String getID()
+	
+	public InetAddress getID()
 	{
 		return ID;
 	}
+	
 	private void drawShots()
 	{
 		Display.fill(255);
@@ -105,20 +112,25 @@ public class Defender implements Serializable
 		{	arrayShots.remove(0);  }
 		
 		int[] fireXY;
-
-			for/*each*/ (DefenderShot fire: arrayShots)
+		DefenderShot fire;
+		
+		for(int count = 0; count<arrayShots.size(); count++)
+		{
+			fire = arrayShots.get(count);
+			fireXY = fire.getXY();
+			fire.setXY(Perent.spaceReset_Int(fire.getXY()));
+			Display.ellipse(fireXY[0], fireXY[1], DefenderShot.SIZE, DefenderShot.SIZE);
+			fire.move();
+			
+			InetAddress hit = Perent.HitTest(fireXY);
+			
+			if(false == (null==hit) && !hit.equals(ID))
 			{
-				fireXY = fire.getXY();
-				fire.setXY(Perent.spaceReset_Int(fire.getXY()));
-					Display.ellipse(fireXY[0], fireXY[1], DefenderShot.SIZE, DefenderShot.SIZE);
-					fire.move();
-					
-					String hit = Perent.HitTest(fireXY);
-					
-					if(!hit.equals("") && !hit.equals(ID))
-					System.out.println(Perent.HitTest(fireXY));
-					
+				Perent.sendSocketMessage(hit,fireXY,NetworkInterface.HIT_TEST,true);
+				Perent.SendShotRemove(fire.toString());
+				arrayShots.remove(count);
 			}
+		}
 	}
 	
 	private void drawShip()
@@ -150,7 +162,7 @@ public class Defender implements Serializable
 			// ========= draw ship
 			model.draw();
 			
-			if(0.1<drift && !model.getkilled())
+			if(0.1<drift && !model.isDead())
 			{	model.drawDrift(drift,stepsize+0.15f);  }
 			
 		Display.popMatrix();
@@ -168,48 +180,67 @@ public class Defender implements Serializable
 		
 		shipXY[0] -= PApplet.cos(heading)*(stepsize*drift);
 		shipXY[1] -= PApplet.sin(heading)*(stepsize*drift);
-		drift = drift *0.985f;
+		drift = drift *0.99f;
 		Perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading,drift);
+	}
+	
+	public boolean HitTest(int[] fireXY)
+	{
+		if(!model.isDead() &&
+			shipXY[0]+15 > fireXY[0] && 
+			shipXY[0]-15 < fireXY[0] &&	
+			shipXY[1]+15 > fireXY[1] && 
+			shipXY[1]-15 < fireXY[1])
+		{
+			return true;
+		}
+		return false;
 	}
 	
 	public void moveDefender(byte inputMove)
 	{
 		shipXY = Perent.spaceReset_Float(shipXY);
 		
-		switch (inputMove)
+		if(!model.isDead())
 		{
-			case RIGHT:
-				heading += rotate;
-			break;
-			
-			case LEFT:
-				heading -= rotate;
-			break;
-			
-			case FORWARE:
-				shipXY[0] -= PApplet.cos(heading)*stepsize;
-				shipXY[1] -= PApplet.sin(heading)*stepsize; 
-
-				//a cap on the drift
-				if(stepsize > drift)
-				{ drift += 0.2f; }
-			break;
-			
-			case BACK:
-				shipXY[0] += PApplet.cos(heading)*stepsize;
-				shipXY[1] += PApplet.sin(heading)*stepsize;
-			break;	
+			switch (inputMove)
+			{
+				case RIGHT:
+					heading += rotate;
+				break;
+				
+				case LEFT:
+					heading -= rotate;
+				break;
+				
+				case FORWARE:
+					shipXY[0] -= PApplet.cos(heading)*stepsize;
+					shipXY[1] -= PApplet.sin(heading)*stepsize; 
+	
+					//a cap on the drift
+					if(stepsize > drift)
+					{ drift += 0.2f; }
+				break;
+			}
+			Perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading,drift);
 		}
-		Perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading,drift);
 	}
 	
 	public void fireDefender()
 	{
-		if(Perent.getScore()>0)
+		if(!model.isDead())
 		{
-			Perent.addScore(-1);
-			arrayShots.add(new DefenderShot(heading,(int)shipXY[0],(int)shipXY[1]));
-			Perent.SendShotLocation((int)shipXY[0], (int)shipXY[1], heading);
+			if(Perent.getScore()>0)
+			{
+				Perent.addScore(-1);
+				arrayShots.add(new DefenderShot(heading,(int)shipXY[0],(int)shipXY[1]));
+				Perent.SendShotLocation((int)shipXY[0], (int)shipXY[1], heading);
+			}
+		}
+		else if(model.KeyBoardSpawn())
+		{
+			model.ReSpawn();
+			Perent.sendSocketMessage(ID, null, NetworkInterface.SHIPALIVE, false);
 		}
 	}
 	public void setDrift(float val)
@@ -219,11 +250,19 @@ public class Defender implements Serializable
 	public void killDefender()
 	{
 		model.setKilled();
+		drift = 0;
+		if(!isFake)
+		Perent.setMessage("Your KILLED!");
 	}
 	
-	public boolean getkilled()
+	public boolean isDead()
 	{
-		return model.getkilled();
+		return model.isDead();
+	}
+	public void setMessage(String mess)
+	{
+		if(!isFake)
+		Perent.setMessage(mess);
 	}
 	
 	public int[] getXY()

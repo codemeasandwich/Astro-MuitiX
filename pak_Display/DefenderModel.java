@@ -10,9 +10,11 @@ public class DefenderModel implements Serializable
 
 	private static final long serialVersionUID = 1L;
 	private transient PApplet Display;
-	private boolean killed;
+	private boolean drawDeadCells;
 	private boolean drawLines;
 	
+	private boolean good2ReSpawn;
+	private Defender perent;
 	private Color shipColour;
 	private Color jetColour;
 	
@@ -33,7 +35,13 @@ public class DefenderModel implements Serializable
 		
 		drawLines = true;
 		explosionCount = 0;
-		killed = false;
+		drawDeadCells = false;
+		good2ReSpawn = false;
+	}
+	
+	public void addPerent(Defender inputPerent)
+	{
+		perent = inputPerent;
 	}
 	
 	public void reBuild(PApplet inputDisplay)
@@ -41,13 +49,18 @@ public class DefenderModel implements Serializable
 		Display = inputDisplay;
 	}
 	
-	public void reDraw()
+	public void ReSpawn()
 	{
 		shipColour = new Color(
 				shipColour.getRed(),
 				shipColour.getGreen(),
 				shipColour.getBlue(),
 				255);
+		explosionCount = 0;
+		drawLines = true;
+		good2ReSpawn = false;
+		drawDeadCells = false;
+		perent.setMessage("");
 	}
 	
 	//Setup=============================
@@ -89,7 +102,7 @@ public class DefenderModel implements Serializable
 		else
 		{	Display.noStroke();	}
 
-		if(killed)
+		if(drawDeadCells)
 		{
 			if(shipColour.getAlpha()>4)
 			{	
@@ -106,42 +119,48 @@ public class DefenderModel implements Serializable
 					shipColour.getGreen(),
 					shipColour.getBlue(),
 					0);	
-				killed = false;
+				
+				good2ReSpawn = true;
+				drawDeadCells = false;
+				perent.setMessage("Hit fire to Respawn!");
 			}
 			explosionCount+=2;
 		}
-		
-		for(int count1 = 0; count1<shipCells.length; count1++)
+		if(!good2ReSpawn)
 		{
-			if(killed)
+			for(int count1 = 0; count1<shipCells.length; count1++)
 			{
-				Display.pushMatrix();
-				Display.translate(
-						(explosionNums[count1][0]*explosionCount),
-						(explosionNums[count1][1]*explosionCount),
-						((explosionNums[count1][2]*5)*explosionCount));
-				Display.rotateY((explosionNums[count1][3]*explosionCount)/5);
-				Display.rotateX((explosionNums[count1][4]*explosionCount)/5);
+				if(drawDeadCells)
+				{
+					Display.pushMatrix();
+					Display.translate(
+							(explosionNums[count1][0]*explosionCount),
+							(explosionNums[count1][1]*explosionCount),
+							((explosionNums[count1][2]*5)*explosionCount));
+					Display.rotateY((explosionNums[count1][3]*explosionCount)/5);
+					Display.rotateX((explosionNums[count1][4]*explosionCount)/5);
+				}
+				
+	
+				Display.beginShape();
+				for(int count2 = 0; count2<shipCells[count1].length; count2++)
+				{
+					Display.vertex(
+							shipCells[count1][count2][0], 
+							shipCells[count1][count2][1], 
+							shipCells[count1][count2][2]);
+				}
+				Display.endShape();
+				
+				if(drawDeadCells)
+				{	Display.popMatrix();  }
 			}
-			
-			Display.beginShape();
-			for(int count2 = 0; count2<shipCells[count1].length; count2++)
-			{
-				Display.vertex(
-						shipCells[count1][count2][0], 
-						shipCells[count1][count2][1], 
-						shipCells[count1][count2][2]);
-			}
-			Display.endShape();
-			
-			if(killed)
-			{	Display.popMatrix();  }
 		}
 	}
 	
 	public void drawDrift(final float inputNum, final float maxVal)
 	{
-		if(!killed)
+		if(!drawDeadCells && !good2ReSpawn)
 		{
 			Display.fill(
 					jetColour.getRed(),
@@ -149,6 +168,7 @@ public class DefenderModel implements Serializable
 					jetColour.getBlue(),
 					jetColour.getAlpha());
 			Display.noStroke();
+			
 			for(int count1 = 0; JetsCells.length>count1; count1++)
 			{
 				Display.beginShape();
@@ -171,9 +191,8 @@ public class DefenderModel implements Serializable
 	
 	public void setKilled()
 	{
-		killed = true;
+		drawDeadCells = true;
 		drawLines = false;
-		
 		Random rn = new Random(Display.frameCount);
 		
 		for(int count1 = 0; count1<explosionNums.length; count1++)
@@ -188,11 +207,23 @@ public class DefenderModel implements Serializable
 				}
 			}
 		}
-		System.out.println("KILLED");
 	}
 	
-	public boolean getkilled()
+	public boolean KeyBoardSpawn()
 	{
-		return killed;
+		return good2ReSpawn;
 	}
+		
+	public boolean isDead()//cant respawn
+	{
+		if(drawDeadCells || good2ReSpawn)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 }

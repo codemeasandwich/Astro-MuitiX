@@ -3,6 +3,7 @@ package pak_Display;
 import processing.core.PApplet;
 //import processing.core.PFont;
 //import pak_Core.Core;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import pak_logic.*;
 
@@ -13,38 +14,33 @@ public class Level
 
 	private ArrayList<DefenderShot> arrayShots;
 	private ArrayList<Defender> arrayDefender;
-	//private PFont fontB;
 	
 	public Level(Game inputPerent, PApplet inputDisplay)
 	{		
+		System.out.print("Level:");
 		Perent        = inputPerent;
 		Display       = inputDisplay;
 		arrayDefender = new ArrayList<Defender>();
 		arrayShots    = new ArrayList<DefenderShot>();
-		//fontB = inputDisplay.loadFont("BlueHighwayBold-18.vlw");
+		System.out.println("Done");
 	}
 	
-	public String HitTest(int[] fireXY)
+	public InetAddress HitTest(int[] fireXY)
 	{
+		InetAddress Addr = null;
 		for (Defender Spaceship: arrayDefender)
 		{	
-			int[] XY = Spaceship.getXY();
-			
-			if( XY[0]+13 > fireXY[0] && 
-				XY[0]-13 < fireXY[0] &&	
-				XY[1]+13 > fireXY[1] && 
-				XY[1]-13 < fireXY[1])
+			if(Spaceship.HitTest(fireXY))
 			{
-				return Spaceship.getID();
+				Addr = Spaceship.getID();
 			}
 		}
-		return "";
+		return Addr;
 	}
 	
 	public void draw()
 	{	
 		Display.pushMatrix();
-		Display.background(0);
 		
 		Display.fill(255);
 		Display.textAlign(PApplet.LEFT);
@@ -77,15 +73,6 @@ public class Level
 							DefenderShot.SIZE, 
 							DefenderShot.SIZE);
 					fire.move();
-					/*
-					for (Defender Spaceship: arrayDefender)
-					{	
-						int[] XY = Spaceship.getXY();
-						if(XY[0] == fireXY[0] && XY[1] == fireXY[1])
-						{
-							System.out.println("Hit:"+Spaceship.getID());
-						}
-					}*/
 			}
 		}
 		Display.popMatrix();
@@ -93,9 +80,31 @@ public class Level
 	
 	public void addDefender(Defender inputDefender)
 	{
+		inputDefender.zoneIn();
 		arrayDefender.add(inputDefender);
 	}
 	
+	public void killDefender(InetAddress ID)
+	{
+		for(Defender Spaceship: arrayDefender)
+		{
+			if(Spaceship.getID().equals(ID))
+			{
+				Spaceship.killDefender();
+			}
+		}
+	}
+	public void ReSpawnDefender(InetAddress ID)
+	{
+		for(Defender Spaceship: arrayDefender)
+		{
+			if(Spaceship.getID().equals(ID))
+			{
+				Spaceship.ReSpawnDefender();
+				Spaceship.zoneIn();
+			}
+		}
+	}
 	public synchronized void addShot(String[] inputLocation)
 	{
 		arrayShots.add(
@@ -111,7 +120,8 @@ public class Level
 		//inputLocation [0]=ID [1]=X  [2]=Y  [3]=heading
 		for(Defender Spaceship: arrayDefender)
 		{
-			if(Spaceship.getID().equals(inputLocation[0]))
+			//String s = Spaceship.getID().toString();
+			if(Spaceship.getID().toString().endsWith(inputLocation[0]))
 			{
 				Spaceship.setXY(new int[]{Integer.parseInt(inputLocation[1]),Integer.parseInt(inputLocation[2])});
 				Spaceship.setHeading(Float.parseFloat(inputLocation[3]));
@@ -140,10 +150,14 @@ public class Level
 		
 		return XY;
 	}
+	public void setMessage(String mess)
+	{
+		Perent.setMessage(mess);
+	}
 	
 	private void drawGameBorde()
 	{
-		Display.fill(140, 140, 140,140);
+		Display.fill(140,90);
 		Display.stroke(0);
 		Display.rect(0,0,Display.width,Display.height);
 		

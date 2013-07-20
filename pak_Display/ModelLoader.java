@@ -25,6 +25,7 @@ public class ModelLoader
 	
 	private DefenderModel DefaultModelFile()
 	{
+		System.out.print(" -DefaultModel- ");
 		DefenderModel aDefender = new DefenderModel(Display);
 
 		byte[][][] shipCells = new byte[4][3][3];
@@ -66,11 +67,15 @@ public class ModelLoader
 		aDefender.set3DJets(shipJets_int);
 		aDefender.setColorJet(new Color(255,255,255,255));
 		
+		
+		
 		return aDefender;
 	}
 	
 	public DefenderModel LoadXMLDefender(String xmlFileName)
 	{
+		System.out.print("Load Model:");
+		
 		File modelFile = new File(xmlFileName);
 		
 		DefenderModel aDefender = new DefenderModel(Display);
@@ -249,6 +254,9 @@ public class ModelLoader
 		{
 			aDefender = DefaultModelFile();
 		}
+		
+		System.out.println("Done");
+		
 		 return aDefender;
 	}
 }

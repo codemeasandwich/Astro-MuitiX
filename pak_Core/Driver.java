@@ -15,9 +15,13 @@ public class Driver extends PApplet // hit <ctrl>-1
 	@Override
 	public void setup()
 	{
-		size(500,400, P3D);
+		size(640,480, P3D);
 		frameRate(24);
 		Sys = new Core(this);
+		System.out.println("All Done");
+		System.out.println();
+		System.out.println("======================================");
+		System.out.println();
 	}
 	
 	@Override

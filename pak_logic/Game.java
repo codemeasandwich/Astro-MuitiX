@@ -1,10 +1,12 @@
 package pak_logic;
 
+import java.net.InetAddress;
 import java.util.Random;
 
 import pak_Core.Core;
 import pak_Display.Defender;
 import pak_Display.Level;
+import pak_Net.NetworkInterface;
 import processing.core.PApplet;
 import processing.core.PFont;
 
@@ -16,43 +18,49 @@ public class Game
 	private Defender myDefender;
 	private Random rn;
 	private int score;
-	private PFont fontA,fontB,fontC;
+	private PFont fontA,fontB,fontC,fontD;
 	private byte[] netIn;
 	private byte[] netOut;
+	private short txtFade;
 	private int crazyLandCount;
 	private float[] crazyRotate;
 	private String message;
 	
 	public Game(Core inputPerent, PApplet inputDisplay)
 	{
+		System.out.println("Game..");
 		Perent = inputPerent;
 		Display = inputDisplay;
 		rn = new Random();
 		score = 100;
+		txtFade = 255;
 		netIn = new byte[50];
 		netOut = new byte[50];
 		crazyRotate = new float[]{100,100,100};
 		crazyLandCount = 0;
-		message ="";
+		message =Perent.version();
 		
 		fontA = Display.loadFont("Silkscreen-16.vlw");
 		fontB = inputDisplay.loadFont("BlueHighwayBold-18.vlw");
 		fontC = inputDisplay.loadFont("Swinkydad-42.vlw");
+		fontD = inputDisplay.loadFont("InterplanetaryCrap-48.vlw");
 		Display.textFont(fontA, 18);
 		
 		myDefender = new Defender(this, Display,Perent.getLocalAddress());
 		myLevel = new Level(this, Display);
 		
-
 		addDefender(myDefender,false);
+		System.out.println("Game..Done");
 	}
 	
 	public void draw()
 	{
+		
 		myLevel.draw();
 		
 		drawNet();
-		 myName();
+		drawMessage();
+		myName();
 		//if the score is around 5 give a shot ever 5 sec
 		if(5>score && (Display.frameCount %(2*Display.frameRate))< 1)
 		{		score++;		}
@@ -67,10 +75,7 @@ public class Game
 	{
 		return myLevel.spaceReset_Float(XY);
 	}
-	public void setCommandkeyInput(boolean val)
-	{
-		Perent.setCommandkeyInput(val);
-	}
+
 	public int getRandom(int range)
 	{
 		return rn.nextInt(range);
@@ -87,6 +92,7 @@ public class Game
 	
 	public void addDefender(Defender inputDefender,boolean rebuild)
 	{
+		System.out.println("Defender~"+inputDefender.getID().toString()+":ADDED");
 		if(rebuild)
 		{	inputDefender.reBuild(this, Display);	}
 		myLevel.addDefender(inputDefender);
@@ -119,9 +125,22 @@ public class Game
 	{
 		myDefender.fireDefender();
 	}
+	public void ReSpawnDefender(InetAddress ID)
+	{
+		myLevel.ReSpawnDefender(ID);
+	}
+	public void killDefender(InetAddress ID)
+	{
+		myLevel.killDefender(ID);
+	}
 	
 	public void killDefender()
 	{
+		Perent.sendSocketMessage(myDefender.getID(),
+				myDefender.getID().toString(),
+				NetworkInterface.SHIPKILLED,
+				false);
+		
 		myDefender.killDefender();
 	}
 	
@@ -147,6 +166,7 @@ public class Game
 	{
 		type = Character.toUpperCase(type);
 		PFont toReturn;
+		
 		switch(type)
 		{
 			case 'A':
@@ -159,6 +179,9 @@ public class Game
 			
 			case 'C':
 				toReturn = fontC;
+			break;
+			case 'D':
+				toReturn = fontD;
 			break;
 			
 			default:
@@ -219,6 +242,7 @@ public class Game
 		
 		Display.popMatrix();
 	}
+	
 	private void crazyLand()
 	{
 		crazyLandCount++;
@@ -228,6 +252,7 @@ public class Game
 		Display.rotateX(crazyLandCount/crazyRotate[2]);
 		Display.translate(-Display.width/2,-Display.height/2);
 	}
+	
 	private void myName()
 	{
 		Display.pushMatrix();
@@ -239,8 +264,45 @@ public class Game
 			Display.text("07127154 NDS07",0,0);
 		Display.popMatrix();
 	}
-	public String HitTest(int[] fireXY)
+	
+	private void drawMessage()
+	{
+		if(txtFade>0)
+		{
+		Display.pushMatrix();
+			Display.fill(255,255,255,txtFade);
+			Display.translate(Display.width/2, Display.height/2);
+			Display.textAlign(PApplet.CENTER);
+			Display.textFont(getFont('D'), 42);
+			Display.text(message,0,0);
+		Display.popMatrix();
+		txtFade -= 2;
+		}
+	}
+	
+	public void setMessage(String mess)
+	{
+		if(mess.isEmpty())
+		{ txtFade = 0;   }
+		else
+		{ txtFade = 255; }	
+		
+		message = mess;
+	}
+	
+	public InetAddress HitTest(int[] fireXY)
 	{
 		return myLevel.HitTest(fireXY);
+	}
+	
+	public void sendSocketMessage( 
+			InetAddress Address,  Object objToSend,
+			byte Type, boolean returnThis)
+	{
+		Perent.sendSocketMessage(Address,objToSend,Type,returnThis);
+	}
+	public void SendShotRemove(String id)
+	{
+		Perent.SendShotRemove(id);
 	}
 }
