@@ -1,6 +1,7 @@
 package pak_Core;
 
 import processing.core.PApplet;
+import processing.core.PFont;
 
 public class Driver extends PApplet
 {
@@ -14,9 +15,8 @@ public class Driver extends PApplet
 
 	public void setup()
 	{
-		size(600,450, P3D);
+		size(600,600, P3D);
 		frameRate(30);
-		
 		Sys = new Core(this);
 	}
 	

@@ -1,52 +1,54 @@
 package pak_Display;
 
 import processing.core.PApplet;
+import processing.core.PFont;
 import pak_Core.Core;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class Level
 {
 	private PApplet Display;
 	private Core Perent;
-	private star[] starArray;
-
+	private PFont fontA;
+	private ArrayList<DefenderShot> arrayShots;
 	private ArrayList<Defender> arrayDefender;
+	private float rotateX;
 	
 	public Level(Core inputPerent, PApplet inputDisplay)
 	{
 		Perent = inputPerent;
 		Display = inputDisplay;
 		arrayDefender = new ArrayList<Defender>();
-		/*
-		Random rn = new Random();
-		starArray = new star[30+rn.nextInt(20)];
-		
-		for(int count = 0; count<starArray.length; count++)
-		{
-			starArray[count] = new star();
-			starArray[count].x = rn.nextInt(Display.width);
-			starArray[count].y = rn.nextInt(Display.height);
-			starArray[count].rotateSpeed = (1 + rn.nextInt(500))/10000.0f;
-			starArray[count].shade = 125 + rn.nextInt(125);
-		}*/
+		arrayShots   = new ArrayList<DefenderShot>();
+		fontA  = Display.loadFont("Infobubble-24.vlw");
+		Display.textFont(fontA, 12);
+		rotateX = 0.4f;
 	}
 	
 	public void draw()
-	{
+	{		
 		Display.background(10);
 		
-		Display.rotateX(0.4f);
-		Display.translate(0,-80,-150);
-
-		Display.fill(40, 40, 40, 150);
-		Display.rect(0,0,Display.width,Display.height);
+		Display.fill(255);
+		Display.text("processing & eclipsenthe dynamic duo", 30, 30);
 		
-		//drawStars();
+		Display.rotateX(rotateX);
+		Display.translate(0,-120,-250);
+		
+		drawGameBorde();
 		
 		for/*each*/ (Defender Spaceship: arrayDefender)
 		{
 			Spaceship.draw();
+		}
+		Display.fill(255);
+		if(!arrayShots.isEmpty() && arrayShots.get(0).getTTL()<1)
+		{	arrayShots.remove(0);  }
+		for/*each*/ (DefenderShot fire: arrayShots)
+		{
+				fire.setXY(Perent.spaceReset_Int(fire.getXY()));
+				Display.ellipse(fire.getXY()[0], fire.getXY()[1], DefenderShot.SIZE, DefenderShot.SIZE);
+				fire.move();
 		}
 	}
 	
@@ -54,7 +56,52 @@ public class Level
 	{
 		arrayDefender.add(inputDefender);
 	}
-	public float[] spaceReset(float[] XY)
+	
+	public void addShot(String[] inputLocation)
+	{
+		arrayShots.add(new DefenderShot(Float.parseFloat(inputLocation[3]),Integer.parseInt(inputLocation[1]),Integer.parseInt(inputLocation[2])));
+	}
+	public void setRotateX(boolean more)
+	{
+		if(more)
+		{
+			if(rotateX<4.0f)
+			{
+				System.out.print("+");
+				rotateX +=0.001f;
+			}
+		}
+		else
+		{
+			if(rotateX>0.0f)
+			{
+				System.out.print("-");
+				rotateX -=0.001f;
+			}
+		}
+	}
+	public void updateDefender(String[] inputLocation)
+	{
+		//inputLocation [0]=ID [1]=X  [2]=Y  [3]=heading
+		
+		for(Defender Spaceship: arrayDefender)
+		{
+			if(Spaceship.toString().equals(inputLocation[0]))
+			{
+				//Spaceship.setXY(new String[]{});
+				Spaceship.setXY(new int[]{Integer.parseInt(inputLocation[1]),Integer.parseInt(inputLocation[2])});
+				Spaceship.setHeading(Float.parseFloat(inputLocation[3]));
+			}
+		}
+	}
+	
+	public int[] spaceReset_Int(int[] XY)
+	{
+		float[] temp = spaceReset_Float(new float[]{XY[0],XY[1]});
+		return new int[]{(int)temp[0],(int)temp[1]};
+	}
+	
+	public float[] spaceReset_Float(float[] XY)
 	{
 		if(XY[0]<0)
 		{	XY[0] = Display.width;	}
@@ -68,29 +115,39 @@ public class Level
 		
 		return XY;
 	}
-	private void drawStars()
+	
+	private void drawGameBorde()
 	{
-		star tempStar;
+		Display.fill(140, 140, 140,140);
+		Display.rect(0,0,Display.width,Display.height);
+		
+		//top
 		Display.pushMatrix();
-		Display.translate(Display.width/2,0,0);
-
-		for(int count = 0; count<starArray.length; count++)
-		{
-			tempStar = starArray[count];
-
-				Display.rotateZ(tempStar.rotateVal);
-				tempStar.rotateVal += tempStar.rotateSpeed;
-				Display.stroke(tempStar.shade);
-				Display.point(tempStar.x, tempStar.y);
-		}
+		Display.translate(Display.width/2,-20, 0); 
+		//rotateY(0.5);
+		Display.box(Display.width, 20, 50);
+		Display.popMatrix();
+		
+		//right
+		Display.pushMatrix();
+		Display.translate(-20 ,Display.height/2, 0); 
+		//rotateY(0.5);
+		Display.box(20, Display.height, 50);
+		Display.popMatrix();
+		
+		//left
+		Display.pushMatrix();
+		Display.translate(20 + Display.width ,Display.height/2, 0); 
+		//rotateY(0.5);
+		Display.box(20, Display.height, 50);
+		Display.popMatrix();
+		
+		//bottem
+		Display.pushMatrix();
+		Display.translate(Display.width/2,20 + Display.height, 0); 
+		//rotateY(0.5);
+		Display.box(Display.width, 20, 50);
 		Display.popMatrix();
 	}
-	class star
-	{
-		public int x;
-		public int y;
-		public float rotateSpeed;
-		public float rotateVal;
-		public int shade;
-	}
+	
 }

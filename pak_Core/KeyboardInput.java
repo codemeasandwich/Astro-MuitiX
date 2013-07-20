@@ -14,7 +14,7 @@ public class KeyboardInput
 		Display = inputDisplay;
 	}
 	
-	public boolean test()
+	public void test()
 	{
 		//System.out.println("KeyboardInput.test() "+Display.keyCode);
 		
@@ -47,8 +47,8 @@ public class KeyboardInput
 		{
 			perent.zoneInDefender();
 		}
-		Display.keyPressed = false;
-		return false;
+		//Display.keyPressed = false;
+		//return false;
 		
 	}
 	

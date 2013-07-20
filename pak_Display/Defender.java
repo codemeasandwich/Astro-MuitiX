@@ -8,28 +8,28 @@ public class Defender
 {
 	private PApplet Display;
 	private Core Perent;
-	private int ID;
-	private float shotLineSpeed;
+	private String ID;
 	private float drift;
 	private float heading;
 	private float stepsize;
 	private float rotate;
 	private float shipXY[];
+	private float historyXYH[];
 	private float shipScale;
-	private ArrayList<Shot> arrayShots;
+	private ArrayList<DefenderShot> arrayShots;
 	private boolean shipScaleGrow;
 	
 	
 	private DefenderModel model;
 	
-	public static final int FORWARE = 1;
-	public static final int RIGHT = 2;
-	public static final int LEFT = 3;
-	public static final int BACK = 4;
+	public static final byte FORWARE = 1;
+	public static final byte RIGHT = 2;
+	public static final byte LEFT = 3;
+	public static final byte BACK = 4;
 	
 	public Defender (Core inputPerent, PApplet inputDisplay)
 	{
-		this(inputPerent,inputDisplay, 0);
+		this(inputPerent,inputDisplay, "0");
 		
 		 /* default values that Java initializes variables to
 		 # null for objects
@@ -39,7 +39,7 @@ public class Defender
 		 */
 	}
 	
-	public Defender (Core inputPerent, PApplet inputDisplay, int inputID)
+	public Defender (Core inputPerent, PApplet inputDisplay, String inputID)
 	{
 		Perent = inputPerent;
 		Display = inputDisplay;
@@ -53,9 +53,8 @@ public class Defender
 		stepsize = 3.2f;
 		rotate = 0.1f;
 		shipScale = 7.5f;
-		shotLineSpeed = stepsize *2.0f;
 		shipScaleGrow = false;
-		arrayShots = new ArrayList<Shot>();
+		arrayShots = new ArrayList<DefenderShot>();
 		
 		model = new DefenderModel(this, Display);
 	}
@@ -84,10 +83,10 @@ public class Defender
 		{	arrayShots.remove(0);  }
 		
 		//System.out.println("arrayShots"+arrayShots.size());
-		for/*each*/ (Shot fire: arrayShots)
+		for/*each*/ (DefenderShot fire: arrayShots)
 		{
-				fire.setXY(Perent.spaceReset(fire.getXY()));
-				Display.ellipse(fire.getXY()[0], fire.getXY()[1], Shot.SIZE, Shot.SIZE);
+				fire.setXY(Perent.spaceReset_Int(fire.getXY()));
+				Display.ellipse(fire.getXY()[0], fire.getXY()[1], DefenderShot.SIZE, DefenderShot.SIZE);
 				fire.move();
 		}
 	}
@@ -133,24 +132,26 @@ public class Defender
 		Display.popMatrix();
 
 		// ========= if the ship is moving why stop it?
+		//System.out.println(Display.keyPressed + " && " + drift);
 		if(!Display.keyPressed && 0.1<drift)
 		{ drift(); }
-		
 	}
 	
 	private void drift()
 	{
-		shipXY = Perent.spaceReset(shipXY);
+		shipXY = Perent.spaceReset_Float(shipXY);
 		
 		shipXY[0] -= PApplet.cos(heading)*(stepsize*drift);
 		shipXY[1] -= PApplet.sin(heading)*(stepsize*drift);
 		drift = drift *0.975f;
+		Perent.setRotateX(false);
+		//System.out.print("drift");
 		Perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading);
 	}
 	
-	public void moveDefender(int inputMove)
+	public void moveDefender(byte inputMove)
 	{
-		shipXY = Perent.spaceReset(shipXY);
+		shipXY = Perent.spaceReset_Float(shipXY);
 		
 		switch (inputMove)
 		{
@@ -169,6 +170,7 @@ public class Defender
 				//a cap on the drift
 				if(1.0f > drift)
 				{ drift += 0.2f; }
+				Perent.setRotateX(true);
 			break;
 			
 			case BACK:
@@ -182,7 +184,8 @@ public class Defender
 	
 	public void fireDefender()
 	{
-		arrayShots.add(new Shot(heading,shipXY[0],shipXY[1],shotLineSpeed));
+		arrayShots.add(new DefenderShot(heading,(int)shipXY[0],(int)shipXY[1]));
+		Perent.SendShotLocation((int)shipXY[0], (int)shipXY[1], heading);
 	}
 	
 	public void killDefender()
@@ -194,57 +197,21 @@ public class Defender
 	{
 		return model.getkilled();
 	}
-}
-class Shot
-{
-	private float heading;
-	private float[] xy;
-	private float speed;
-	public static final int SIZE = 5;
-	private int TTL;
-	
-	public Shot(float heading, float x1, float y1, float speed)
+	public int[] getXY()
 	{
-		TTL = 75;
-		this.heading = heading;
-		xy = new float[]{x1,y1};
-		this.speed = speed;
+		return new int[]{(int)shipXY[0],(int)shipXY[1]};
 	}
-	
-	public void move()
+	public void setXY(int[] inputXY)
 	{
-		xy[0] -= PApplet.cos(heading)*speed;
-		xy[1] -= PApplet.sin(heading)*speed;
-		TTL--;
+		shipXY = new float[]{inputXY[0],inputXY[1]};
 	}
-	
 	public float getHeading()
 	{
 		return heading;
 	}
-	
-	public float[] getXY()
+	public void setHeading(float inputHeading)
 	{
-		return xy;
-	}
-	public void setXY(float[] inputXY)
-	{
-		xy = inputXY;
-	}
-	public float getSpeed()
-	{
-		return speed;
-	}
-	
-	public void setTTL(int inputnum)
-	{
-		TTL = inputnum;
-	}
-	
-	public int getTTL()
-	{
-		return TTL;
+		heading = inputHeading;
 	}
 	
 }
-
