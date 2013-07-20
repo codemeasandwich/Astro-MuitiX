@@ -2,18 +2,23 @@ package pak_Display;
 
 import pak_logic.RockManager;
 import processing.core.PApplet;
+import processing.core.PFont;
+
+import java.io.Serializable;
 import java.util.Random;
 
-public class Rock 
+public class Rock implements Serializable
 {
+	private static final long serialVersionUID = 1L;
 	public final static byte BIG = 4;
 	public final static byte MEDIUM = 3;
 	public final static byte SMALL = 2;
 	public final static byte TINY = 1;
 	public final static byte DELETE = 0;
 	
+	private static int RockCount = 0; 
 	private int [][][] astrido;
-	private PApplet Display;
+	private transient PApplet Display;
 	private float[] xy;
 	private float rX, rY;
 	private int rCount;
@@ -21,13 +26,18 @@ public class Rock
 	private float heading;
 	private float speed;
 	private RockManager perent;
-	//Random generator;
+	private int ID;
+	private static PFont fontA;
+	RockBang myBang;
 	
 	public Rock(RockManager inputPerent,PApplet inputDisplay)
 	{
+		
+		RockCount++;
+		ID = RockCount;
 		perent = inputPerent;
 		Display = inputDisplay;
-		Random generator = perent.getRandom();
+		Random generator = new Random();//perent.getRandom();
 		xy = new float[2];
 		xy[0] = generator.nextInt(Display.width);
 		xy[1] = generator.nextInt(Display.height);
@@ -36,7 +46,7 @@ public class Rock
 		heading = generator.nextFloat()*6.2831853f;//360 Degree to Radian
 		speed = generator.nextFloat()*3;
 		rCount = 0;
-		size = BIG;
+		size = MEDIUM;
 		
 		astrido = new int[10+generator.nextInt(10)][4][3];//10 to 20 cells with 4 point & xyz
 		
@@ -52,18 +62,32 @@ public class Rock
 				};
 			}
 		}
+		myBang = new RockBang(Display);
+		System.out.print(".");
+	}
+						//RockManager had a different id
+	public void reBuild(RockManager inputPerent, PApplet inputDisplay)
+	{
+		perent = inputPerent;
+		Display = inputDisplay;
+		myBang.reBuild(Display);
 	}
 	
 	public void draw()
 	{
+		if(myBang.getUse())
+		{
+			myBang.draw();
+		}
+		
 		if(DELETE != size)
 		{
 			Display.pushMatrix();
 			Display.translate(xy[0], xy[1]);
-			move();
-			showXYZ();
+
+			//showXYZ();
 			Display.scale(size2scale(size));
-	
+			//perent.txt(ID+"",255);
 			Display.noStroke();
 			
 			for(int countOuter = 0; countOuter<astrido.length; countOuter++)
@@ -86,6 +110,7 @@ public class Rock
 				Display.endShape();
 				//Display.popMatrix();
 			}
+			move();
 			rCount++;
 			Display.popMatrix();
 		}
@@ -137,6 +162,9 @@ public class Rock
 	
 	public void setSize(byte inputSize)
 	{
+		Random generator = new Random();
+		heading = generator.nextFloat()*6.2f;
+		
 		if(BIG>=inputSize)
 			size = inputSize;
 		else
@@ -151,8 +179,8 @@ public class Rock
 	
 	public void setXY(float[] inputXY)
 	{
-		//System.out.println("myRock:"+heading);
-		xy = inputXY;
+		//F**KING TWO DAYS TO FIND THIS BUG!!! //xy = inputXY;
+		xy = new float[]{inputXY[0],inputXY[1]};
 	}
 	
 	public void move()
@@ -168,13 +196,13 @@ public class Rock
 		switch(size)
 		{
 			case(BIG):
-				size = MEDIUM;
+				setSize(MEDIUM);
 			break;
 			case(MEDIUM):
-				size = SMALL;
+				setSize(SMALL);
 			break;
 			case(SMALL):
-				size = TINY;
+				setSize(TINY);
 			break;
 			case(TINY):
 				size = DELETE;
@@ -183,10 +211,12 @@ public class Rock
 				size = DELETE;
 			break;
 		}
+		
+		myBang.setXY(xy);
 	}
-	/*
-	public void changeHeading()
+	
+	public int getID()
 	{
-		heading = generator.nextFloat()*6.2831853f;//360 Degree to Radian
-	}*/
+		return ID;
+	}
 }

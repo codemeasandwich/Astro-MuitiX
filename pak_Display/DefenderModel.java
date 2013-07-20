@@ -70,25 +70,29 @@ public class DefenderModel implements Serializable
 		shipCells = mobelCells;
 		explosionNums = new float[shipCells.length][5];
 	}
+	
 	public void set3DJets(float[][][][] mobelJetsCells)
 	{
 		JetsCells = mobelJetsCells;
 	}
+	
 	public void setColorShip(Color inputColor)
 	{
 		shipColour = inputColor;
 	}
+	
 	public void setColorJet(Color inputColor)
 	{
 		jetColour = inputColor;
 	}
+	
 	public void setLines(boolean use)
 	{
 		drawLines = use;
 	}
+	
 	//Draw=============================
 	
-
 	public void draw()
 	{
 		Display.fill(
@@ -193,11 +197,13 @@ public class DefenderModel implements Serializable
 	{
 		drawDeadCells = true;
 		drawLines = false;
-		Random rn = new Random(Display.frameCount);
+		Random rn = new Random();//(Display.frameCount);
 		
+		//num of cells
 		for(int count1 = 0; count1<explosionNums.length; count1++)
 		{
 			float[] view3 = new float[5];
+			//translate 3 & rotate 2
 			for (int count2 = 0; count2<view3.length; count2++)
 			{
 				explosionNums[count1][count2] = (float)(rn.nextInt(25)/100.0);

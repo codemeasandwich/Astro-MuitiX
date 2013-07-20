@@ -7,6 +7,7 @@ import pak_Core.Core;
 import pak_Display.Defender;
 import pak_Display.DefenderShot;
 import pak_Display.Level;
+import pak_Display.Rock;
 import pak_Net.NetworkInterface;
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -18,7 +19,7 @@ public class Game
 	private Level myLevel;
 	private Defender myDefender;
 	private Random generator;
-	private int score;
+	//private int score;
 	private PFont fontA,fontB,fontC,fontD;
 	private byte[] netIn;
 	private byte[] netOut;
@@ -26,25 +27,28 @@ public class Game
 	private int crazyLandCount;
 	private float[] crazyRotate;
 	private String message;
+	private Sound gameSound;
 	
 	public Game(Core inputPerent, PApplet inputDisplay)
 	{
 		System.out.println("Game..");
 		Perent = inputPerent;
 		Display = inputDisplay;
+		gameSound = new Sound();
+		gameSound.playSound(Sound.START);
 		generator = new Random();
-		score = 100;
+		//score = 100;
 		txtFade = 255;
 		netIn = new byte[50];
 		netOut = new byte[50];
 		crazyRotate = new float[]{100,100,100};
 		crazyLandCount = 0;
-		message =Perent.version();
+		message = Perent.version();
 		
 		fontA = Display.loadFont("Silkscreen-16.vlw");
-		fontB = inputDisplay.loadFont("BlueHighwayBold-18.vlw");
-		fontC = inputDisplay.loadFont("Swinkydad-42.vlw");
-		fontD = inputDisplay.loadFont("InterplanetaryCrap-48.vlw");
+		fontB = Display.loadFont("BlueHighwayBold-18.vlw");
+		fontC = Display.loadFont("Swinkydad-42.vlw");
+		fontD = Display.loadFont("InterplanetaryCrap-48.vlw");
 		Display.textFont(fontA, 18);
 		
 		myDefender = new Defender(this, Display,Perent.getLocalAddress());
@@ -64,8 +68,8 @@ public class Game
 		drawMessage();
 		myName();
 		//if the score is around 5 give a shot ever 5 sec
-		if(5>score && (Display.frameCount %(2*Display.frameRate))< 1)
-		{		score++;		}
+		//if(5>score && (Display.frameCount %(2*Display.frameRate))< 1)
+		//{		score++;		}
 	}
 	
 	public int[] spaceReset_Int(int[] XY)
@@ -82,7 +86,7 @@ public class Game
 	{
 		return generator;
 	}
-	
+	/*
 	public int getScore()
 	{
 		return score;
@@ -92,7 +96,7 @@ public class Game
 	{
 		score += points;
 	}
-	
+	*/
 	public void addDefender(Defender inputDefender,boolean rebuild)
 	{
 		System.out.println("Defender~"+inputDefender.getID().toString()+":ADDED");
@@ -293,7 +297,13 @@ public class Game
 		message = mess;
 	}
 	
-	public InetAddress HitTest(DefenderShot fire)
+	public boolean HitTest(float[] fire)
+	{
+		//return myLevel.HitTest(fire);
+		return myDefender.HitTest(fire);
+	}
+	
+	public InetAddress HitTestAllShips(DefenderShot fire)
 	{
 		return myLevel.HitTest(fire);
 	}
@@ -307,5 +317,34 @@ public class Game
 	public void SendShotRemove(String id)
 	{
 		Perent.SendShotRemove(id);
+	}
+	
+	public RockManager getRockManager()
+	{
+		return myLevel.getRockManager();
+	}
+	public void setRockManager(RockManager inputRockManager)
+	{
+		myLevel.setRockManager(inputRockManager);
+	}
+	public void SendRockManager(RockManager inputRockManager)
+	{
+		Perent.SendRockManager(inputRockManager);
+	}
+	public void SendRockHit(Rock[] twoRocks)
+	{
+		Perent.SendRockHit(twoRocks);
+	}
+	public void setRockHit(Rock[] twoRocks)
+	{
+		myLevel.setRockHit(twoRocks);
+	}
+	public boolean ShipSmashTest(float[] inputXY)
+	{
+		return myLevel.ShipSmashTest(inputXY);
+	}
+	public void playSound(byte inputSound)
+	{
+		gameSound.playSound(inputSound);
 	}
 }

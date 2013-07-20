@@ -13,6 +13,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import pak_Display.Defender;
+import pak_Display.Rock;
+import pak_logic.RockManager;
 //import pak_Display.DefenderShot;
 
 import pak_Core.Core;
@@ -42,7 +44,9 @@ public class NetworkInterface
 	public static final byte SHIP = 2;
 	public static final byte SHIPKILLED = 3;
 	public static final byte SHIPALIVE = 4;
-	public static final byte ROCKS = 5;
+	public static final byte ROCKSRequest = 5;
+	public static final byte ROCKSResponse = 6;
+	public static final byte ROCKHIT = 7;
 	
 	private String typeConveter(byte val)
 	{
@@ -70,8 +74,16 @@ public class NetworkInterface
 				rString = "Ship Alive";
 			break;
 			
-			case ROCKS:
-				rString = "Rock";
+			case ROCKSRequest:
+				rString = "Rocks Request";
+			break;
+			
+			case ROCKSResponse:
+				rString = "Rocks Response";
+			break;
+			
+			case ROCKHIT:
+				rString = "Rocks Hit";
 			break;
 		}
 		
@@ -109,12 +121,12 @@ public class NetworkInterface
 		 sent(Perent.version());
 		 System.out.println("Done");
 	}
-	
+	/*
 	public void aLiveTest()
 	{
 		
 	}
-	
+	*/
 	public void SendDefenderLocation(int x, int y, float heading, float drift)
 	{
 			Location = new StringBuilder();
@@ -248,6 +260,27 @@ public class NetworkInterface
 	
 	//====================================================
 	
+	private boolean addIP(InetAddress inputIP)
+	{
+		boolean found = false;
+		
+		for/*each*/ (InetAddress address: aLiveAddresses)
+		{
+			if(inputIP.equals(address))
+			{
+				found = true;
+				break;//End loop
+			}
+		}
+		
+		if(!found)
+		{
+			aLiveAddresses.add(inputIP);
+		}
+		
+		return found;
+	}
+	
 	private void Listen4NetWrap()
 	{
 		Thread4Return2NetWap = new Thread(new Runnable()
@@ -268,22 +301,6 @@ public class NetworkInterface
 						
 						if(incomingWrap.getType() == NetworkInterface.SHIP)
 						{
-                			boolean found = false;
-                			
-                			for/*each*/ (InetAddress address: aLiveAddresses)
-                			{
-                				if(incomingListen2User.getInetAddress().equals(address))
-                				{
-                					found = true;
-                					break;//End loop
-                				}
-                			}
-                			
-                			if(!found)
-                			{
-                				aLiveAddresses.add(incomingListen2User.getInetAddress());
-                			}
-							
 							Perent.addDefender((Defender)incomingWrap.getObject(),true);
 							
 							if(true == incomingWrap.returnToSender())
@@ -293,16 +310,34 @@ public class NetworkInterface
 	                					Perent.getDefender(),
 	                					NetworkInterface.SHIP,
 	                					false);
-		              			//System.out.println("Return to: "+incomingListen2User.getInetAddress().toString());
+		              		}
+							
+							if(aLiveAddresses.isEmpty()) //this is the first to talk to me
+							{
+								Send2NetWap(
+										incomingListen2User.getInetAddress(),
+										null,NetworkInterface.ROCKSRequest,true);
 							}
+							
+							addIP(incomingListen2User.getInetAddress());
 							
 						}
 						else if(incomingWrap.getType() == NetworkInterface.HIT_TEST)
 						{
-							if(Perent.HitTest((int[])incomingWrap.getObject()).equals(Perent.getLocalAddress()))
+							/*
+							if(Perent.HitTest((int[])incomingWrap.getObject()))
 							{
+								System.out.println("They hit me :(");
 								Perent.killDefender();
 							}
+							else
+							{
+								Defender Def = Perent.getDefender();
+	 							
+								SendDefenderLocation(Def.getXY()[0],Def.getXY()[1],Def.getHeading(),Def.getDrift());
+							}*/
+							Perent.killDefender();
+							
 						}
 						else if(incomingWrap.getType() == NetworkInterface.SHIPKILLED)
 						{
@@ -312,12 +347,38 @@ public class NetworkInterface
 						{
 							Perent.ReSpawnDefender(incomingListen2User.getInetAddress());
 						}
+						else if(incomingWrap.getType() == NetworkInterface.ROCKSRequest)
+						{
+							//System.out.println("ROCKSRequest <-");
+                			Send2NetWap(
+                					incomingListen2User.getInetAddress(),
+                					Perent.getRockManager(),
+                					NetworkInterface.ROCKSResponse,
+                					false);
+						}
+						else if(incomingWrap.getType() == NetworkInterface.ROCKSResponse)
+						{
+							//System.out.println("ROCKSResponse ->");
+							Perent.setRockManager((RockManager)incomingWrap.getObject());
+						}
+						else if(incomingWrap.getType() == NetworkInterface.ROCKHIT)
+						{
+							//System.out.println("ROCKSResponse ->");
+							Perent.setRockHit((Rock[])incomingWrap.getObject());
+						}
+                		else
+                		{
+                			throw new IllegalArgumentException
+                					//("NetworkInterface Class: Net Wrap cannot be converted to "+ incomingWrap.getType());
+                					("("+incomingWrap.getType()+")NetWrap is in invalid");
+                		}
 					}
 				}
 				catch(Exception e2)
 				{
 					Perent.setError("Listen4connect = new Thread "+e2.toString());
 					System.out.println("Listen4connect = new Thread "+e2.toString()); 
+					e2.printStackTrace();
 				}
 		    }
 		});
@@ -363,6 +424,8 @@ public class NetworkInterface
 	                		}
 	                		else if(incomingData.equals(Perent.version()))
 	                		{
+	                			addIP(incomingPacket.getAddress());
+	                			
 	                			System.out.println(Perent.version()+" : "+incomingPacket.getAddress().toString());
 
 	                			Send2NetWap(

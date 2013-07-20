@@ -5,7 +5,7 @@ import processing.core.PApplet;
 public class DefenderShot
 { 
 	private float heading;
-	private int[] xy;
+	private float[] xy;
 
 	public static final int SIZE = 4;
 	public static final float speed = 10;
@@ -15,18 +15,18 @@ public class DefenderShot
 	private short myCount;
 	private final String IP;
 	
-	public DefenderShot(float heading, int x1, int y1)
+	public DefenderShot(float heading, float x1, float y1)
 	{
 		this(heading, x1, y1, "Address Not Set");
 	}
-	public DefenderShot(float heading, int x1, int y1, String inputIP)
+	public DefenderShot(float heading, float x1, float y1, String inputIP)
 	{
 		count++;
 		myCount = count;
 		IP = inputIP;
 		TTL = 25;
 		this.heading = heading;
-		xy = new int[]{x1,y1};
+		xy = new float[]{x1,y1};
 	}
 	
 	public void move()
@@ -46,12 +46,12 @@ public class DefenderShot
 		return heading;
 	}
 	
-	public int[] getXY()
+	public float[] getXY()
 	{
 		return xy;
 	}
 
-	public void setXY(int[] inputXY)
+	public void setXY(float[] inputXY)
 	{
 		xy = inputXY;
 	}

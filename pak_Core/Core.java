@@ -5,7 +5,6 @@ package pak_Core;
  
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-//import java.util.Random;
 import processing.core.*;
 import pak_Display.*;
 import pak_Net.*;
@@ -35,7 +34,7 @@ public class Core
 		System.out.println("Core..");
 			//1st
 			perent = inputPerent;
-			version = "019c";
+			version = "";
 			Title = "Astro-MultiX";
 			userName = System.getProperty("user.name");
 			Error = "";
@@ -134,7 +133,7 @@ public class Core
 	{
 		return Title + " " + version;
 	}
-	
+	/*
 	public void addScore(int points)
 	{
 		myGame.addScore(points);
@@ -144,7 +143,7 @@ public class Core
 	{
 		return myGame.getScore();
 	}
-	
+	*/
 	public void updateNet(boolean Incoming)
 	{
 		myGame.updateNet(Incoming);
@@ -181,13 +180,33 @@ public class Core
 		net.Send2NetWap(Address,objToSend,Type,returnThis);
 	}
 	
-	public InetAddress HitTest(int[] fireXY)
+	public boolean HitTest(float[] fireXY)
 	{
-		return myGame.HitTest(new DefenderShot(0,fireXY[0],fireXY[1]));
+		return myGame.HitTest(fireXY);
 	}
+	
 	public void SendShotRemove(String id)
 	{
 		net.SendShotRemove(id);
 	}
-	
+	public RockManager getRockManager()
+	{
+		return myGame.getRockManager();
+	}
+	public void setRockManager(RockManager inputRockManager)
+	{
+		myGame.setRockManager(inputRockManager);
+	}
+	public void SendRockManager(RockManager inputRockManager)
+	{
+		net.Send2NetWap(LocalAddress, inputRockManager, NetworkInterface.ROCKSResponse, false);
+	}
+	public void SendRockHit(Rock[] twoRocks)
+	{
+		net.Send2NetWap(LocalAddress, twoRocks, NetworkInterface.ROCKHIT, false);
+	}
+	public void setRockHit(Rock[] twoRocks)
+	{
+		myGame.setRockHit(twoRocks);
+	}
 }

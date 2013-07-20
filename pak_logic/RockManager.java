@@ -1,5 +1,6 @@
 package pak_logic;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -7,30 +8,47 @@ import pak_Display.DefenderShot;
 import pak_Display.Level;
 import pak_Display.Rock;
 import processing.core.PApplet;
+import processing.core.PFont;
 
-public class RockManager
+public class RockManager implements Serializable
 {
+	private static final long serialVersionUID = 1L;
 	private ArrayList<Rock> arrayRocks;
-	private Level Perent;
-	private PApplet Display;
+	private transient PApplet Display;
 	private int deadRocksNum;
+	private transient Level Perent;
+	//private PFont fontX;
 	
-	public RockManager(Level inputPerent, PApplet inputDisplay)
+	public RockManager(Level inputPerent,PApplet inputDisplay)
 	{
-		
+		System.out.print("RockManager");
 		Perent = inputPerent;
 		Display = inputDisplay;
+		//fontX = Display.loadFont("ArialNarrow-12.vlw"); 
 		deadRocksNum = 0;
 		arrayRocks = new ArrayList<Rock>();
 		creatRocks();
+		System.out.println("Done");
 
 	}
+	
+	public void reBuild(Level inputPerent, PApplet inputDisplay)
+	{
+		Perent = inputPerent;
+		Display = inputDisplay;
+		
+		for(Rock rock: arrayRocks)
+		{
+			rock.reBuild(this,Display);
+		}
+	}
+	
 	public void creatRocks()
 	{
 		arrayRocks.clear();
 		Random generator = new Random();
-		int rn = generator.nextInt(10)+5;//5 to 15
-		
+		int rn = generator.nextInt(5)+5;//5 to 10
+		//rn = 1;
 		for(int count =0; count < rn; count++)
 		{
 			arrayRocks.add(new Rock(this,Display));
@@ -39,16 +57,20 @@ public class RockManager
 	
 	public void draw()
 	{
-		for(Rock rock: arrayRocks)
+		for(Rock rock: arrayRocks)//ConcurrentModificationException Need to fix
 		{
 			rock.draw();
 		}
+	}
+	public boolean hitTest(float[] inputXY, boolean takeAction)
+	{
+		return hitTest(new DefenderShot(0,(int)inputXY[0],(int)inputXY[1],""),takeAction);
 	}
 	
 	public boolean hitTest(DefenderShot fire, boolean takeAction)
 	{
 		float[] rockXY;
-		int[] XY = fire.getXY();
+		float[] XY = fire.getXY();
 		boolean boolHit = false;
 		
 		for(Rock rock: arrayRocks)
@@ -64,6 +86,7 @@ public class RockManager
 				{
 					fire.kill();
 					rock.downSize();
+					boolHit = true;
 					
 					if(rock.getSize() != Rock.DELETE)
 					{
@@ -71,12 +94,19 @@ public class RockManager
 						myRock.setSize(rock.getSize());
 						myRock.setXY(rock.getXY());
 						arrayRocks.add(myRock);
-						boolHit = true;
+						//System.out.println("rocks:" + arrayRocks.size());
+						
+						//Perent.SendRockHit(new Rock[]{rock, myRock});
+						Perent.SendRockManager();
 						break;
 					}
-					else if(arrayRocks.size() == deadRocksNum)// && rock.delete is ture
+					else if(arrayRocks.size()-1 == deadRocksNum)// && rock.delete is ture
 					{
+						//You hit the last one
 						creatRocks();
+						//send every one the new rocks
+						Perent.SendRockManager();
+						break;
 					}
 					else//if(rock.delete == ture)
 					{
@@ -89,13 +119,49 @@ public class RockManager
 		return boolHit;
 	}
 
-	public Random getRandom()
-	{
-		return Perent.getRandom();
-	}
 	
 	public float[] spaceReset_Float(float[] XY)
 	{
-		return Perent.spaceReset_Float(XY);
+		//try
+		//{
+			if(XY[0]<0)
+			{	XY[0] = Display.width;	}
+			else if(XY[0]>Display.width)
+			{	XY[0] = 0; 	}
+			
+			if(XY[1]<0)
+			{	XY[1] = Display.height;	}
+			else if(XY[1]>Display.height)
+			{	XY[1] = 0;	}
+		//}
+		//catch(NullPointerException nu)
+		//{
+		//	nu.printStackTrace();
+		//}
+		
+		return XY;
 	}
+	
+	public void setRockHit(Rock[] twoRocks)
+	{
+		twoRocks[0].reBuild(this,Display);
+		twoRocks[1].reBuild(this,Display);
+		
+		for(Rock rock: arrayRocks)
+		{
+			if(rock.getID() == twoRocks[0].getID())
+			{
+				rock = twoRocks[0];
+				arrayRocks.add(twoRocks[1]);
+				break;
+			}
+			
+		}
+	}/*
+	public void txt(String inputText,int gray)
+	{
+		Display.fill(gray);
+		Display.textFont(fontX, 16);
+		Display.text(inputText.trim());
+	}*/
 }

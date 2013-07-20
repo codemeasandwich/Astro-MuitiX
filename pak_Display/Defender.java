@@ -22,6 +22,7 @@ public class Defender implements Serializable
 	private float rotate;
 	private float shipXY[];
 	private float shipScale;
+	private int hitArea;
 	private transient ArrayList<DefenderShot> arrayShots;
 	private boolean shipScaleGrow;
 	private boolean isFake;
@@ -51,6 +52,7 @@ public class Defender implements Serializable
 		shipXY = new float[]{perent.getRandom().nextInt(Display.getWidth()),
 							 perent.getRandom().nextInt(Display.getHeight())};
 
+		hitArea		  = 15;
 		drift 	 	  = 0.0f;
 		heading 	  = 1.570796325f;
 		stepsize 	  = 1.5f;
@@ -88,8 +90,10 @@ public class Defender implements Serializable
 	{
 		return  "Defender";
 	}
+	
 	public void ReSpawnDefender()
 	{
+		perent.playSound(Sound.ALIVE);
 		model.ReSpawn();
 	}
 	
@@ -111,7 +115,7 @@ public class Defender implements Serializable
 		if(!arrayShots.isEmpty() && arrayShots.get(0).getTTL()<1)
 		{	arrayShots.remove(0);  }
 		
-		int[] fireXY;
+		float[] fireXY;
 		DefenderShot fire;
 		
 		for(int count = 0; count<arrayShots.size(); count++)
@@ -120,11 +124,11 @@ public class Defender implements Serializable
 			if(fire.getTTL() != 0)
 			{
 				fireXY = fire.getXY();
-				fire.setXY(perent.spaceReset_Int(fire.getXY()));
+				fire.setXY(perent.spaceReset_Float(fire.getXY()));
 				Display.ellipse(fireXY[0], fireXY[1], DefenderShot.SIZE, DefenderShot.SIZE);
 				fire.move();
 				
-				InetAddress hit = perent.HitTest(fire);
+				InetAddress hit = perent.HitTestAllShips(fire);
 				
 				if(null !=hit && !hit.equals(ID))
 				{
@@ -138,10 +142,15 @@ public class Defender implements Serializable
 	
 	private void drawShip()
 	{		
+		if(!isFake && !model.isDead() && perent.ShipSmashTest(shipXY))
+		{
+			perent.killDefender();
+		}
+		
 		Display.pushMatrix();
 		
 			Display.translate(shipXY[0],shipXY[1]);
-			
+			//showXYZ();
 			if(shipScaleGrow)
 			{
 				if(shipScale<5)
@@ -187,13 +196,13 @@ public class Defender implements Serializable
 		perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading,drift);
 	}
 	
-	public boolean HitTest(int[] fireXY)
+	public boolean HitTest(float[] fireXY)
 	{
 		if(!model.isDead() &&
-			shipXY[0]+15 > fireXY[0] && 
-			shipXY[0]-15 < fireXY[0] &&	
-			shipXY[1]+15 > fireXY[1] && 
-			shipXY[1]-15 < fireXY[1])
+			shipXY[0]+hitArea > fireXY[0] && 
+			shipXY[0]-hitArea < fireXY[0] &&	
+			shipXY[1]+hitArea > fireXY[1] && 
+			shipXY[1]-hitArea < fireXY[1])
 		{
 			return true;
 		}
@@ -233,16 +242,20 @@ public class Defender implements Serializable
 	{
 		if(!model.isDead())
 		{
-			if(perent.getScore()>0)
-			{
-				perent.addScore(-1);
+			//if(perent.getScore()>0)
+			//{
+			//	perent.addScore(-1);
+			perent.playSound(Sound.SHOOT);
 				arrayShots.add(new DefenderShot(heading,(int)shipXY[0],(int)shipXY[1]));
 				perent.SendShotLocation((int)shipXY[0], (int)shipXY[1], heading);
-			}
+		//	}
 		}
 		else if(model.KeyBoardSpawn())
 		{
+			shipXY = new float[]{perent.getRandom().nextInt(Display.getWidth()),
+					 perent.getRandom().nextInt(Display.getHeight())};
 			model.ReSpawn();
+			perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading,drift);
 			perent.sendSocketMessage(ID, null, NetworkInterface.SHIPALIVE, false);
 		}
 	}
@@ -252,6 +265,7 @@ public class Defender implements Serializable
 	}
 	public void killDefender()
 	{
+		perent.playSound(Sound.KILLED);
 		model.setKilled();
 		drift = 0;
 		if(!isFake)
@@ -283,8 +297,24 @@ public class Defender implements Serializable
 		return heading;
 	}
 	
+	public float getDrift()
+	{
+		return drift;
+	}
+	
 	public void setHeading(float inputHeading)
 	{
 		heading = inputHeading;
+	}
+	
+	private void showXYZ()
+	{
+		Display.stroke(255,0,0);
+		Display.line(-40, 0, 0, 40, 0, 0); //X is red
+		Display.stroke(0,255,0);
+		Display.line(0, -40, 0, 0, 40, 0); //Y is green
+		Display.stroke(0,0,255);
+		Display.line(0, 0, -40, 0, 0, 40); //Z is Blue
+		Display.stroke(0);
 	}
 }

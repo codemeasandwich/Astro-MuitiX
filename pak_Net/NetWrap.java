@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 public class NetWrap implements Serializable
 {
-
 	private static final long serialVersionUID = 1L;
 	Object aObject;
 	byte type;
@@ -14,6 +13,7 @@ public class NetWrap implements Serializable
 	{
 		this(inputObject, inputType, false);
 	}
+	
 	public NetWrap(Object inputObject, byte inputType, boolean inputToReturn)
 	{
 		aObject = inputObject;

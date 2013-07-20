@@ -1,12 +1,11 @@
 package pak_Display;
 
 import processing.core.PApplet;
-//import processing.core.PFont;
-//import pak_Core.Core;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Random;
 
+import pak_Net.NetworkInterface;
 import pak_logic.*;
 
 public class Level
@@ -16,24 +15,21 @@ public class Level
 
 	private ArrayList<DefenderShot> arrayShots;
 	private ArrayList<Defender> arrayDefender;
-	//private ArrayList<Rock> arrayRock;
 	private RockManager myRockManager;
 	
 	public Level(Game inputPerent, PApplet inputDisplay)
 	{		
-		System.out.print("Level:");
+		System.out.println("Level..");
 		
 		Perent        = inputPerent;
 		Display       = inputDisplay;
 		arrayDefender = new ArrayList<Defender>();
 		arrayShots    = new ArrayList<DefenderShot>();
-		//arrayRock	  = new ArrayList<Rock>();
-		//createRock();
-		myRockManager = new RockManager(this, Display);
-		System.out.println("Done");
+		myRockManager = new RockManager(this,Display);
+		System.out.println("Level..Done");
 	}
 	
-	public InetAddress HitTest(DefenderShot fire)//Im not synchroning this because there is no change
+	public InetAddress HitTest(DefenderShot fire)//Im not synchroning this because there is no change made to Array
 	{
 		InetAddress Addr = null;
 		for (Defender Spaceship: arrayDefender)
@@ -49,14 +45,37 @@ public class Level
 		return Addr;
 	}
 	
+	public boolean ShipSmashTest(float[] inputXY)
+	{
+		boolean hit = false;
+		
+		for (Defender Spaceship: arrayDefender)
+		{	
+			if(Spaceship.HitTest(inputXY) && !Spaceship.getID().equals(Perent.getDefender().getID()))
+			{
+				hit = true;
+				Perent.sendSocketMessage(Spaceship.getID(),inputXY,NetworkInterface.HIT_TEST,true);
+				break;
+			}
+		}
+		if(!hit)
+		{
+			if(myRockManager.hitTest(inputXY, true))
+			{
+				hit = true;
+			}
+		}
+		return hit;
+	}
+	
 	public void draw()
 	{	
 		Display.pushMatrix();
 		
-		Display.fill(255);
-		Display.textAlign(PApplet.LEFT);
-		Display.textFont(Perent.getFont('B'), 18);
-		Display.text("score: "+Perent.getScore(), 20, 20);
+		//Display.fill(255);
+		//Display.textAlign(PApplet.LEFT);
+		//Display.textFont(Perent.getFont('B'), 18);
+		//Display.text("score: "+Perent.getScore(), 20, 20);
 		
 		Display.rotateX(0.4f);
 		Display.translate(0,-80,-150);
@@ -83,11 +102,11 @@ public class Level
 			Display.fill(255);
 		
 
-			int[] fireXY;
+			float[] fireXY;
 			for (DefenderShot fire: arrayShots)
 			{
 				fireXY = fire.getXY();
-					fire.setXY(Perent.spaceReset_Int(fire.getXY()));
+					fire.setXY(Perent.spaceReset_Float(fire.getXY()));
 					Display.ellipse(
 							fireXY[0], 
 							fireXY[1], 
@@ -103,12 +122,7 @@ public class Level
 	{
 		return Perent.getRandom();
 	}
-	/*
-	public int getRandom(int range)
-	{
-		return Perent.getRandom(range);
-	}
-	*/
+	
 	public void addDefender(Defender inputDefender)
 	{
 		synchronized (arrayDefender)
@@ -127,6 +141,30 @@ public class Level
 				Spaceship.killDefender();
 			}
 		}
+	}
+	
+	public void SendRockManager()
+	{
+		Perent.SendRockManager(myRockManager);
+	}
+	
+	public void SendRockHit(Rock[] twoRocks)
+	{
+		Perent.SendRockHit(twoRocks);
+	}
+	
+	public RockManager getRockManager()
+	{
+		return myRockManager;
+	}
+	public void setRockManager(RockManager inputRockManager)
+	{
+		myRockManager = inputRockManager;
+		myRockManager.reBuild(this,Display);
+	}
+	public void setRockHit(Rock[] twoRocks)
+	{
+		myRockManager.setRockHit(twoRocks);
 	}
 	 
 	public void ReSpawnDefender(InetAddress ID)
