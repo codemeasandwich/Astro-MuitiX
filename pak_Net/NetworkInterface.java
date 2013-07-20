@@ -16,7 +16,6 @@ import pak_Core.Core;
 public class NetworkInterface
 {
 	private MulticastSocket broadcastSocket;
-	private MulticastSocket broadcastGameSocket;
 	private Core Perent;
 	private Thread ListenThread;
 	private InetAddress netGroup;
@@ -25,11 +24,12 @@ public class NetworkInterface
 	private String SendShotLocation_ID;
 	private String lastDefenderLocation;
 	private boolean error;
-	
 	private Thread Thread4ReturnShip;
 	private Thread Thread4SendShip;
 	private ServerSocket ServerSocket4ReturnShip;
 	private Socket incomingListen2User;
+	private String[] aLiveNames;
+	private boolean[] aLiveBool;
 	
 	public NetworkInterface(Core inputPerent)
 	{
@@ -42,7 +42,7 @@ public class NetworkInterface
 			 SendShotLocation_ID = "shot:";
 			 lastDefenderLocation = "";
 			netGroup = InetAddress.getByName(Core.GroupIP);
-			broadcastSocket = new MulticastSocket(Core.PublicMulticastPort);//send & recive on this
+			broadcastSocket = new MulticastSocket(Core.GroupPort);//send & recive on this
 			broadcastSocket.joinGroup(netGroup);
 			ServerSocket4ReturnShip = new ServerSocket(Core.socketPort);
 
@@ -56,9 +56,15 @@ public class NetworkInterface
 		 Listen4broadcasts();
 		 Listen4Sockets();
 		 sent(Perent.version());
+		 
 	}
 	
-	public void SendDefenderLocation(int x, int y, float heading)
+	public void aLiveTest()
+	{
+		
+	}
+	
+	public void SendDefenderLocation(int x, int y, float heading, float drift)
 	{
 			Location = new StringBuilder();
 			Location.append(SendDefenderLocation_ID);
@@ -66,7 +72,15 @@ public class NetworkInterface
 			Location.append(":");
 			Location.append(y);
 			Location.append(":");
-			Location.append((String.valueOf(heading)).substring(0, 4));//0.49
+			if(String.valueOf(heading).length()>7)
+				Location.append((String.valueOf(heading)).substring(0, 7));
+			else
+				Location.append(String.valueOf(heading));
+			Location.append(":");
+			if(String.valueOf(drift).length()>7)
+				Location.append((String.valueOf(drift)).substring(0, 7));
+			else
+				Location.append(String.valueOf(drift));
 			
 			//with in the rounding of numbers it may not show any change
 			if(false == lastDefenderLocation.equals(Location.toString()))
@@ -92,22 +106,23 @@ public class NetworkInterface
 	{
 		if(!error)
 		{
-			try
-			 {
-				 DatagramPacket Message = new DatagramPacket(
-						 ver.getBytes(), 
-						 ver.length(), 
-						 netGroup,
-						 Perent.getGameMulticastPort());
-				 broadcastSocket.send(Message);
-			 }
-			 catch (IOException e) 
-			 {
-				 System.out.println("Sending broadcast"+e.toString());
-				 error = true;
-			 }
+		try
+		 {
+			 DatagramPacket Message = new DatagramPacket(
+					 ver.getBytes(), 
+					 ver.length(), 
+					 netGroup,
+					 Core.GroupPort);
+			 broadcastSocket.send(Message);
+		 }
+		 catch (IOException e) 
+		 {
+			 System.out.println("Sending broadcast"+e.toString());
+			 error = true;
+		 }
 		}
 	}
+	
 	
 	//====================================================
 	
@@ -151,10 +166,6 @@ public class NetworkInterface
 		});
 		Thread4ReturnShip.start();
 	}
-	private void Listen4Gamebroadcasts()
-	{
-		
-	}
 	
 	private void Listen4broadcasts()
 	{
@@ -178,7 +189,7 @@ public class NetworkInterface
 	                	if(false == incomingPacket.getAddress().toString().equals(Perent.getLocalAddress()))
 	                	{
 	                		Perent.updateNet(true);
-	                		/*
+	                		
 	                		if(incomingData.startsWith(SendDefenderLocation_ID))
 	                		{
 	                			//incomingData ship: x : y : heading
@@ -192,20 +203,11 @@ public class NetworkInterface
 	                			String[] inputLocation = incomingData.split(":");
 	                			inputLocation[0] = incomingPacket.getAddress().toString();
 	                			Perent.ReceiveShotLocation(inputLocation);
-	                		}*/
-	                		if(incomingData.startsWith("PCNum"))
-	                		{
-	                			int port = Integer.parseInt((incomingData.split(":"))[1]);
-	                			if(port>=Perent.getPCNum())
-	                			{
-	                				Perent.setPCNum(port++);
-	                			}
 	                		}
 	                		else if(incomingData.equals(Perent.version()))
 	                		{
 	                			System.out.println(Perent.version()+" : "+incomingPacket.getAddress().toString());
-	                			sent("PCNum:"+Perent.getPCNum());
-	                			//SendShip(incomingPacket.getAddress(),true);
+	                			SendShip(incomingPacket.getAddress(),true);
 		            		}
 	                	}
 	                	else

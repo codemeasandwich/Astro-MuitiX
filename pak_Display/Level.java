@@ -10,7 +10,6 @@ public class Level
 {
 	private PApplet Display;
 	private Game Perent;
-	private boolean inGame;
 
 	private ArrayList<DefenderShot> arrayShots;
 	private ArrayList<Defender> arrayDefender;
@@ -18,38 +17,45 @@ public class Level
 	
 	public Level(Game inputPerent, PApplet inputDisplay)
 	{		
-		inGame 		  = false;
 		Perent        = inputPerent;
 		Display       = inputDisplay;
 		arrayDefender = new ArrayList<Defender>();
 		arrayShots    = new ArrayList<DefenderShot>();
+		//fontB = inputDisplay.loadFont("BlueHighwayBold-18.vlw");
+	}
+	
+	public String HitTest(int[] fireXY)
+	{
+		for (Defender Spaceship: arrayDefender)
+		{	
+			int[] XY = Spaceship.getXY();
+			
+			if( XY[0]+13 > fireXY[0] && 
+				XY[0]-13 < fireXY[0] &&	
+				XY[1]+13 > fireXY[1] && 
+				XY[1]-13 < fireXY[1])
+			{
+				return Spaceship.getID();
+			}
+		}
+		return "";
 	}
 	
 	public void draw()
-	{
+	{	
 		Display.pushMatrix();
-
-		if(inGame)
-		{
-			Display.fill(255);
-			Display.textAlign(PApplet.LEFT);
-			Display.textFont(Perent.getFont('B'), 18);
-			Display.text("score: "+Perent.getScore(), 20, 20);
-		}
+		Display.background(0);
+		
+		Display.fill(255);
+		Display.textAlign(PApplet.LEFT);
+		Display.textFont(Perent.getFont('B'), 18);
+		Display.text("score: "+Perent.getScore(), 20, 20);
 		
 		Display.rotateX(0.4f);
 		Display.translate(0,-80,-150);
+		
 		drawGameBorde();
 		
-		if(inGame)
-		{
-			inGamedraw();
-		}
-		Display.popMatrix();
-	}
-	
-	private void inGamedraw()
-	{	
 		for (Defender Spaceship: arrayDefender)
 		{	Spaceship.draw();}
 		
@@ -60,28 +66,34 @@ public class Level
 		
 		synchronized (arrayShots)
 		{
+			int[] fireXY;
 			for (DefenderShot fire: arrayShots)
 			{
+				fireXY = fire.getXY();
 					fire.setXY(Perent.spaceReset_Int(fire.getXY()));
 					Display.ellipse(
-							fire.getXY()[0], 
-							fire.getXY()[1], 
+							fireXY[0], 
+							fireXY[1], 
 							DefenderShot.SIZE, 
 							DefenderShot.SIZE);
 					fire.move();
+					/*
+					for (Defender Spaceship: arrayDefender)
+					{	
+						int[] XY = Spaceship.getXY();
+						if(XY[0] == fireXY[0] && XY[1] == fireXY[1])
+						{
+							System.out.println("Hit:"+Spaceship.getID());
+						}
+					}*/
 			}
 		}
-		
+		Display.popMatrix();
 	}
 	
 	public void addDefender(Defender inputDefender)
 	{
 		arrayDefender.add(inputDefender);
-	}
-	
-	public void setInGame(boolean val)
-	{
-		inGame = val;
 	}
 	
 	public synchronized void addShot(String[] inputLocation)
@@ -103,6 +115,7 @@ public class Level
 			{
 				Spaceship.setXY(new int[]{Integer.parseInt(inputLocation[1]),Integer.parseInt(inputLocation[2])});
 				Spaceship.setHeading(Float.parseFloat(inputLocation[3]));
+				Spaceship.setDrift(Float.parseFloat(inputLocation[4]));
 			}
 		}
 	}

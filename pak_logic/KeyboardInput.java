@@ -54,8 +54,7 @@ public class KeyboardInput
 		break;
 		
 		case(112)://F1
-			perent.showMenuToggle();
-			foundKey = true;
+			System.exit(1);
 		break;
 		
 		}

@@ -5,7 +5,6 @@ import java.util.Random;
 import pak_Core.Core;
 import pak_Display.Defender;
 import pak_Display.Level;
-import pak_Gui.Menu;
 import processing.core.PApplet;
 import processing.core.PFont;
 
@@ -20,33 +19,27 @@ public class Game
 	private PFont fontA,fontB,fontC;
 	private byte[] netIn;
 	private byte[] netOut;
-	private boolean Menushow;
-	private Menu mainMenu;
 	private int crazyLandCount;
 	private float[] crazyRotate;
-	private String myGameName;
+	private String message;
 	
 	public Game(Core inputPerent, PApplet inputDisplay)
 	{
 		Perent = inputPerent;
 		Display = inputDisplay;
-		
 		rn = new Random();
-		
 		score = 100;
 		netIn = new byte[50];
 		netOut = new byte[50];
 		crazyRotate = new float[]{100,100,100};
-		Menushow = true;
 		crazyLandCount = 0;
-		myGameName = "";
+		message ="";
 		
 		fontA = Display.loadFont("Silkscreen-16.vlw");
 		fontB = inputDisplay.loadFont("BlueHighwayBold-18.vlw");
 		fontC = inputDisplay.loadFont("Swinkydad-42.vlw");
 		Display.textFont(fontA, 18);
 		
-		mainMenu = new Menu(this, Display);
 		myDefender = new Defender(this, Display,Perent.getLocalAddress());
 		myLevel = new Level(this, Display);
 		
@@ -56,44 +49,13 @@ public class Game
 	
 	public void draw()
 	{
-		Display.background(0);
-		Display.stroke(255,255,0);
-		Display.line(Display.width/2,0,Display.width/2,Display.height);
-		Display.line(0,Display.height/2,Display.width,Display.height/2);
-		
-		if(Menushow)
-		{Display.pushMatrix();
-		 crazyLand();}
-		
-				myLevel.draw();
-			
-		if(Menushow)
-		{Display.popMatrix();}
+		myLevel.draw();
 		
 		drawNet();
-		
+		 myName();
 		//if the score is around 5 give a shot ever 5 sec
 		if(5>score && (Display.frameCount %(2*Display.frameRate))< 1)
 		{		score++;		}
-		
-		mainMenu.draw();
-	}
-	
-	public void setGameName(String Name)
-	{
-		myGameName = Name;
-		startGame();
-		
-	}
-	public String getGameName()
-	{
-		return myGameName;
-	}
-	
-	private void startGame()
-	{
-		Perent.refreshGameMulticastPort();
-		myLevel.setInGame(true);
 	}
 	
 	public int[] spaceReset_Int(int[] XY)
@@ -130,9 +92,9 @@ public class Game
 		myLevel.addDefender(inputDefender);
 	}
 	
-	public void SendDefenderLocation(int x, int y, float heading)
+	public void SendDefenderLocation(int x, int y, float heading, float drift)
 	{
-		Perent.SendDefenderLocation(x, y, heading);
+		Perent.SendDefenderLocation(x, y, heading ,drift);
 	}
 	public void ReceiveDefenderLocation(String[] inputLocation)
 	{
@@ -181,35 +143,12 @@ public class Game
 		{	updateNetOutgoing();	}
 	}
 	
-	public boolean showMenuToggle()
-	{
-		return setMenuVisible(!Menushow);
-	}
-	
-	public boolean setMenuVisible(boolean val)
-	{
-		if(val)
-		{
-			crazyLandCount = 0;
-			crazyRotate = new float[]{
-					(getRandom(500)-250),
-					(getRandom(500)-250),
-					(getRandom(500)-250)};
-		}
-		
-		Menushow = val;
-		mainMenu.setVisible(val);
-		
-		return Menushow;
-	}
-	
 	public PFont getFont(char type)
 	{
 		type = Character.toUpperCase(type);
 		PFont toReturn;
 		switch(type)
 		{
-		
 			case 'A':
 				toReturn = fontA;
 			break;
@@ -288,5 +227,20 @@ public class Game
 		Display.rotateY(crazyLandCount/crazyRotate[1]);
 		Display.rotateX(crazyLandCount/crazyRotate[2]);
 		Display.translate(-Display.width/2,-Display.height/2);
+	}
+	private void myName()
+	{
+		Display.pushMatrix();
+			Display.fill(255,255,0,125);
+			Display.translate(Display.width - 20, Display.height/2);
+			Display.rotateZ(1.570796325f);
+			Display.textAlign(PApplet.CENTER);
+			Display.textFont(getFont('C'), 42);
+			Display.text("07127154 NDS07",0,0);
+		Display.popMatrix();
+	}
+	public String HitTest(int[] fireXY)
+	{
+		return myLevel.HitTest(fireXY);
 	}
 }
