@@ -54,8 +54,8 @@ public class Level
 
 		Display.fill(255);
 		
-		//synchronized (arrayShots)
-	//	{
+		synchronized (arrayShots)
+		{
 			for (DefenderShot fire: arrayShots)
 			{
 					fire.setXY(Perent.spaceReset_Int(fire.getXY()));
@@ -66,7 +66,7 @@ public class Level
 							DefenderShot.SIZE);
 					fire.move();
 			}
-	//	}
+		}
 		
 		//if the score is around 5 give a shot ever 5 sec
 		if(5>score && (Display.frameCount %(2*Display.frameRate))< 1)
@@ -80,7 +80,7 @@ public class Level
 		arrayDefender.add(inputDefender);
 	}
 	
-	public /*synchronized*/ void addShot(String[] inputLocation)
+	public synchronized void addShot(String[] inputLocation)
 	{
 		arrayShots.add(
 				new DefenderShot(
@@ -93,12 +93,10 @@ public class Level
 	public void updateDefender(String[] inputLocation)
 	{
 		//inputLocation [0]=ID [1]=X  [2]=Y  [3]=heading
-		
 		for(Defender Spaceship: arrayDefender)
 		{
-			if(Spaceship.getID().equals(inputLocation[0]))//.toString().equals(inputLocation[0]))
+			if(Spaceship.getID().equals(inputLocation[0]))
 			{
-				//Spaceship.setXY(new String[]{});
 				Spaceship.setXY(new int[]{Integer.parseInt(inputLocation[1]),Integer.parseInt(inputLocation[2])});
 				Spaceship.setHeading(Float.parseFloat(inputLocation[3]));
 			}

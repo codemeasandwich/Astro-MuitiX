@@ -10,13 +10,22 @@ import processing.core.PApplet;
 import java.io.File;
 import java.util.ArrayList;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+
 public class DefenderModel implements Serializable
 {
 
 	private static final long serialVersionUID = 1L;
 	private transient PApplet Display;
 	//private Defender Perent;
-	private final String modelFileName;
+	private final String modelFileName = "shipModel.xml";
 	private boolean killed;
 	private String comment;
 	private boolean drawLines;
@@ -30,7 +39,7 @@ public class DefenderModel implements Serializable
  
 	//New Ship=============================
 	private byte[/*num of cells*/][/*num of points*/][/*xyz*/] shipCells_int;
-	//private int[/*num of Jets*/][/*num of points*/][/*xyz*/] shipJets_int;
+	private byte[/*num of Jets*/][/*num of states*/][/*num of points*/][/*xyz*/] shipJets_int;
 	
 	public void reBuild(PApplet inputDisplay)
 	{
@@ -47,12 +56,14 @@ public class DefenderModel implements Serializable
 		shipCells_int = new byte[0][0][0];
 		//shipJets_int = new int[0][0][0];
 		colour = new short[4];
-		modelFileName = new String("ship.data");
-		
+		shipCells_int = loadModelXML("data/"+modelFileName);
 		explosionCount = 0;
 		killed = false;
-		
-		loadModelFile();
+	}
+	
+	public void reDraw()
+	{
+		colour[3] = 255;
 	}
 	
 	private void DefaultModelFile()
@@ -79,20 +90,121 @@ public class DefenderModel implements Serializable
 		explosionNums = new float[4][5];
 	}
 	
+	private byte[][][] loadModelXML(String xmlFileName)
+	{
+		byte[/*num of cells*/][/*num of points*/][/*xyz*/] mobelCells = new byte[0][0][0];
+		colour = new short[]{255,0,0,255};
+		 try
+		 {	//http://java.sun.com/developer/technicalArticles/xml/validationxpath/
+			 DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+			 DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+			 Document doc = docBuilder.parse(new File(xmlFileName));
+			
+			 doc.getDocumentElement().normalize ();
+			 NodeList listOfshapes = doc.getElementsByTagName("shape");
+			 
+			 ArrayList<ArrayList> shipCells = new ArrayList<ArrayList>();
+			 
+			 for(int count1=0; listOfshapes.getLength()>count1; count1++)//Loop shapes
+			 {
+				    Node shapeNode = listOfshapes.item(count1);
+				    Element pointsElement = (Element)shapeNode;
+				    
+				    NodeList listOfpoints = pointsElement.getChildNodes();
+				    ArrayList<byte[]> tempArray = new ArrayList<byte[]>(3);
+				    for(int count2 = 0; listOfpoints.getLength()>count2; count2++)//Loop points
+				    {				    	
+				    	Node pointNode = listOfpoints.item(count2);
+				    	if(pointNode.getNodeName().equals("point"))
+				    	{
+				    		String lineVal = pointNode.getAttributes().getNamedItem("xyz").getNodeValue();
+				    		
+							String[] StringVals = lineVal.split(":");
+							byte[] numVals = new byte[]{
+								(byte) Integer.parseInt(StringVals[0]),
+								(byte) Integer.parseInt(StringVals[1]),
+								(byte) Integer.parseInt(StringVals[2])};
+							
+							if(numVals[0]<0 || numVals[0]>20)
+							{
+								throw new IllegalArgumentException(
+										modelFileName + pointNode.getAttributes().getNamedItem("xyz")+" = X must be from 0 to 20 not "+StringVals[0]);
+							}
+							else if(numVals[1]<0 || numVals[1]>30)
+							{
+								throw new IllegalArgumentException(
+										modelFileName + pointNode.getAttributes().getNamedItem("xyz")+" = Y must be from 0 to 30 not "+StringVals[1]);	
+							}
+							else if(numVals[2]<0 || numVals[2]>10)
+							{
+								throw new IllegalArgumentException(
+										modelFileName + pointNode.getAttributes().getNamedItem("xyz")+" = Z must be from 0 to 10 not "+StringVals[2]);
+							}
+							tempArray.add(numVals);
+				    	}//if(point) - END
+				    }//Loop points - END
+				    shipCells.add(tempArray);
+				}//Loop shapes - END
+			 
+			 	//Arraylist to byte[]..
+			 
+			 	mobelCells = new byte[shipCells.size()][0][0];
+				for(int count1 = 0; count1<shipCells.size(); count1++)
+				{
+					ArrayList cell = shipCells.get(count1);
+					mobelCells[count1] = new byte[cell.size()][0];
+					
+					for(int count2 = 0; count2<cell.size();count2++)
+					{
+						byte[] Shape = (byte[])cell.get(count2);
+						
+						mobelCells[count1][count2] = Shape;
+					}
+				}
+				explosionNums = new float[mobelCells.length][5];
+			 
+		 }/*
+		 catch (SAXParseException err)
+		 {
+			 System.out.println ("** Parsing error" + ", line " + err.getLineNumber () + ", uri " + err.getSystemId ());
+			 System.out.println(" " + err.getMessage ());
+	
+		 }
+		 catch (SAXException e)
+		 {
+			 Exception x = e.getException ();
+			 ((x == null) ? e : x).printStackTrace ();
+		 }*/
+		 catch (Exception excep)
+		 {
+			 DefaultModelFile();
+			 System.out.println(excep.toString());
+			 
+		 }/*
+		 catch (Throwable t) 
+		 {
+			 t.printStackTrace();
+		 }*/
+		 //finally
+
+		 return mobelCells;
+
+
+	}
 	private void loadModelFile()
 	{		
 		File modelFile = new File("data/"+modelFileName);
-		ArrayList<ArrayList> shipCells = new ArrayList<ArrayList>();
 		
 		if(modelFile.exists())
 		{
 		    try
 		    {
+		    	int lineCount = 0;
 				String lineVal; 
 				BufferedReader Buffer = new BufferedReader(new FileReader(modelFile));//read in the file to a buffer
 	
 				while ((lineVal = Buffer.readLine()) != null)			//loop true the file while the line being read in is not null
-				{
+				{lineCount++;
 					if(lineVal.startsWith("colour"))
 					{
 						String[] colourArray = lineVal.split(":");
@@ -101,19 +213,22 @@ public class DefenderModel implements Serializable
 						{
 							colour[count] =	new Short(
 									Short.parseShort(colourArray[1+count]));	
-							if(colour[count]<0 || colour[count]>255)
+							if(0>colour[count] || 255<colour[count])
 							{
-								colour[count] = 125;
+								throw new IllegalArgumentException(
+										modelFileName+" Line"+lineCount+"->"+lineVal+" = Must be from 0 to 255 not "+colourArray[1+count]);
 							}
 						}
 						colour[3] = 255;
 					}
 					else if(lineVal.startsWith("#points_start"))
 					{
+						ArrayList<ArrayList> shipCells = new ArrayList<ArrayList>();
 						do
 						{
 						lineVal = Buffer.readLine().trim();//get next line
-						}while(lineVal.startsWith(comment));
+						lineCount++;
+						}while(lineVal.startsWith(comment) || lineVal.equals(""));
 							lineVal = lineVal.split(comment)[0];
 							
 							while(lineVal.equals("#points_end") == false)
@@ -122,23 +237,43 @@ public class DefenderModel implements Serializable
 								
 								while(lineVal.equals("#next") == false) //|| lineVal.equals("#points_end") == false)
 								{
+									
 									String[] StringVals = lineVal.split(":");
 									byte[] numVals = new byte[]{
 										(byte) Integer.parseInt(StringVals[0]),
 										(byte) Integer.parseInt(StringVals[1]),
 										(byte) Integer.parseInt(StringVals[2])};
+									
+									if(numVals[0]<0 || numVals[0]>20)
+									{
+										throw new IllegalArgumentException(
+												modelFileName+" Line"+lineCount+"->"+lineVal+" = X must be from 0 to 20 not "+StringVals[0]);
+									}
+									else if(numVals[1]<0 || numVals[1]>30)
+									{
+										throw new IllegalArgumentException(
+												modelFileName+" Line"+lineCount+"->"+lineVal+" = Y must be from 0 to 30 not "+StringVals[1]);	
+									}
+									else if(numVals[2]<0 || numVals[2]>10)
+									{
+										throw new IllegalArgumentException(
+												modelFileName+" Line"+lineCount+"->"+lineVal+" = Z must be from 0 to 10 not "+StringVals[2]);
+									}
+									
 									tempArray.add(numVals);
 									do
 									{
 									lineVal = Buffer.readLine().trim();//get next line
-									}while(lineVal.startsWith(comment));
+									lineCount++;
+									}while(lineVal.startsWith(comment)|| lineVal.equals(""));
 									lineVal = lineVal.split(comment)[0];
 								}
 								shipCells.add(tempArray);
 								do
 								{
 								lineVal = Buffer.readLine().trim();//get next line
-								}while(lineVal.startsWith(comment));
+								lineCount++;
+								}while(lineVal.startsWith(comment)|| lineVal.equals(""));
 								lineVal = lineVal.split(comment)[0];
 						}
 						//arraylist to int[] ...	
@@ -159,17 +294,49 @@ public class DefenderModel implements Serializable
 								}
 							}
 							explosionNums = new float[shipCells_int.length][5];
-					}
+					}/*
+					else if(lineVal.startsWith("#Drift_start"))
+					{
+						ArrayList<ArrayList> shipJets = new ArrayList<ArrayList>();
+
+						do
+						{
+							do
+							{
+							lineVal = Buffer.readLine().trim();//get next line
+							lineCount++;
+							}while(lineVal.startsWith(comment)|| lineVal.equals(""));
+							
+							if(lineVal.equals("#DS"))
+							{
+								ArrayList[] shipStates = new ArrayList[3];
+								while(false == lineVal.equals("#DS")||false == lineVal.equals("#Drift_end"))
+								{
+									
+									String[] prepostVals = lineVal.split("|");
+									shipStates[0] 
+									String[] StringVals = lineVal.split(prepostVals[0]);
+									byte[] numVals = new byte[]{
+										(byte) Integer.parseInt(StringVals[0]),
+										(byte) Integer.parseInt(StringVals[1]),
+										(byte) Integer.parseInt(StringVals[2])};
+									
+									StringVals = lineVal.split(prepostVals[1]);
+									byte[] numVals2 = new byte[]{
+										(byte) Integer.parseInt(StringVals[0]),
+										(byte) Integer.parseInt(StringVals[1]),
+										(byte) Integer.parseInt(StringVals[2])};
+								}
+							}
+						}
+						while(false == lineVal.equals("#Drift_end"));
+							
+					}*/
 				}
 			}
-			catch(FileNotFoundException null_ex)//file not found
+			catch (Exception except)
 			{
-				System.out.println(null_ex.toString());
-				DefaultModelFile();
-			}
-			catch (IOException e3)
-			{
-				System.out.print(e3.toString());
+				System.out.println(except.toString());
 				DefaultModelFile();
 			}
 		}
@@ -221,9 +388,9 @@ public class DefenderModel implements Serializable
 			if(colour[colour.length - 1]>0)
 			{	colour[colour.length - 1] = (short)(colour[colour.length - 1] - 4);}
 			else
-			{	colour[colour.length - 1] = 0;	}
+			{	colour[colour.length - 1] = 0;	killed = false;}
 
-			explosionCount++;
+			explosionCount+=2;
 		}
 		
 		for(int count1 = 0; count1<shipCells_int.length; count1++)
