@@ -35,7 +35,7 @@ public class Core
 		System.out.println("Core..");
 			//1st
 			perent = inputPerent;
-			version = "015b";
+			version = "019c";
 			Title = "Astro-MultiX";
 			userName = System.getProperty("user.name");
 			Error = "";
@@ -183,7 +183,7 @@ public class Core
 	
 	public InetAddress HitTest(int[] fireXY)
 	{
-		return myGame.HitTest(fireXY);
+		return myGame.HitTest(new DefenderShot(0,fireXY[0],fireXY[1]));
 	}
 	public void SendShotRemove(String id)
 	{

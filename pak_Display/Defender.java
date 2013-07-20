@@ -13,7 +13,7 @@ public class Defender implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	private transient PApplet Display;
-	private transient Game Perent;
+	private transient Game perent;
 	//private String ID;
 	private InetAddress ID;
 	private float drift;
@@ -44,12 +44,12 @@ public class Defender implements Serializable
 	public Defender (Game inputPerent, PApplet inputDisplay, InetAddress inputID)
 	{
 		System.out.println("Defender..");
-		Perent = inputPerent;
+		perent = inputPerent;
 		Display = inputDisplay;
 		ID = inputID;
 		isFake = false;
-		shipXY = new float[]{Perent.getRandom(Display.getWidth()),
-							 Perent.getRandom(Display.getHeight())};
+		shipXY = new float[]{perent.getRandom().nextInt(Display.getWidth()),
+							 perent.getRandom().nextInt(Display.getHeight())};
 
 		drift 	 	  = 0.0f;
 		heading 	  = 1.570796325f;
@@ -68,7 +68,7 @@ public class Defender implements Serializable
 	public void reBuild(Game inputPerent, PApplet inputDisplay)
 	{
 		isFake = true;
-		Perent = inputPerent;
+		perent = inputPerent;
 		Display = inputDisplay;
 		model.reBuild(Display);
 		arrayShots = new ArrayList<DefenderShot>();
@@ -117,18 +117,21 @@ public class Defender implements Serializable
 		for(int count = 0; count<arrayShots.size(); count++)
 		{
 			fire = arrayShots.get(count);
-			fireXY = fire.getXY();
-			fire.setXY(Perent.spaceReset_Int(fire.getXY()));
-			Display.ellipse(fireXY[0], fireXY[1], DefenderShot.SIZE, DefenderShot.SIZE);
-			fire.move();
-			
-			InetAddress hit = Perent.HitTest(fireXY);
-			
-			if(false == (null==hit) && !hit.equals(ID))
+			if(fire.getTTL() != 0)
 			{
-				Perent.sendSocketMessage(hit,fireXY,NetworkInterface.HIT_TEST,true);
-				Perent.SendShotRemove(fire.toString());
-				arrayShots.remove(count);
+				fireXY = fire.getXY();
+				fire.setXY(perent.spaceReset_Int(fire.getXY()));
+				Display.ellipse(fireXY[0], fireXY[1], DefenderShot.SIZE, DefenderShot.SIZE);
+				fire.move();
+				
+				InetAddress hit = perent.HitTest(fire);
+				
+				if(null !=hit && !hit.equals(ID))
+				{
+					perent.sendSocketMessage(hit,fireXY,NetworkInterface.HIT_TEST,true);
+					perent.SendShotRemove(fire.toString());
+					arrayShots.remove(count);
+				}
 			}
 		}
 	}
@@ -176,12 +179,12 @@ public class Defender implements Serializable
 	
 	private void drift()
 	{
-		shipXY = Perent.spaceReset_Float(shipXY);
+		shipXY = perent.spaceReset_Float(shipXY);
 		
 		shipXY[0] -= PApplet.cos(heading)*(stepsize*drift);
 		shipXY[1] -= PApplet.sin(heading)*(stepsize*drift);
 		drift = drift *0.99f;
-		Perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading,drift);
+		perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading,drift);
 	}
 	
 	public boolean HitTest(int[] fireXY)
@@ -199,7 +202,7 @@ public class Defender implements Serializable
 	
 	public void moveDefender(byte inputMove)
 	{
-		shipXY = Perent.spaceReset_Float(shipXY);
+		shipXY = perent.spaceReset_Float(shipXY);
 		
 		if(!model.isDead())
 		{
@@ -222,7 +225,7 @@ public class Defender implements Serializable
 					{ drift += 0.2f; }
 				break;
 			}
-			Perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading,drift);
+			perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading,drift);
 		}
 	}
 	
@@ -230,17 +233,17 @@ public class Defender implements Serializable
 	{
 		if(!model.isDead())
 		{
-			if(Perent.getScore()>0)
+			if(perent.getScore()>0)
 			{
-				Perent.addScore(-1);
+				perent.addScore(-1);
 				arrayShots.add(new DefenderShot(heading,(int)shipXY[0],(int)shipXY[1]));
-				Perent.SendShotLocation((int)shipXY[0], (int)shipXY[1], heading);
+				perent.SendShotLocation((int)shipXY[0], (int)shipXY[1], heading);
 			}
 		}
 		else if(model.KeyBoardSpawn())
 		{
 			model.ReSpawn();
-			Perent.sendSocketMessage(ID, null, NetworkInterface.SHIPALIVE, false);
+			perent.sendSocketMessage(ID, null, NetworkInterface.SHIPALIVE, false);
 		}
 	}
 	public void setDrift(float val)
@@ -252,7 +255,7 @@ public class Defender implements Serializable
 		model.setKilled();
 		drift = 0;
 		if(!isFake)
-		Perent.setMessage("Your KILLED!");
+		perent.setMessage("Your KILLED!");
 	}
 	
 	public boolean isDead()
@@ -262,7 +265,7 @@ public class Defender implements Serializable
 	public void setMessage(String mess)
 	{
 		if(!isFake)
-		Perent.setMessage(mess);
+		perent.setMessage(mess);
 	}
 	
 	public int[] getXY()

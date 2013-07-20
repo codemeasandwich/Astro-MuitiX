@@ -5,6 +5,7 @@ import java.util.Random;
 
 import pak_Core.Core;
 import pak_Display.Defender;
+import pak_Display.DefenderShot;
 import pak_Display.Level;
 import pak_Net.NetworkInterface;
 import processing.core.PApplet;
@@ -16,7 +17,7 @@ public class Game
 	private PApplet Display;
 	private Level myLevel;
 	private Defender myDefender;
-	private Random rn;
+	private Random generator;
 	private int score;
 	private PFont fontA,fontB,fontC,fontD;
 	private byte[] netIn;
@@ -31,7 +32,7 @@ public class Game
 		System.out.println("Game..");
 		Perent = inputPerent;
 		Display = inputDisplay;
-		rn = new Random();
+		generator = new Random();
 		score = 100;
 		txtFade = 255;
 		netIn = new byte[50];
@@ -55,7 +56,8 @@ public class Game
 	
 	public void draw()
 	{
-		
+		//crazyLand();
+		Display.lights();
 		myLevel.draw();
 		
 		drawNet();
@@ -76,15 +78,16 @@ public class Game
 		return myLevel.spaceReset_Float(XY);
 	}
 
-	public int getRandom(int range)
+	public Random getRandom()
 	{
-		return rn.nextInt(range);
+		return generator;
 	}
 	
 	public int getScore()
 	{
 		return score;
 	}
+	
 	public void addScore(int points)
 	{
 		score += points;
@@ -290,9 +293,9 @@ public class Game
 		message = mess;
 	}
 	
-	public InetAddress HitTest(int[] fireXY)
+	public InetAddress HitTest(DefenderShot fire)
 	{
-		return myLevel.HitTest(fireXY);
+		return myLevel.HitTest(fire);
 	}
 	
 	public void sendSocketMessage( 

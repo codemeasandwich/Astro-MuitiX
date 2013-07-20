@@ -5,6 +5,8 @@ import processing.core.PApplet;
 //import pak_Core.Core;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Random;
+
 import pak_logic.*;
 
 public class Level
@@ -14,27 +16,36 @@ public class Level
 
 	private ArrayList<DefenderShot> arrayShots;
 	private ArrayList<Defender> arrayDefender;
+	//private ArrayList<Rock> arrayRock;
+	private RockManager myRockManager;
 	
 	public Level(Game inputPerent, PApplet inputDisplay)
 	{		
 		System.out.print("Level:");
+		
 		Perent        = inputPerent;
 		Display       = inputDisplay;
 		arrayDefender = new ArrayList<Defender>();
 		arrayShots    = new ArrayList<DefenderShot>();
+		//arrayRock	  = new ArrayList<Rock>();
+		//createRock();
+		myRockManager = new RockManager(this, Display);
 		System.out.println("Done");
 	}
 	
-	public InetAddress HitTest(int[] fireXY)//Im not synchroning this because there is no change
+	public InetAddress HitTest(DefenderShot fire)//Im not synchroning this because there is no change
 	{
 		InetAddress Addr = null;
 		for (Defender Spaceship: arrayDefender)
 		{	
-			if(Spaceship.HitTest(fireXY))
+			if(Spaceship.HitTest(fire.getXY()))
 			{
 				Addr = Spaceship.getID();
 			}
 		}
+		
+		myRockManager.hitTest(fire, true);
+		
 		return Addr;
 	}
 	
@@ -57,6 +68,11 @@ public class Level
 			for (Defender Spaceship: arrayDefender)
 			{	Spaceship.draw();}
 		}
+		
+		//for (Rock asteroid: arrayRock)
+		//{	asteroid.draw();}
+		
+		myRockManager.draw();
 		
 		synchronized (arrayShots)
 		{
@@ -83,6 +99,16 @@ public class Level
 		Display.popMatrix();
 	}
 	
+	public Random getRandom()
+	{
+		return Perent.getRandom();
+	}
+	/*
+	public int getRandom(int range)
+	{
+		return Perent.getRandom(range);
+	}
+	*/
 	public void addDefender(Defender inputDefender)
 	{
 		synchronized (arrayDefender)
@@ -102,6 +128,7 @@ public class Level
 			}
 		}
 	}
+	 
 	public void ReSpawnDefender(InetAddress ID)
 	{
 		for(Defender Spaceship: arrayDefender)
@@ -113,6 +140,7 @@ public class Level
 			}
 		}
 	}
+
 	public void addShot(String[] inputLocation)
 	{
 		synchronized (arrayShots)
@@ -161,6 +189,7 @@ public class Level
 		
 		return XY;
 	}
+	
 	public void setMessage(String mess)
 	{
 		Perent.setMessage(mess);
@@ -168,10 +197,16 @@ public class Level
 	
 	private void drawGameBorde()
 	{
+
 		Display.fill(140,90);
 		Display.stroke(0);
 		Display.rect(0,0,Display.width,Display.height);
+		drawGameWalls();
 		
+	}
+	
+	private void drawGameWalls()
+	{
 		//top
 		Display.pushMatrix();
 		Display.translate(Display.width/2,-20, 0); 
@@ -200,5 +235,6 @@ public class Level
 		Display.box(Display.width, 20, 50);
 		Display.popMatrix();
 	}
+
 	
 }
