@@ -1,9 +1,8 @@
 package pak_Display;
 
-import java.io.Serializable;
 import processing.core.PApplet;
 
-public class DefenderShot implements Serializable
+public class DefenderShot
 { 
 	private float heading;
 	private int[] xy;

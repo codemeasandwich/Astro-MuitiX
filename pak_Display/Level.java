@@ -4,27 +4,28 @@ import processing.core.PApplet;
 import processing.core.PFont;
 import pak_Core.Core;
 import java.util.ArrayList;
+import pak_logic.*;
 
 public class Level
 {
 	private PApplet Display;
-	private Core Perent;
+	private Game Perent;
 
 	private ArrayList<DefenderShot> arrayShots;
 	private ArrayList<Defender> arrayDefender;
-	private byte[] netIn;
-	private byte[] netOut;
-	private int score;
+	//private byte[] netIn;
+	//private byte[] netOut;
+	//private int score;
 	private PFont fontB;
 	
-	public Level(Core inputPerent, PApplet inputDisplay)
+	public Level(Game inputPerent, PApplet inputDisplay)
 	{
-		netIn = new byte[50];
-		netOut = new byte[50];
+		//netIn = new byte[50];
+		//netOut = new byte[50];
 		
 		Perent        = inputPerent;
 		Display       = inputDisplay;
-		score 		  = 100;
+		//score 		  = 100;
 		arrayDefender = new ArrayList<Defender>();
 		arrayShots    = new ArrayList<DefenderShot>();
 		fontB = inputDisplay.loadFont("BlueHighwayBold-18.vlw");
@@ -32,14 +33,14 @@ public class Level
 	
 	public void draw()
 	{	
-		
+		Display.pushMatrix();
 		Display.background(0);
 		
-		drawNet();
+		
 		Display.fill(255);
 		Display.textAlign(PApplet.LEFT);
 		Display.textFont(fontB, 18);
-		Display.text("score: "+score, 20, 20);
+		Display.text("score: "+Perent.getScore(), 20, 20);
 		
 		Display.rotateX(0.4f);
 		Display.translate(0,-80,-150);
@@ -69,12 +70,7 @@ public class Level
 					fire.move();
 			}
 		}
-		
-		//if the score is around 5 give a shot ever 5 sec
-		if(5>score && (Display.frameCount %(2*Display.frameRate))< 1)
-		{
-			score++;
-		}
+		Display.popMatrix();
 	}
 	
 	public void addDefender(Defender inputDefender)
@@ -104,7 +100,7 @@ public class Level
 			}
 		}
 	}
-	
+	/*
 	public void updateNetOutgoing()
 	{
 		if((netOut.length/4)>netOut[netOut.length - 1])
@@ -120,7 +116,7 @@ public class Level
 			netIn[netIn.length - 1]++;
 		}
 	}
-	
+	*/
 	public int[] spaceReset_Int(int[] XY)
 	{
 		float[] temp = spaceReset_Float(new float[]{XY[0],XY[1]});
@@ -141,7 +137,7 @@ public class Level
 		
 		return XY;
 	}
-	
+	/*
 	public int getScore()
 	{
 		return score;
@@ -155,14 +151,7 @@ public class Level
 	{
 		Display.pushMatrix();
 		Display.translate(Display.width - (20 + netOut.length), Display.height * 0.05f);
-		/*
-		Display.noStroke();
-		Display.fill(0,0,255,200);//Blue background
-		Display.rect(0, 0, netOut.length, netOut.length / 4);
-		Display.fill(255,255,0,200);//yellow background
-		Display.rect(0, netOut.length / 4, netOut.length, netOut.length / 4);
-		*/
-		
+
 		Display.noStroke();
 		Display.fill(255,0,0);
 		for(byte counter = 1; counter<netOut.length; counter++)
@@ -197,7 +186,7 @@ public class Level
 		Display.rect(0, 0, netOut.length, netOut.length / 2);
 		
 		Display.popMatrix();
-	}
+	}*/
 	
 	private void drawGameBorde()
 	{

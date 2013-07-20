@@ -9,6 +9,7 @@ import java.util.Random;
 import processing.core.*;
 import pak_Display.*;
 import pak_Net.*;
+import pak_logic.*;
 
 public class Core
 {
@@ -17,35 +18,31 @@ public class Core
 //	http://www.iana.org/assignments/multicast-addresses
 	public final static int GroupPort = 9574;
 	public final static int socketPort = 9575;
-	private Level myLevel;
-	private Defender myDefender;
+
 	private KeyboardInput myKeyboard;
-	private Random rn;
+
 	private NetworkInterface net;
 	private String LocalAddress;
 	private final String Title;
 	private final String version;
-	private PFont fontA;
+	//private PFont fontA;
+	private Game myGame;
 	
 	public Core(PApplet inputPerent)
 	{
-
+			//1st
 			perent = inputPerent;
-			rn = new Random();
-
-			version = "008";
+			version = "010";
 			Title = "Astro-MultiX";
-			fontA = inputPerent.loadFont("Silkscreen-16.vlw");
-			inputPerent.textFont(fontA, 18);
-			//inputPerent.textAlign(PApplet.CENTER);
+
 			setLocalAddress();
 			
-			myLevel = new Level(this, inputPerent);
-			myDefender = new Defender(this, inputPerent,LocalAddress);
+			//2nd
+			myGame = new Game(this,perent);
 			net = new NetworkInterface(this);
 			myKeyboard = new KeyboardInput(this, inputPerent);
 
-			addDefender(myDefender,false);
+			
 
 	}
 	
@@ -60,16 +57,21 @@ public class Core
 			System.out.println(uHE.toString());
 		}
 	}
+	public String getLocalAddress()
+	{
+		return LocalAddress;
+	}
 	
 	public void draw()
 	{
-		if(perent.keyPressed && !myDefender.getkilled())
+		if(perent.keyPressed && !myGame.getDefender().getkilled())
 		{ myKeyboard.test(); }
 
-		perent.pushMatrix();
-		myLevel.draw();
-		perent.popMatrix();
+		//perent.pushMatrix();
+		myGame.draw();
+		//perent.popMatrix();
 		
+		/*
 		perent.translate(perent.width - 10, perent.height/2);
 		perent.rotateZ(1.570796325f);
 		//perent.rotateX(perent.frameCount /100.f);
@@ -77,88 +79,69 @@ public class Core
 		perent.textAlign(PApplet.CENTER);
 		perent.textFont(fontA, 16);
 		perent.text("Brian Shannon: 07127154 NDS07",10,10);
+		*/
 	}
 	
-	public int getRandom(int range)
-	{
-		return rn.nextInt(range);
-	}
+/*
 	public void addDefender(Defender inputDefender,boolean rebuild)
 	{
 		if(rebuild)
 		{	inputDefender.reBuild(this, perent);	}
-		myLevel.addDefender(inputDefender);
-	}
+		myGame.addDefender(inputDefender);
+	}*/
 	public void moveDefender(byte inputMove)
 	{
-		myDefender.moveDefender(inputMove);
+		myGame.moveDefender(inputMove);
 	}
 	
 	public void fireDefender()
 	{
-		myDefender.fireDefender();
+		myGame.fireDefender();
 	}
 	public void killDefender()
 	{
-		myDefender.killDefender();
-	}
-	public int[] spaceReset_Int(int[] XY)
-	{
-		return myLevel.spaceReset_Int(XY);
-	}
-	public float[] spaceReset_Float(float[] XY)
-	{
-		return myLevel.spaceReset_Float(XY);
+		myGame.killDefender();
 	}
 	public void zoneInDefender()
 	{
-		myDefender.zoneIn();
+		myGame.zoneInDefender();
 	}
 	public Defender getDefender()
 	{
-		return myDefender;
+		return myGame.getDefender();
 	}
-
+/*
 	public void setLocalAddress(String inputString)
 	{
 		LocalAddress = inputString;
-	}
-	public String getLocalAddress()
-	{
-		return LocalAddress;
-	}
+	}*/
 	public String version()
 	{
 		return Title + " " + version;
 	}
 	public void addScore(int points)
 	{
-		myLevel.addScore(points);
+		myGame.addScore(points);
 	}
 	public int getScore()
 	{
-		return myLevel.getScore();
+		return myGame.getScore();
 	}
 	public void updateNet(boolean Incoming)
 	{
-		if(Incoming)
-		{
-			myLevel.updateNetIncoming();
-		}
-		else
-		{
-			myLevel.updateNetOutgoing();
-		}
+		myGame.updateNet(Incoming);
 	}
-	
+	public void addDefender(Defender inputDefender,boolean rebuild)
+	{
+		myGame.addDefender(inputDefender,rebuild);
+	}
 	public void SendDefenderLocation(int x, int y, float heading)
 	{
 		net.SendDefenderLocation(x, y, heading);
 	}
-	
 	public void ReceiveDefenderLocation(String[] inputLocation)
 	{
-		myLevel.updateDefender(inputLocation);
+		myGame.ReceiveDefenderLocation(inputLocation);
 	}
 	public void SendShotLocation(int x, int y, float heading)
 	{
@@ -166,6 +149,6 @@ public class Core
 	}
 	public void ReceiveShotLocation(String[] inputLocation)
 	{
-		myLevel.addShot(inputLocation);
+		myGame.ReceiveShotLocation(inputLocation);
 	}
 }

@@ -3,13 +3,14 @@ package pak_Display;
 import java.io.Serializable;
 import java.util.ArrayList;
 import pak_Core.Core;
+import pak_logic.*;
 import processing.core.PApplet;
 
 public class Defender implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	private transient PApplet Display;
-	private transient Core Perent;
+	private transient Game Perent;
 	private String ID;
 	private float drift;
 	private float heading;
@@ -17,11 +18,10 @@ public class Defender implements Serializable
 	private float rotate;
 	private float shipXY[];
 	private float shipScale;
-	private ArrayList<DefenderShot> arrayShots;
+	private transient ArrayList<DefenderShot> arrayShots;
 	private boolean shipScaleGrow;
 	public boolean returnShip;
-	
-	
+
 	private DefenderModel model;
 	
 	public static final byte FORWARE = 1;
@@ -29,7 +29,7 @@ public class Defender implements Serializable
 	public static final byte LEFT = 3;
 	public static final byte BACK = 4;
 	
-	public Defender (Core inputPerent, PApplet inputDisplay)
+	public Defender (Game inputPerent, PApplet inputDisplay)
 	{
 		this(inputPerent,inputDisplay, "0");
 		
@@ -41,15 +41,14 @@ public class Defender implements Serializable
 		 */
 	}
 	
-	public Defender (Core inputPerent, PApplet inputDisplay, String inputID)
+	public Defender (Game inputPerent, PApplet inputDisplay, String inputID)
 	{
 		Perent = inputPerent;
 		Display = inputDisplay;
 		ID = inputID;
 		returnShip = false;
-		shipXY = new float[]
-		                   {Perent.getRandom(Display.getWidth()),
-							Perent.getRandom(Display.getHeight())};
+		shipXY = new float[]{Perent.getRandom(Display.getWidth()),
+							 Perent.getRandom(Display.getHeight())};
 		//{Display.getWidth()/2,Display.getHeight()/2};
 		drift 	 	  = 0.0f;
 		heading 	  = 1.570796325f;
@@ -59,14 +58,16 @@ public class Defender implements Serializable
 		shipScaleGrow = false;
 		arrayShots 	  = new ArrayList<DefenderShot>();
 		
-		model = new DefenderModel(Display);
+		ModelLoader load3D = new ModelLoader(Display);
+		model = load3D.LoadXMLDefender("data/shipModel.xml");
 	}
 	
-	public void reBuild(Core inputPerent, PApplet inputDisplay)
+	public void reBuild(Game inputPerent, PApplet inputDisplay)
 	{
 		Perent = inputPerent;
 		Display = inputDisplay;
 		model.reBuild(Display);
+		arrayShots = new ArrayList<DefenderShot>();
 	}
 	
 	public void draw()
@@ -189,7 +190,6 @@ public class Defender implements Serializable
 			break;	
 		}
 		Perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading);
-		//System.out.println("heading"+heading);
 	}
 	
 	public void fireDefender()
