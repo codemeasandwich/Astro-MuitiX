@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -37,10 +38,11 @@ public class NetworkInterface
 	
 	public static final byte STRING = -1;
 	public static final byte HIT_TEST = 0;
-	public static final byte SHIP = 1;
-	public static final byte SHIPKILLED = 2;
-	public static final byte SHIPALIVE = 3;
-	public static final byte ROCKS = 4;
+	public static final byte HIT = 1;
+	public static final byte SHIP = 2;
+	public static final byte SHIPKILLED = 3;
+	public static final byte SHIPALIVE = 4;
+	public static final byte ROCKS = 5;
 	
 	private String typeConveter(byte val)
 	{
@@ -194,7 +196,7 @@ public class NetworkInterface
 	            {
 					try
 					{
-						if(Address == Perent.getLocalAddress())
+						if(Address == Perent.getLocalAddress())//if send to me.. then send to every one BUT me
 						{
                 			for(InetAddress address: aLiveAddresses)
                 			{
@@ -203,7 +205,7 @@ public class NetworkInterface
 						}
 						else
 						{
-							System.out.println("Send2NetWap:"+Type+" "+Address.toString());
+							System.out.println("OUT NetWap:"+typeConveter(Type)+" "+Address.toString());
 							Socket socket_SendMyShip = 
 								new Socket(Address,Core.socketPort);
 							
@@ -218,6 +220,19 @@ public class NetworkInterface
 								socket_SendMyShip.close();
 								//System.out.println("Send2NetWap:Sent"+" "+Address.toString());
 						}
+					}
+					catch(ConnectException e)
+					{
+            			for(int count = 0; count > aLiveAddresses.size(); count++)
+            			{
+            				if(aLiveAddresses.get(count).equals(Address))
+            				{
+            					aLiveAddresses.remove(count);
+            					break;
+            				}
+            			}
+						Perent.killDefender(Address);
+						System.out.println("SendShip("+Address.toString()+") "+ e.toString());
 					}
 					catch(Exception ex)
 			        {
@@ -248,7 +263,9 @@ public class NetworkInterface
 						DataInputStream dis = new DataInputStream(incomingListen2User.getInputStream());
 						ObjectInputStream ois = new ObjectInputStream(dis);
 						NetWrap incomingWrap = (NetWrap)ois.readObject();
-						//System.out.println("Return2NetWap:"+typeConveter(incomingWrap.getType())+" "+incomingListen2User.getInetAddress().toString());
+						
+						System.out.println("IN NetWap:"+typeConveter(incomingWrap.getType())+" "+incomingListen2User.getInetAddress().toString());
+						
 						if(incomingWrap.getType() == NetworkInterface.SHIP)
 						{
                 			boolean found = false;

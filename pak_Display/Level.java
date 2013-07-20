@@ -25,7 +25,7 @@ public class Level
 		System.out.println("Done");
 	}
 	
-	public InetAddress HitTest(int[] fireXY)
+	public InetAddress HitTest(int[] fireXY)//Im not synchroning this because there is no change
 	{
 		InetAddress Addr = null;
 		for (Defender Spaceship: arrayDefender)
@@ -52,16 +52,21 @@ public class Level
 		
 		drawGameBorde();
 		
-		for (Defender Spaceship: arrayDefender)
-		{	Spaceship.draw();}
-		
-		if(!arrayShots.isEmpty() && arrayShots.get(0).getTTL()<1)
-		{	arrayShots.remove(0);}
-
-		Display.fill(255);
+		synchronized (arrayDefender)
+		{
+			for (Defender Spaceship: arrayDefender)
+			{	Spaceship.draw();}
+		}
 		
 		synchronized (arrayShots)
 		{
+			
+			if(!arrayShots.isEmpty() && arrayShots.get(0).getTTL()<1)
+			{	arrayShots.remove(0);}
+	
+			Display.fill(255);
+		
+
 			int[] fireXY;
 			for (DefenderShot fire: arrayShots)
 			{
@@ -80,8 +85,11 @@ public class Level
 	
 	public void addDefender(Defender inputDefender)
 	{
-		inputDefender.zoneIn();
-		arrayDefender.add(inputDefender);
+		synchronized (arrayDefender)
+		{
+			inputDefender.zoneIn();
+			arrayDefender.add(inputDefender);
+		}
 	}
 	
 	public void killDefender(InetAddress ID)
@@ -105,14 +113,17 @@ public class Level
 			}
 		}
 	}
-	public synchronized void addShot(String[] inputLocation)
+	public void addShot(String[] inputLocation)
 	{
+		synchronized (arrayShots)
+		{
 		arrayShots.add(
 				new DefenderShot(
 						Float.parseFloat(inputLocation[3]),// Heading
 						Integer.parseInt(inputLocation[1]),// X
 						Integer.parseInt(inputLocation[2]),// Y
 						inputLocation[2]));				   // Address 
+		}
 	}
 	
 	public void updateDefender(String[] inputLocation)
