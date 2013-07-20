@@ -1,5 +1,5 @@
 package pak_Core;
-
+ 
 import java.util.Random;
 import processing.core.*;
 import pak_Display.*;
@@ -29,14 +29,14 @@ public class Core
 			//http://www.iana.org/assignments/multicast-addresses
 			GroupPort = 9574;
 			
-			version = "003";
+			version = "007";
 			Title = "Astro-MultiX";
-				
-			net = new NetworkInterface(this);
-			
+
 			myLevel = new Level(this, inputPerent);
+			
 			myDefender = new Defender(this, inputPerent,LocalAddress);
 			myKeyboard = new KeyboardInput(this, inputPerent);
+			net = new NetworkInterface(this);
 			
 			addDefender(myDefender);
 
@@ -46,8 +46,10 @@ public class Core
 	{
 		if(perent.keyPressed && !myDefender.getkilled())
 		{ myKeyboard.test(); }
-		
+
+		perent.pushMatrix();
 		myLevel.draw();
+		perent.popMatrix();
 	}
 	
 	public int getRandom(int range)
@@ -106,6 +108,25 @@ public class Core
 	public String version()
 	{
 		return Title + " " + version;
+	}
+	public void addScore(int points)
+	{
+		myLevel.addScore(points);
+	}
+	public int getScore()
+	{
+		return myLevel.getScore();
+	}
+	public void updateNet(boolean Incoming)
+	{
+		if(Incoming)
+		{
+			myLevel.updateNetIncoming();
+		}
+		else
+		{
+			myLevel.updateNetOutgoing();
+		}
 	}
 	
 	public void SendDefenderLocation(int x, int y, float heading)

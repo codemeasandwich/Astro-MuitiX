@@ -11,46 +11,66 @@ public class Level
 	private Core Perent;
 	private PFont fontA;
 	private ArrayList<DefenderShot> arrayShots;
-
 	private ArrayList<Defender> arrayDefender;
+	private byte[] netIn;
+	private byte[] netOut;
+	private int score;
 	
 	public Level(Core inputPerent, PApplet inputDisplay)
 	{
-		Perent = inputPerent;
-		Display = inputDisplay;
+		netIn = new byte[50];
+		netOut = new byte[50];
+		
+		Perent        = inputPerent;
+		Display       = inputDisplay;
+		score 		  = 100;
 		arrayDefender = new ArrayList<Defender>();
-		arrayShots   = new ArrayList<DefenderShot>();
-		fontA  = Display.loadFont("Infobubble-24.vlw");
-		Display.textFont(fontA, 12);
+		arrayShots    = new ArrayList<DefenderShot>();
+		fontA         = Display.loadFont("BlueHighwayBold-18.vlw");
+		Display.textFont(fontA, 18);
 	}
 	
 	public void draw()
-	{		
-		Display.background(10);
-		Display.noStroke();
+	{	
+		
+		Display.background(0);
+		
+		drawNet();
 		Display.fill(255);
-		Display.text("processing & eclipsenthe dynamic duo", 30, 30);
+		Display.text("score: "+score, 20, 20);
 		
 		Display.rotateX(0.4f);
 		Display.translate(0,-80,-150);
 		
+		//crazyLand();
+		
 		drawGameBorde();
 		
-		for/*each*/ (Defender Spaceship: arrayDefender)
-		{
-			Spaceship.draw();
-		}
+		for (Defender Spaceship: arrayDefender)
+		{	Spaceship.draw();	 }
 		
-		Display.fill(255);
 		if(!arrayShots.isEmpty() && arrayShots.get(0).getTTL()<1)
-		{	arrayShots.remove(0);  }
+		{	arrayShots.remove(0);}
+
+		Display.fill(255);
 		
-		for/*each*/ (DefenderShot fire: arrayShots)
+		for (DefenderShot fire: arrayShots)
 		{
 				fire.setXY(Perent.spaceReset_Int(fire.getXY()));
-				Display.ellipse(fire.getXY()[0], fire.getXY()[1], DefenderShot.SIZE, DefenderShot.SIZE);
+				Display.ellipse(
+						fire.getXY()[0], 
+						fire.getXY()[1], 
+						DefenderShot.SIZE, 
+						DefenderShot.SIZE);
 				fire.move();
 		}
+		
+		//if the score is around 5 give a shot ever 5 sec
+		if(5>score && (Display.frameCount %(2*Display.frameRate))< 1)
+		{
+			score++;
+		}
+		
 	}
 	
 	public void addDefender(Defender inputDefender)
@@ -60,7 +80,12 @@ public class Level
 	
 	public void addShot(String[] inputLocation)
 	{
-		arrayShots.add(new DefenderShot(Float.parseFloat(inputLocation[3]),Integer.parseInt(inputLocation[1]),Integer.parseInt(inputLocation[2])));
+		arrayShots.add(
+				new DefenderShot(
+						Float.parseFloat(inputLocation[3]),// Heading
+						Integer.parseInt(inputLocation[1]),// X
+						Integer.parseInt(inputLocation[2]),// Y
+						inputLocation[2]));				   // Address 
 	}
 	
 	public void updateDefender(String[] inputLocation)
@@ -75,6 +100,22 @@ public class Level
 				Spaceship.setXY(new int[]{Integer.parseInt(inputLocation[1]),Integer.parseInt(inputLocation[2])});
 				Spaceship.setHeading(Float.parseFloat(inputLocation[3]));
 			}
+		}
+	}
+	
+	public void updateNetOutgoing()
+	{
+		if((netOut.length/2)>netOut[netOut.length - 1])
+		{
+			netOut[netOut.length - 1]++;
+		}
+	}
+	
+	public void updateNetIncoming()
+	{
+		if((netIn.length/2)>netIn[netIn.length - 1])
+		{
+			netIn[netIn.length - 1]++;
 		}
 	}
 	
@@ -99,9 +140,67 @@ public class Level
 		return XY;
 	}
 	
+	public int getScore()
+	{
+		return score;
+	}
+	public void addScore(int points)
+	{
+		score += points;
+	}
+	
+	private void drawNet()
+	{
+		Display.pushMatrix();
+		Display.translate(Display.width - (20 + netOut.length), Display.height * 0.05f);
+		/*
+		Display.noStroke();
+		Display.fill(0,0,255,200);//Blue background
+		Display.rect(0, 0, netOut.length, netOut.length / 4);
+		Display.fill(255,255,0,200);//yellow background
+		Display.rect(0, netOut.length / 4, netOut.length, netOut.length / 4);
+		*/
+		
+		Display.noStroke();
+		Display.fill(255,0,0);
+		for(byte counter = 1; counter<netOut.length; counter++)
+		{
+			// rect(x, y, width, height)
+			Display.rect(counter,netOut.length/4,1,-netOut[counter]);
+			
+			if((Display.frameCount %2) == 0)
+			{
+				if(counter  + 1 !=netOut.length)
+				{	netOut[counter] = netOut[1+counter];	}
+				else
+				{	netOut[counter] = 0;		}
+			}
+		}
+		
+		Display.fill(255,255,0);
+		for(byte counter = 1; counter<netIn.length; counter++)
+		{
+			Display.rect(counter,netIn.length/4,1,netIn[counter]);
+			
+			if((Display.frameCount %2) == 0)
+			{
+				if(counter  + 1 !=netIn.length)
+				{	netIn[counter] = netIn[1+counter];	}
+				else
+				{	netIn[counter] = 0;		}
+			}
+		}
+		Display.stroke(255);
+		Display.noFill();
+		Display.rect(0, 0, netOut.length, netOut.length / 2);
+		
+		Display.popMatrix();
+	}
+	
 	private void drawGameBorde()
 	{
 		Display.fill(140, 140, 140,140);
+		Display.stroke(0);
 		Display.rect(0,0,Display.width,Display.height);
 		
 		//top
@@ -131,6 +230,15 @@ public class Level
 		//rotateY(0.5);
 		Display.box(Display.width, 20, 50);
 		Display.popMatrix();
+	}
+	
+	private void crazyLand()
+	{
+		Display.translate(Display.width/2,Display.height/2);
+		Display.rotateZ(Display.frameCount/100.0f);
+		Display.rotateY(Display.frameCount/100.0f);
+		Display.rotateX(Display.frameCount/100.0f);
+		Display.translate(-Display.width/2,-Display.height/2);
 	}
 	
 }

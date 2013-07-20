@@ -1,6 +1,7 @@
 package pak_Core;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 import pak_Display.Defender;
 
 public class KeyboardInput
@@ -18,15 +19,15 @@ public class KeyboardInput
 	{
 		//System.out.println("KeyboardInput.test() "+Display.keyCode);
 		
-		if(PApplet.RIGHT == Display.keyCode)
+		if(PConstants.RIGHT == Display.keyCode)
 		{
 			perent.moveDefender(Defender.RIGHT);
 		}
-		else if(PApplet.LEFT == Display.keyCode)
+		else if(PConstants.LEFT == Display.keyCode)
 		{
 			perent.moveDefender(Defender.LEFT);
 		}
-		else if(PApplet.UP == Display.keyCode)
+		else if(PConstants.UP == Display.keyCode)
 		{
 			perent.moveDefender(Defender.FORWARE);
 		}/*
@@ -34,7 +35,7 @@ public class KeyboardInput
 		{
 			perent.moveDefender(Defender.BACK);
 		}*/
-		else if(PApplet.CONTROL == Display.keyCode || 17 == Display.keyCode)//space
+		else if(PConstants.CONTROL == Display.keyCode || 17 == Display.keyCode)//space
 		{
 			perent.fireDefender();
 		}

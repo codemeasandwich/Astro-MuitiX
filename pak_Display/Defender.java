@@ -14,7 +14,6 @@ public class Defender
 	private float stepsize;
 	private float rotate;
 	private float shipXY[];
-	private float historyXYH[];
 	private float shipScale;
 	private ArrayList<DefenderShot> arrayShots;
 	private boolean shipScaleGrow;
@@ -48,13 +47,13 @@ public class Defender
 		                   {Perent.getRandom(Display.getWidth()),
 							Perent.getRandom(Display.getHeight())};
 		//{Display.getWidth()/2,Display.getHeight()/2};
-		drift = 0.0f;
-		heading = 1.599f;
-		stepsize = 3.2f;
-		rotate = 0.1f;
-		shipScale = 2;
+		drift 	 	  = 0.0f;
+		heading 	  = 1.599f;
+		stepsize 	  = 1.1f;
+		rotate 		  = 0.1f;
+		shipScale     = 1.5f;
 		shipScaleGrow = false;
-		arrayShots = new ArrayList<DefenderShot>();
+		arrayShots 	  = new ArrayList<DefenderShot>();
 		
 		model = new DefenderModel(this, Display);
 	}
@@ -65,6 +64,7 @@ public class Defender
 		drawShip();
 	}
 
+	@Override
 	public String toString()
 	{
 		return  String.valueOf(ID);
@@ -78,11 +78,11 @@ public class Defender
 	private void drawShots()
 	{
 		Display.fill(255);
+		Display.noStroke();
 		
 		if(!arrayShots.isEmpty() && arrayShots.get(0).getTTL()<1)
 		{	arrayShots.remove(0);  }
 		
-		//System.out.println("arrayShots"+arrayShots.size());
 		for/*each*/ (DefenderShot fire: arrayShots)
 		{
 				fire.setXY(Perent.spaceReset_Int(fire.getXY()));
@@ -104,14 +104,14 @@ public class Defender
 			//Display.rotateX(Display.frameCount /100.0f);
 			if(shipScaleGrow)
 			{
-				if(shipScale<6)
+				if(shipScale<5)
 				{shipScale += 0.25f;}
 				else if(shipScaleGrow)
 				{shipScaleGrow = false;}
 			}
 			else
 			{
-				if(shipScale>2)
+				if(shipScale>1.1f)
 				{shipScale -= 0.25f;}
 			}
 			
@@ -119,14 +119,14 @@ public class Defender
 			
 			// ========= move ship to center
 			Display.rotateZ(heading-1.6f);
-			Display.translate(-1,-2.5f);
+			Display.translate(-10,-20);
 			
 			// ========= draw ship
 			model.draw();
-			
+			/*
 			if(0.1<drift && !model.getkilled())
 			{	model.drawDrift(drift);  }
-
+			*/
 		Display.popMatrix();
 
 		// ========= if the ship is moving why stop it?
@@ -141,7 +141,7 @@ public class Defender
 		
 		shipXY[0] -= PApplet.cos(heading)*(stepsize*drift);
 		shipXY[1] -= PApplet.sin(heading)*(stepsize*drift);
-		drift = drift *0.975f;
+		drift = drift *0.985f;
 		Perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading);
 	}
 	
@@ -164,7 +164,7 @@ public class Defender
 				shipXY[1] -= PApplet.sin(heading)*stepsize; 
 
 				//a cap on the drift
-				if(1.0f > drift)
+				if(stepsize > drift)
 				{ drift += 0.2f; }
 			break;
 			
@@ -179,8 +179,12 @@ public class Defender
 	
 	public void fireDefender()
 	{
-		arrayShots.add(new DefenderShot(heading,(int)shipXY[0],(int)shipXY[1]));
-		Perent.SendShotLocation((int)shipXY[0], (int)shipXY[1], heading);
+		if(Perent.getScore()>0)
+		{
+			Perent.addScore(-1);
+			arrayShots.add(new DefenderShot(heading,(int)shipXY[0],(int)shipXY[1]));
+			Perent.SendShotLocation((int)shipXY[0], (int)shipXY[1], heading);
+		}
 	}
 	
 	public void killDefender()
@@ -208,5 +212,4 @@ public class Defender
 	{
 		heading = inputHeading;
 	}
-	
 }

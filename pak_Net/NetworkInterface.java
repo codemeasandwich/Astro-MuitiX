@@ -92,6 +92,7 @@ public class NetworkInterface
 					 GroupPort);
 			 broadcastSocket.send(Message);
 		 
+			 Perent.updateNet(false);
 		 }
 		 catch (IOException e) 
 		 {
@@ -124,6 +125,8 @@ public class NetworkInterface
 	                	
 	                	if(false == incomingPacket.getAddress().toString().equals(LocalAddress))
 	                	{
+	                		Perent.updateNet(true);
+	                		
 	                		if(incomingData.startsWith(SendDefenderLocation_ID))
 	                		{
 	                			System.out.print(".");
@@ -146,22 +149,7 @@ public class NetworkInterface
 	                			System.out.print("*");
 	                			Perent.addDefender(incomingPacket.getAddress().toString());
 	                		}
-	                		
-	                		
-	                		//System.out.println(incomingData);
-	                		/*
-	                		System.out.println("incomingData:"+incomingData.trim());
-	                		System.out.println("incomingPacket.getAddress()"+incomingPacket.getAddress());
-	                		System.out.println("LocalAddress"+LocalAddress);*/
 	                	}
-	                	/*
-	                	System.out.println("incomingPacket.getAddress()"+incomingPacket.getAddress());//+"  "+InetAddress.getLocalHost());
-	                	System.out.println("InetAddress.getLocalHost()"+InetAddress.getLocalHost());
-	                	System.out.println("InetAddress.getLocalHost().getHostAddress()"+InetAddress.getLocalHost().getHostAddress());
-	                	
-	                	System.out.println("LocalAddress"+LocalAddress);
-	                	*/
-
 	                }
 	                catch(Exception ex)
 	                {

@@ -1,7 +1,6 @@
 package pak_Core;
-
+  
 import processing.core.PApplet;
-import processing.core.PFont;
 
 public class Driver extends PApplet // hit <ctrl>-1
 {
@@ -13,16 +12,17 @@ public class Driver extends PApplet // hit <ctrl>-1
 		PApplet.main(args);
 	}
 
+	@Override
 	public void setup()
 	{
-		size(800,650, P3D);
+		size(500,400, P3D);
 		frameRate(24);
 		Sys = new Core(this);
 	}
 	
+	@Override
 	public void draw()
 	{
 		Sys.draw(); 
 	}
-	
 }
