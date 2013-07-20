@@ -1,19 +1,14 @@
 package pak_logic;
 
-import processing.core.PApplet;
 import processing.core.PConstants;
-import pak_Core.Core;
 import pak_Display.Defender;
 
 public class KeyboardInput
 {
-	private Core perent;
+	private Defender myDefender;
 	
-	public KeyboardInput(Core inputPerent, PApplet inputDisplay)
+	public KeyboardInput()
 	{
-		System.out.print("KeyboardInput:");
-		perent = inputPerent;
-		System.out.println("Done");
 	}
 	
 	public boolean test(int keyCode)
@@ -26,33 +21,27 @@ public class KeyboardInput
 		{
 		
 		case(PConstants.RIGHT):
-			perent.moveDefender(Defender.RIGHT);
+			myDefender.moveDefender(Defender.RIGHT);
 			foundKey = true;
 		break;
 		
 		case(PConstants.LEFT):
-			perent.moveDefender(Defender.LEFT);
+			myDefender.moveDefender(Defender.LEFT);
 			foundKey = true;
 		break;
 		
 		case(PConstants.UP):
-			perent.moveDefender(Defender.FORWARE);
+			myDefender.moveDefender(Defender.FORWARE);
 			foundKey = true;
 		break;
 		
-		//case(17)://space
 		case(PConstants.CONTROL):
-			perent.fireDefender();
-			foundKey = true;
-		break;
-		
-		case(90):
-			perent.killDefender();
+			myDefender.fireDefender();
 			foundKey = true;
 		break;
 		
 		case(81):
-			perent.zoneInDefender();
+			myDefender.zoneIn();
 			foundKey = true;
 		break;
 		
@@ -64,6 +53,21 @@ public class KeyboardInput
 		return foundKey;
 		
 	}
+	public boolean setMyDefender(Defender inputDefender)
+	{
+		if(null == myDefender)
+		{
+			myDefender = inputDefender;
+			return true;
+		}
+		else
+		{	return false;	}
+	}
 	
+	public void KeyMap()
+	{
+		System.out.println("F1: Exit");
+		System.out.println("Q:  Find Ship");
+	}
 	
 }

@@ -139,6 +139,7 @@ public class Level
 			if(Spaceship.getID().equals(ID))
 			{
 				Spaceship.killDefender();
+				break;
 			}
 		}
 	}
@@ -174,7 +175,8 @@ public class Level
 			if(Spaceship.getID().equals(ID))
 			{
 				Spaceship.ReSpawnDefender();
-				Spaceship.zoneIn();
+				//Spaceship.zoneIn();
+				break;
 			}
 		}
 	}
@@ -189,6 +191,7 @@ public class Level
 						Integer.parseInt(inputLocation[1]),// X
 						Integer.parseInt(inputLocation[2]),// Y
 						inputLocation[2]));				   // Address 
+		Perent.playSound(Sound.SHOOT);
 		}
 	}
 	
@@ -273,6 +276,9 @@ public class Level
 		Display.box(Display.width, 20, 50);
 		Display.popMatrix();
 	}
-
+	public void playSound(byte inputSound)
+	{
+		Perent.playSound(inputSound);
+	}
 	
 }

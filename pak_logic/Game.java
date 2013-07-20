@@ -19,7 +19,6 @@ public class Game
 	private Level myLevel;
 	private Defender myDefender;
 	private Random generator;
-	//private int score;
 	private PFont fontA,fontB,fontC,fontD;
 	private byte[] netIn;
 	private byte[] netOut;
@@ -35,9 +34,8 @@ public class Game
 		Perent = inputPerent;
 		Display = inputDisplay;
 		gameSound = new Sound();
-		gameSound.playSound(Sound.START);
+		//gameSound.playSound(Sound.START);
 		generator = new Random();
-		//score = 100;
 		txtFade = 255;
 		netIn = new byte[50];
 		netOut = new byte[50];
@@ -67,9 +65,6 @@ public class Game
 		drawNet();
 		drawMessage();
 		myName();
-		//if the score is around 5 give a shot ever 5 sec
-		//if(5>score && (Display.frameCount %(2*Display.frameRate))< 1)
-		//{		score++;		}
 	}
 	
 	public int[] spaceReset_Int(int[] XY)
@@ -86,17 +81,7 @@ public class Game
 	{
 		return generator;
 	}
-	/*
-	public int getScore()
-	{
-		return score;
-	}
-	
-	public void addScore(int points)
-	{
-		score += points;
-	}
-	*/
+
 	public void addDefender(Defender inputDefender,boolean rebuild)
 	{
 		System.out.println("Defender~"+inputDefender.getID().toString()+":ADDED");
@@ -109,6 +94,7 @@ public class Game
 	{
 		Perent.SendDefenderLocation(x, y, heading ,drift);
 	}
+	
 	public void ReceiveDefenderLocation(String[] inputLocation)
 	{
 		myLevel.updateDefender(inputLocation);
@@ -123,19 +109,12 @@ public class Game
 	{
 		myLevel.addShot(inputLocation);
 	}
-	public void moveDefender(byte inputMove)
-	{
-		myDefender.moveDefender(inputMove);
-	}
 	
-	public void fireDefender()
-	{
-		myDefender.fireDefender();
-	}
 	public void ReSpawnDefender(InetAddress ID)
 	{
 		myLevel.ReSpawnDefender(ID);
 	}
+	
 	public void killDefender(InetAddress ID)
 	{
 		myLevel.killDefender(ID);
@@ -150,12 +129,7 @@ public class Game
 		
 		myDefender.killDefender();
 	}
-	
-	public void zoneInDefender()
-	{
-		myDefender.zoneIn();
-	}
-	
+
 	public Defender getDefender()
 	{
 		return myDefender;

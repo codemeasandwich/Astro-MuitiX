@@ -45,13 +45,17 @@ public class RockManager implements Serializable
 	
 	public void creatRocks()
 	{
-		arrayRocks.clear();
-		Random generator = new Random();
-		int rn = generator.nextInt(5)+5;//5 to 10
-		//rn = 1;
-		for(int count =0; count < rn; count++)
+		synchronized(arrayRocks)
 		{
-			arrayRocks.add(new Rock(this,Display));
+			arrayRocks.clear();
+			deadRocksNum = 0;
+			Random generator = new Random();
+			int rn = generator.nextInt(5)+5;//5 to 10
+			//rn = 1;
+			for(int count =0; count < rn; count++)
+			{
+				arrayRocks.add(new Rock(this,Display));
+			}
 		}
 	}
 	
@@ -84,6 +88,7 @@ public class RockManager implements Serializable
 					rockXY[1]+15 > XY[1] && 
 					rockXY[1]-15 < XY[1])
 				{
+					Perent.playSound(Sound.ATROHIT);
 					fire.kill();
 					rock.downSize();
 					boolHit = true;
@@ -93,11 +98,14 @@ public class RockManager implements Serializable
 						Rock myRock = new Rock(this,Display);
 						myRock.setSize(rock.getSize());
 						myRock.setXY(rock.getXY());
-						arrayRocks.add(myRock);
+						synchronized(arrayRocks)
+						{
+							arrayRocks.add(myRock);
+						}
 						//System.out.println("rocks:" + arrayRocks.size());
 						
 						//Perent.SendRockHit(new Rock[]{rock, myRock});
-						Perent.SendRockManager();
+						//Perent.SendRockManager();
 						break;
 					}
 					else if(arrayRocks.size()-1 == deadRocksNum)// && rock.delete is ture
@@ -105,12 +113,17 @@ public class RockManager implements Serializable
 						//You hit the last one
 						creatRocks();
 						//send every one the new rocks
-						Perent.SendRockManager();
+						//Perent.SendRockManager();
 						break;
 					}
 					else//if(rock.delete == ture)
 					{
 						deadRocksNum++;
+					}
+					
+					synchronized(arrayRocks)
+					{
+						Perent.SendRockManager();
 					}
 				}
 			}

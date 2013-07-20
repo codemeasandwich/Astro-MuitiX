@@ -34,7 +34,7 @@ public class Core
 		System.out.println("Core..");
 			//1st
 			perent = inputPerent;
-			version = "021c";
+			version = "022c";
 			Title = "Astro-MultiX";
 			userName = System.getProperty("user.name");
 			Error = "";
@@ -47,13 +47,15 @@ public class Core
 			catch (UnknownHostException uHE)
 			{
 				System.out.println(uHE.toString());
+				setError(uHE.toString());
 			}
 			
 			//2nd
 			myGame = new Game(this,perent);
 			net = new NetworkInterface(this);
-			myKeyboard = new KeyboardInput(this, inputPerent);
-			
+				net.setMyDefender(myGame.getDefender());
+				myKeyboard = new KeyboardInput();//(this, inputPerent);
+				myKeyboard.setMyDefender(myGame.getDefender());
 			System.out.println("Core..Done");
 	}
 	
@@ -95,55 +97,22 @@ public class Core
 		
 		myGame.draw();
 	}
-
-	public void moveDefender(byte inputMove)
-	{
-		myGame.moveDefender(inputMove);
-	}
 	
-	public void fireDefender()
-	{
-		myGame.fireDefender();
-	}
-	
-	public void killDefender()
-	{
-		myGame.killDefender();
-	}
 	public void killDefender(InetAddress ID)
 	{
 		myGame.killDefender(ID);
 	}
+	
 	public void ReSpawnDefender(InetAddress ID)
 	{
 		myGame.ReSpawnDefender(ID);
-	}
-	
-	public void zoneInDefender()
-	{
-		myGame.zoneInDefender();
-	}
-	
-	public Defender getDefender()
-	{
-		return myGame.getDefender();
 	}
 
 	public String version()
 	{
 		return Title + " " + version;
 	}
-	/*
-	public void addScore(int points)
-	{
-		myGame.addScore(points);
-	}
-	
-	public int getScore()
-	{
-		return myGame.getScore();
-	}
-	*/
+
 	public void updateNet(boolean Incoming)
 	{
 		myGame.updateNet(Incoming);
@@ -173,16 +142,12 @@ public class Core
 	{
 		myGame.ReceiveShotLocation(inputLocation);
 	}
+	
 	public void sendSocketMessage( 
 			InetAddress Address,  Object objToSend,
 			byte Type, boolean returnThis)
 	{
 		net.Send2NetWap(Address,objToSend,Type,returnThis);
-	}
-	
-	public boolean HitTest(float[] fireXY)
-	{
-		return myGame.HitTest(fireXY);
 	}
 	
 	public void SendShotRemove(String id)

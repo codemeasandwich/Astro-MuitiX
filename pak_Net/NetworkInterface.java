@@ -37,6 +37,7 @@ public class NetworkInterface
 	private Socket incomingListen2User;
 	private ArrayList<InetAddress> aLiveAddresses;
 	private boolean[] aLiveBool;
+	private Defender myDefender;
 	
 	public static final byte STRING = -1;
 	public static final byte HIT_TEST = 0;
@@ -99,9 +100,9 @@ public class NetworkInterface
 		
 		 try
 		 {
-			SendDefenderLocation_ID = "ship:";
-			SendShotLocation_ID = "shot:";
-			SendShotRemove_ID = "Rshot:";
+			SendDefenderLocation_ID = "DP:";
+			SendShotLocation_ID = "SL:";
+			SendShotRemove_ID = "SR:";
 			lastDefenderLocation = "";
 			netGroup = InetAddress.getByName(Core.GroupIP);
 			broadcastSocket = new MulticastSocket(Core.GroupPort);//send & recive on this
@@ -124,9 +125,23 @@ public class NetworkInterface
 	/*
 	public void aLiveTest()
 	{
-		
+		 
 	}
 	*/
+	
+	public boolean setMyDefender(Defender inputDefender)
+	{
+		if(null == myDefender)
+		{
+			myDefender = inputDefender;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
 	public void SendDefenderLocation(int x, int y, float heading, float drift)
 	{
 			Location = new StringBuilder();
@@ -167,6 +182,7 @@ public class NetworkInterface
 			Location.append((String.valueOf(heading)).substring(0, 4));//0.49
 			sent(Location.toString());
 	}
+	
 	public void SendShotRemove(String id)
 	{
 		sent(SendShotRemove_ID+id);
@@ -195,7 +211,7 @@ public class NetworkInterface
 		}
 	}
 
-	public void Send2NetWap(
+	public void Send2NetWap(//like client
 			final InetAddress Address,
 			final Object objToSend,
 			final byte Type,
@@ -208,7 +224,7 @@ public class NetworkInterface
 	            {
 					try
 					{
-						if(Address == Perent.getLocalAddress())//if send to me.. then send to every one BUT me
+						if(Perent.getLocalAddress() == Address)//if send to me.. then send to every one BUT me
 						{
                 			for(InetAddress address: aLiveAddresses)
                 			{
@@ -217,18 +233,20 @@ public class NetworkInterface
 						}
 						else
 						{
+							Perent.updateNet(false);
 							System.out.println("OUT NetWap:"+typeConveter(Type)+" "+Address.toString());
+							
 							Socket socket_SendMyShip = 
 								new Socket(Address,Core.socketPort);
 							
-							ObjectOutputStream oOutputStream = 
+							ObjectOutputStream outputStream = 
 								new ObjectOutputStream(socket_SendMyShip.getOutputStream());
 							
 							NetWrap wrap = new NetWrap(objToSend,Type,returnThis);
 							
-							oOutputStream.writeObject(wrap);
-									oOutputStream.flush();
-									oOutputStream.close();
+							outputStream.writeObject(wrap);
+									outputStream.flush();
+									outputStream.close();
 								socket_SendMyShip.close();
 								//System.out.println("Send2NetWap:Sent"+" "+Address.toString());
 						}
@@ -281,7 +299,7 @@ public class NetworkInterface
 		return found;
 	}
 	
-	private void Listen4NetWrap()
+	private void Listen4NetWrap()//like server
 	{
 		Thread4Return2NetWap = new Thread(new Runnable()
 		{
@@ -293,11 +311,15 @@ public class NetworkInterface
 					{
 						//Will with till a clint trys to connect
 						incomingListen2User = ServerSocket4ReturnShip.accept();//Livelockb
-						DataInputStream dis = new DataInputStream(incomingListen2User.getInputStream());
-						ObjectInputStream ois = new ObjectInputStream(dis);
+						ObjectInputStream ois = new ObjectInputStream(
+								new DataInputStream(
+										incomingListen2User.getInputStream()));
+						
 						NetWrap incomingWrap = (NetWrap)ois.readObject();
 						
 						System.out.println("IN NetWap:"+typeConveter(incomingWrap.getType())+" "+incomingListen2User.getInetAddress().toString());
+						
+						Perent.updateNet(true);
 						
 						if(incomingWrap.getType() == NetworkInterface.SHIP)
 						{
@@ -307,7 +329,7 @@ public class NetworkInterface
 							{
 		              			Send2NetWap(
 	 	              					incomingListen2User.getInetAddress(),
-	                					Perent.getDefender(),
+	 	              					myDefender,//Perent.getDefender(),
 	                					NetworkInterface.SHIP,
 	                					false);
 		              		}
@@ -336,7 +358,13 @@ public class NetworkInterface
 	 							
 								SendDefenderLocation(Def.getXY()[0],Def.getXY()[1],Def.getHeading(),Def.getDrift());
 							}*/
-							Perent.killDefender();
+							myDefender.killDefender();
+							
+							Perent.sendSocketMessage(myDefender.getID(),
+									myDefender.getID().toString(),
+									NetworkInterface.SHIPKILLED,
+									false);
+							//Perent.killDefender();
 							
 						}
 						else if(incomingWrap.getType() == NetworkInterface.SHIPKILLED)
@@ -393,15 +421,15 @@ public class NetworkInterface
             {
 	        	while(true)
 	            {
-	        		byte[] buf = new byte[64];// will need to find the byte leagn of this???
+	        		byte[] buf = new byte[32];// will need to find the byte leagn of this???
 	        		//Frames with fewer than 64 bytes are padded out to 64 bytes with the Pad field.
 
 	                DatagramPacket incomingPacket = new DatagramPacket(buf, buf.length);
-	           
+	                String incomingData = "";
 	                try
 	                {
 	                	broadcastSocket.receive(incomingPacket);
-	                	String incomingData = new String(incomingPacket.getData());
+	                	incomingData = new String(incomingPacket.getData());
 	                	incomingData = incomingData.trim();
 	                	
 	                	if(false == incomingPacket.getAddress().equals(Perent.getLocalAddress()))
@@ -430,7 +458,7 @@ public class NetworkInterface
 
 	                			Send2NetWap(
 	                					incomingPacket.getAddress(),
-	                					Perent.getDefender(),
+	                					myDefender,//Perent.getDefender(),
 	                					NetworkInterface.SHIP,
 	                					true);
 		            		}
@@ -443,11 +471,10 @@ public class NetworkInterface
 	                catch(Exception ex)
 	                {
 	                	Perent.setError("Sending Listen for broadcasts: "+ex.toString());
-	                	System.out.println("Sending Listen for broadcasts: "+ex.toString());
+	                	System.out.println("Sending Listen for broadcasts("+incomingData+"): "+ex.toString());
 	                } 	
 	            }
             }});
 		ListenThread.start();
 	}
-
 }

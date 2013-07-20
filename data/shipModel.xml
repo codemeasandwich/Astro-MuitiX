@@ -1,139 +1,193 @@
 <?xml version='1.0' encoding='utf-8' standalone='yes'?>
  
 <Defender>
-<color R="30" G="30" B="250"/>
+<color R="200" G="200" B="240"/>
 
 <shapes>
 
-<shape><!-- top right eage -->
-<point xyz="5:0:2"/>
-<point xyz="1:6:2"/>
-<point xyz="3:8:5"/>
-<point xyz="5:6:5"/>
+<shape><!-- Disk -->
+<point xyz="9:0:8"/>
+<point xyz="6:1:8"/>
+<point xyz="4:2:8"/>
+<point xyz="2:4:8"/>
+<point xyz="1:6:8"/>
+<point xyz="1:8:8"/>
+<point xyz="2:10:8"/>
+<point xyz="4:12:8"/>
+<point xyz="6:13:8"/>
+<point xyz="9:14:8"/>
+<point xyz="11:14:8"/>
+<point xyz="14:13:8"/>
+<point xyz="16:12:8"/>
+<point xyz="18:10:8"/>
+<point xyz="19:8:8"/>
+<point xyz="19:6:8"/>
+<point xyz="18:4:8"/>
+<point xyz="16:2:8"/>
+<point xyz="14:1:8"/>
+<point xyz="11:0:8"/>
 </shape>
 
-<shape><!-- right wing -->
-<point xyz="1:6:2"/>
-<point xyz="3:8:5"/>
-<point xyz="3:16:5"/>
-<point xyz="1:18:2"/>
+<!-- spine -->
+
+<shape>
+<point xyz="9:14:5"/>
+<point xyz="10:16:5"/>
+<point xyz="10:14:7"/>
 </shape>
 
 <shape>
-<point xyz="3:16:5"/>
-<point xyz="1:18:2"/>
-<point xyz="4:21:5"/>
-<point xyz="5:18:6"/>
+<point xyz="11:14:5"/>
+<point xyz="10:16:5"/>
+<point xyz="10:14:7"/>
 </shape>
 
 <shape>
-<point xyz="4:21:5"/>
-<point xyz="5:18:6"/>
-<point xyz="6:18:6"/>
-<point xyz="7:19:6"/>
-<point xyz="6:23:5"/>
-</shape>
-
-<shape> <!--rightwing lefe -->
-<point xyz="7:19:6"/>
-<point xyz="6:23:5"/>
-<point xyz="8:23:5"/>
-<point xyz="8:19:5"/>
-</shape>
-
-<shape> <!-- rightwing2body -->
-<point xyz="8:23:5"/>
-<point xyz="8:18:5"/>
-<point xyz="10:22:8"/>
-</shape>
-
-<shape> <!-- right front hood -->
-<point xyz="10:22:8"/>
-<point xyz="10:19:7"/>
-<point xyz="10:15:5"/>
-<point xyz="8:18:5"/>
-</shape>
-
-<shape><!-- right tall -->
-<point xyz="8:23:5"/>
-<point xyz="10:30:5"/>
-<point xyz="10:22:8"/>
-</shape>
-
-<shape> <!-- left tall -->
-<point xyz="10:30:5"/>
-<point xyz="12:23:5"/>
-<point xyz="10:22:8"/>
-</shape>
-
-<shape> <!-- leftwing2body -->
-<point xyz="12:23:5"/>
-<point xyz="12:18:5"/>
-<point xyz="10:22:8"/>
-</shape>
-
-<shape> <!-- lift front hood -->
-<point xyz="10:22:8"/>
-<point xyz="10:19:7"/>
-<point xyz="10:15:5"/>
-<point xyz="12:18:5"/>
-</shape>
-
-<shape> <!--5 lifttwing lefe -->
-<point xyz="13:19:6"/>
-<point xyz="14:23:5"/>
-<point xyz="12:23:5"/>
-<point xyz="12:19:5"/>
-<point xyz="12:18:5"/>
+<point xyz="9:12:5"/>
+<point xyz="9:14:5"/>
+<point xyz="9:14:7"/>
+<point xyz="9:12:7"/>
 </shape>
 
 <shape>
-<point xyz="16:21:5"/>
-<point xyz="15:18:6"/>
-<point xyz="14:18:6"/>
-<point xyz="13:19:6"/>
-<point xyz="14:23:5"/>
+<point xyz="11:12:5"/>
+<point xyz="11:14:5"/>
+<point xyz="11:14:7"/>
+<point xyz="11:12:7"/>
 </shape>
 
 <shape>
-<point xyz="17:16:5"/>
-<point xyz="19:18:2"/>
-<point xyz="16:21:5"/>
-<point xyz="15:18:6"/>
+<point xyz="9:12:7"/>
+<point xyz="10:12:5"/>
+<point xyz="10:10:7"/>
 </shape>
 
-<shape> <!-- lift wing -->
-<point xyz="19:6:2"/>
-<point xyz="17:8:5"/>
-<point xyz="17:16:5"/>
-<point xyz="19:18:2"/>
+<shape>
+<point xyz="11:12:5"/>
+<point xyz="10:12:5"/>
+<point xyz="10:10:7"/>
 </shape>
 
-<shape> <!-- top lift eage -->
-<point xyz="15:0:2"/>
-<point xyz="19:6:2"/>
-<point xyz="17:8:5"/>
-<point xyz="15:6:5"/>
+<!-- Body -->
+
+<shape>
+<point xyz="8:16:3"/>
+<point xyz="9:22:3"/>
+<point xyz="10:23:3"/>
+<point xyz="10:22:4"/>
+<point xyz="10:16:5"/>
+</shape>
+
+<shape>
+<point xyz="12:16:3"/>
+<point xyz="11:22:3"/>
+<point xyz="10:23:3"/>
+<point xyz="10:22:4"/>
+<point xyz="10:16:5"/>
+</shape>
+
+<!-- Left Eng -->
+<shape>
+<point xyz="3:15:9"/>
+<point xyz="4:16:10"/>
+<point xyz="4:14:9"/>
+</shape>
+
+<shape>
+<point xyz="3:15:9"/>
+<point xyz="4:16:10"/>
+<point xyz="4:27:10"/>
+<point xyz="4:30:9"/>
+<point xyz="3:30:9"/>
+</shape>
+
+<shape>
+<point xyz="5:15:9"/>
+<point xyz="4:16:10"/>
+<point xyz="4:14:9"/>
+</shape>
+
+<shape>
+<point xyz="5:15:9"/>
+<point xyz="4:16:10"/>
+<point xyz="4:27:10"/>
+<point xyz="4:30:9"/>
+<point xyz="5:30:9"/>
+</shape>
+
+<!-- Right Eng -->
+
+<shape>
+<point xyz="15:15:9"/>
+<point xyz="16:16:10"/>
+<point xyz="16:14:9"/>
+</shape>
+
+<shape>
+<point xyz="15:15:9"/>
+<point xyz="16:16:10"/>
+<point xyz="16:27:10"/>
+<point xyz="16:30:9"/>
+<point xyz="15:30:9"/>
+</shape>
+
+<shape>
+<point xyz="17:15:9"/>
+<point xyz="16:16:10"/>
+<point xyz="16:14:9"/>
+</shape>
+
+<shape>
+<point xyz="17:15:9"/>
+<point xyz="16:16:10"/>
+<point xyz="16:27:10"/>
+<point xyz="16:30:9"/>
+<point xyz="17:30:9"/>
+</shape>
+
+<!-- Left Fin-->
+
+<shape>
+<point xyz="9:16:4"/>
+<point xyz="4:20:8"/>
+<point xyz="4:23:8"/>
+<point xyz="9:18:4"/>
+</shape>
+
+<!-- Right Fin-->
+
+<shape>
+<point xyz="11:16:4"/>
+<point xyz="16:20:8"/>
+<point xyz="16:23:8"/>
+<point xyz="11:18:4"/>
 </shape>
 
 </shapes>
 
 <Drift>
-<Jet>
-<point Go="3:20:5" Stop="3:20:5"/>
-<point Go="4:23:5" Stop="4:21:5"/>
-<point Go="5:28:5" Stop="5:22:5"/>
-<point Go="6:24:5" Stop="4:23:5"/>
-<point Go="8:23:5" Stop="8:23:5"/>
-<point Go="6:23:5" Stop="6:23:5"/>
-</Jet>
-<Jet>
-<point Go="17:20:5" Stop="17:20:5"/>
-<point Go="16:23:5" Stop="16:21:5"/>
-<point Go="15:28:5" Stop="15:22:5"/>
-<point Go="14:24:5" Stop="16:23:5"/>
-<point Go="12:23:5" Stop="12:23:5"/>
-<point Go="14:23:5" Stop="14:23:5"/>
-</Jet>
+<Jet_>
+<point Go="2:16:9" Stop="3:18:9"/>
+<point Go="0:18:9" Stop="3:18:9"/>
+<point Go="0:27:9" Stop="3:27:9"/>
+<point Go="2:29:9" Stop="3:27:9"/>
+
+<point Go="6:29:9" Stop="5:18:9"/>
+<point Go="8:27:9" Stop="5:18:9"/>
+<point Go="8:18:9" Stop="5:27:9"/>
+<point Go="6:16:9" Stop="5:27:9"/>
+</Jet_>
+
+<Jet_>
+<point Go="14:16:9" Stop="15:18:9"/>
+<point Go="12:18:9" Stop="15:18:9"/>
+<point Go="12:27:9" Stop="15:27:9"/>
+<point Go="14:29:9" Stop="15:27:9"/>
+
+<point Go="18:29:9" Stop="17:18:9"/>
+<point Go="20:27:9" Stop="17:18:9"/>
+<point Go="20:18:9" Stop="17:27:9"/>
+<point Go="18:16:9" Stop="17:27:9"/>
+</Jet_>
 </Drift>
 </Defender>

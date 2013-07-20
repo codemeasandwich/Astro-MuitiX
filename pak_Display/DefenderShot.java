@@ -19,6 +19,7 @@ public class DefenderShot
 	{
 		this(heading, x1, y1, "Address Not Set");
 	}
+	
 	public DefenderShot(float heading, float x1, float y1, String inputIP)
 	{
 		count++;

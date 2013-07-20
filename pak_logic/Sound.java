@@ -14,20 +14,23 @@ public class Sound
 	private File sound_Killed;
 	private File sound_Alive;
 	private File sound_Shoot;
+	private File sound_AtroHit;
 	private boolean sound;
 	
 	public static final byte START =0;
 	public static final byte KILLED=1;
 	public static final byte ALIVE =2;
 	public static final byte SHOOT =3;
+	public static final byte ATROHIT=4;
 	
 	public Sound()
 	{
 		System.out.print("Sound:");
-			sound_Start  = 	new File("data/2.wav");
-			sound_Killed = 	new File("data/risehit.wav");
-			sound_Alive  = 	new File("data/swoosh.wav");
-			sound_Shoot  = 	new File("data/Lock.wav");
+			sound_Start  = 	new File("data/");
+			sound_Killed = 	new File("data/explosion.wav");
+			sound_AtroHit=  new File("data/AstroHit.wav");
+			sound_Alive  = 	new File("data/Live");
+			sound_Shoot  = 	new File("data/shoot.wav");
 			sound = true;
 		System.out.println("Done");
 	}
@@ -64,7 +67,9 @@ public class Sound
 					case(SHOOT):
 						stream = AudioSystem.getAudioInputStream(sound_Shoot);
 					break;
-					
+					case(ATROHIT):
+						stream = AudioSystem.getAudioInputStream(sound_AtroHit);
+					break;
 				}
 				
 			    // Open a data line to play our type of sampled audio.

@@ -95,6 +95,7 @@ public class Defender implements Serializable
 	{
 		perent.playSound(Sound.ALIVE);
 		model.ReSpawn();
+		zoneIn();
 	}
 	
 	public void zoneIn()
@@ -133,7 +134,7 @@ public class Defender implements Serializable
 				if(null !=hit && !hit.equals(ID))
 				{
 					perent.sendSocketMessage(hit,fireXY,NetworkInterface.HIT_TEST,true);
-					perent.SendShotRemove(fire.toString());
+	 				perent.SendShotRemove(fire.toString());
 					arrayShots.remove(count);
 				}
 			}
@@ -144,7 +145,11 @@ public class Defender implements Serializable
 	{		
 		if(!isFake && !model.isDead() && perent.ShipSmashTest(shipXY))
 		{
-			perent.killDefender();
+			perent.killDefender();/*
+			Perent.sendSocketMessage(getID(),
+					getID().toString(),
+					NetworkInterface.SHIPKILLED,
+					false);*/
 		}
 		
 		Display.pushMatrix();
