@@ -71,9 +71,7 @@ class NetWrapConnection extends Thread // Inner Class
 			NetWrap incomingWrap = (NetWrap)ois.readObject();
 			
 			System.out.println("IN NetWap:"+net.typeConveter(incomingWrap.getType())+" "+incomingListen2User.getInetAddress().toString());
-			
-			//Perent.updateNet(true);
-			
+
 			if(incomingWrap.getType() == NetworkInterface.SHIP)
 			{
 				Perent.addDefender((Defender)incomingWrap.getObject(),true);
@@ -117,7 +115,6 @@ class NetWrapConnection extends Thread // Inner Class
 						myDefender.getID().toString(),
 						NetworkInterface.SHIPKILLED,
 						false);
-				//Perent.killDefender();
 				
 			}
 			else if(incomingWrap.getType() == NetworkInterface.SHIPKILLED)
@@ -144,7 +141,7 @@ class NetWrapConnection extends Thread // Inner Class
 			}
 			else if(incomingWrap.getType() == NetworkInterface.ROCKHIT)
 			{
-				//System.out.println("ROCKSResponse ->");
+				System.out.println("ROCKS[] <-");
 				Perent.setRockHit((Rock[])incomingWrap.getObject());
 			}
 			else

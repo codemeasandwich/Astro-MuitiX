@@ -33,9 +33,9 @@ public class Send2NetWap extends Thread
 					{
 						if(Perent.getLocalAddress() == Address)//if send to me.. then send to every one BUT me
 						{
-                			for(InetAddress address: net.aLiveAddresses)
+                			for(AliveAddr address: net.aLiveAddresses)
                 			{
-                				Send(address,objToSend,Type,returnThis);
+                				Send(address.getAddress(),objToSend,Type,returnThis);
                 			}
 						}
 						else
@@ -69,13 +69,13 @@ public class Send2NetWap extends Thread
             				}
             			}
 						Perent.killDefender(Address);
-						System.out.println("SendShip("+Address.toString()+") "+ e.toString());
+						System.out.println(net.typeConveter(Type)+"("+Address.toString()+") "+ e.toString());
 					}
 					catch(Exception ex)
 			        {
 						//Perent.setError("SendShip("+Address.toString()+") "+ ex.toString());
 						Perent.killDefender(Address);
-						System.out.println("SendShip("+Address.toString()+") "+ ex.toString());
+						System.out.println(net.typeConveter(Type)+"("+Address.toString()+") "+ ex.toString());
 			        }
 	            }
 			});

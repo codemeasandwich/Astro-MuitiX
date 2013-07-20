@@ -128,6 +128,14 @@ public class Level
 		synchronized (arrayDefender)
 		{
 			inputDefender.zoneIn();
+			for(Defender Spaceship: arrayDefender)
+			{
+				if(Spaceship.getID().equals(inputDefender.getID()))
+				{
+					arrayDefender.remove(Spaceship);
+					break;
+				}
+			}
 			arrayDefender.add(inputDefender);
 		}
 	}

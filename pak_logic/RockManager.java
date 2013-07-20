@@ -27,7 +27,6 @@ public class RockManager implements Serializable
 		arrayRocks = new ArrayList<Rock>();
 		creatRocks();
 		System.out.println("Done");
-
 	}
 	
 	public void reBuild(Level inputPerent, PApplet inputDisplay)
@@ -49,7 +48,7 @@ public class RockManager implements Serializable
 			deadRocksNum = 0;
 			Random generator = new Random();
 			int rn = generator.nextInt(5)+5;
-			
+			//rn = 0;
 			for(int count =0; count < rn; count++)
 			{
 				arrayRocks.add(new Rock(this,Display));
@@ -84,10 +83,10 @@ public class RockManager implements Serializable
 			{
 				rockXY = rock.getXY();
 				if(
-					rockXY[0]+15 > XY[0] && 
-					rockXY[0]-15 < XY[0] &&	
-					rockXY[1]+15 > XY[1] && 
-					rockXY[1]-15 < XY[1])
+					rockXY[0]+rock.getSize()*6 > XY[0] && 
+					rockXY[0]-rock.getSize()*6 < XY[0] &&	
+					rockXY[1]+rock.getSize()*6 > XY[1] && 
+					rockXY[1]-rock.getSize()*6 < XY[1])
 				{
 					Perent.playSound(Sound.ATROHIT);
 					
@@ -105,14 +104,9 @@ public class RockManager implements Serializable
 						{
 							arrayRocks.add(myRock);
 						}
-						//System.out.println("rocks:" + arrayRocks.size());
-						
-						//Perent.SendRockHit(new Rock[]{rock, myRock});
-						//Perent.SendRockManager();
 					}
-					else if(arrayRocks.size()-1 == deadRocksNum)// && rock.delete is ture
+					else if(arrayRocks.size()-1 == deadRocksNum)
 					{
-						//You hit the last one
 						creatRocks();
 					}
 					
@@ -120,11 +114,12 @@ public class RockManager implements Serializable
 					{
 						deadRocksNum++;
 					}
-
+					
 					synchronized(arrayRocks)
 					{
 						Perent.SendRockManager();
 					}
+
 					
 					break;
 				}
@@ -158,11 +153,15 @@ public class RockManager implements Serializable
 		{
 			if(rock.getID() == twoRocks[0].getID())
 			{
-				rock = twoRocks[0];
-				arrayRocks.add(twoRocks[1]);
+				synchronized(arrayRocks)
+				{
+					arrayRocks.remove(rock);
+					arrayRocks.add(twoRocks[0]);
+					arrayRocks.add(twoRocks[1]);
+				}
+				Rock.RockCount++;
 				break;
-			}
-			
+			}		
 		}
 	}
 }

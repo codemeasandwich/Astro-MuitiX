@@ -45,6 +45,14 @@ public class ListenBroadcastsThread extends Thread
             			//inputLocation [0]=ID [1]=X  [2]=Y  [3]=heading
             			Perent.ReceiveDefenderLocation(inputLocation);
             		}
+            		else if(incomingData.startsWith(NetworkInterface.HeartbeatFlag))
+            		{
+            			for(AliveAddr address: net.aLiveAddresses)
+            			{
+            				if(address.getAddress().equals(incomingPacket.getAddress()))
+            				{	address.beat();  break; }
+            			}
+            		}
             		else if(incomingData.startsWith(NetworkInterface.SendShotLocation_ID))
             		{
             			String[] inputLocation = incomingData.split(":");

@@ -22,9 +22,10 @@ public class NetworkInterface
 	public static final String SendDefenderLocation_ID = "DP:";
 	public static final String SendShotLocation_ID = "SL:";
 	public static final String SendShotRemove_ID = "SR:";
+	public static final String HeartbeatFlag = "Alive";
 	private String lastDefenderLocation;
 	private boolean error;
-	public ArrayList<InetAddress> aLiveAddresses;
+	public ArrayList<AliveAddr> aLiveAddresses;
 	private Defender myDefender;
 	private Send2NetWap send2NetWap;
 	
@@ -44,7 +45,7 @@ public class NetworkInterface
 		Perent = inputPerent;
 		myDefender = inputDefender;
 		error = false;
-		aLiveAddresses = new ArrayList<InetAddress>();
+		aLiveAddresses = new ArrayList<AliveAddr>();
 		
 		 try
 		 {
@@ -60,7 +61,7 @@ public class NetworkInterface
 			 System.out.println("NetworkInterface():"+e.toString());
 			 error = true;
 		 }
-		 
+
 			ListenBroadcastsThread listenThread = new ListenBroadcastsThread(this, Perent,myDefender);
 			listenThread.start();
 			Listen4NetWrap Thread4Return2NetWap = new Listen4NetWrap(this, Perent,myDefender);
@@ -68,9 +69,57 @@ public class NetworkInterface
 			send2NetWap = new Send2NetWap(this, Perent);
 
 		 sent(Perent.version());
+		 
+		 Thread Heartbeat = new Thread(new Runnable()
+			{
+				public void run()
+	            {
+					try
+					{
+						int sleepTime = 500;
+						byte count = 0;
+						while(true)
+						{
+							Thread.sleep(sleepTime);
+							sent(HeartbeatFlag);
+							
+							count++;
+							if(count >= 3)//test every 1.5 Sec
+							{ LiveTest(); }
+						}
+					}
+					catch(Exception ex)
+			        {
+						Perent.setError("Heartbeat:"+ex.toString());
+						System.out.println("Heartbeat:"+ex.toString());
+			        }
+	            }
+			});
+		 Heartbeat.start();
+		 
 		 System.out.println("Done");
 	}
-	
+	private void LiveTest()
+	{
+		ArrayList<AliveAddr> delAddr = new ArrayList<AliveAddr>();
+		
+		for(AliveAddr address: aLiveAddresses)
+		{
+			if(address.aLive() == false)
+			{
+				Perent.killDefender(address.getAddress());
+				delAddr.add(address);
+			}
+			else
+			{address.resetHeartbeat();}
+		}
+		for(AliveAddr address: delAddr)
+		{
+			aLiveAddresses.remove(address);
+		}
+			
+
+	}
 	public void Send2NetWap(//like client
 			final InetAddress Address,
 			final Object objToSend,
@@ -88,9 +137,7 @@ public class NetworkInterface
 			return true;
 		}
 		else
-		{
-			return false;
-		}
+		{ return false;	}
 	}
 	
 	public void SendDefenderLocation(int x, int y, float heading, float drift)
@@ -168,9 +215,9 @@ public class NetworkInterface
 	{
 		boolean found = false;
 		
-		for/*each*/ (InetAddress address: aLiveAddresses)
+		for/*each*/ (AliveAddr address: aLiveAddresses)
 		{
-			if(inputIP.equals(address))
+			if(inputIP.equals(address.getAddress()))
 			{
 				found = true;
 				break;//End loop
@@ -179,7 +226,7 @@ public class NetworkInterface
 		
 		if(!found)
 		{
-			aLiveAddresses.add(inputIP);
+			aLiveAddresses.add(new AliveAddr(inputIP));
 		}
 		
 		return found;
