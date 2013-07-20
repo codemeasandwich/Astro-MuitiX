@@ -14,12 +14,11 @@ public class Driver extends PApplet
 
 	public void setup()
 	{
-		size(500,500, P3D);
+		size(600,450, P3D);
 		frameRate(30);
 		
 		Sys = new Core(this);
 	}
-	
 	
 	public void draw()
 	{

@@ -16,7 +16,7 @@ public class KeyboardInput
 	
 	public boolean test()
 	{
-		//System.out.println(Display.keyCode);
+		//System.out.println("KeyboardInput.test() "+Display.keyCode);
 		
 		if(PApplet.RIGHT == Display.keyCode)
 		{
@@ -34,12 +34,19 @@ public class KeyboardInput
 		{
 			perent.moveDefender(Defender.BACK);
 		}*/
-		else if(0 == Display.keyCode)//space
+		else if(PApplet.CONTROL == Display.keyCode || 17 == Display.keyCode)//space
 		{
 			perent.fireDefender();
 		}
 		//Display.keyCode = -1;
-		
+		else if(90 == Display.keyCode)//z
+		{
+			perent.killDefender();
+		}
+		else if(81 == Display.keyCode)//q
+		{
+			perent.zoneInDefender();
+		}
 		Display.keyPressed = false;
 		return false;
 		

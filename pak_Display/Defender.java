@@ -1,7 +1,6 @@
 package pak_Display;
 
 import java.util.ArrayList;
-
 import pak_Core.Core;
 import processing.core.PApplet;
 
@@ -10,14 +9,18 @@ public class Defender
 	private PApplet Display;
 	private Core Perent;
 	private int ID;
-	private int shotLineSize;
 	private float shotLineSpeed;
-	private float shipX;
-	private float shipY;
 	private float drift;
 	private float heading;
 	private float stepsize;
+	private float rotate;
+	private float shipXY[];
+	private float shipScale;
 	private ArrayList<Shot> arrayShots;
+	private boolean shipScaleGrow;
+	
+	
+	private DefenderModel model;
 	
 	public static final int FORWARE = 1;
 	public static final int RIGHT = 2;
@@ -27,6 +30,13 @@ public class Defender
 	public Defender (Core inputPerent, PApplet inputDisplay)
 	{
 		this(inputPerent,inputDisplay, 0);
+		
+		 /* default values that Java initializes variables to
+		 # null for objects
+		 # 0 for integer types of all lengths (byte, char, short, int, long)
+		 # 0.0 for float types (float and double)
+		 # false for booleans
+		 */
 	}
 	
 	public Defender (Core inputPerent, PApplet inputDisplay, int inputID)
@@ -34,174 +44,207 @@ public class Defender
 		Perent = inputPerent;
 		Display = inputDisplay;
 		ID = inputID;
-		
-		shipX = Display.getWidth()/2;//0.0f;
-		shipY =  Display.getHeight()/2;//0.0f;
+		shipXY = new float[]
+		                   {Perent.getRandom(Display.getWidth()),
+							Perent.getRandom(Display.getHeight())};
+		//{Display.getWidth()/2,Display.getHeight()/2};
 		drift = 0.0f;
-		heading = 1.6f;
-		stepsize = 5.2f;
-		shotLineSpeed = stepsize *1.2f;
-		shotLineSize = 3;
-		
+		heading = 1.599f;
+		stepsize = 3.2f;
+		rotate = 0.1f;
+		shipScale = 7.5f;
+		shotLineSpeed = stepsize *2.0f;
+		shipScaleGrow = false;
 		arrayShots = new ArrayList<Shot>();
 		
+		model = new DefenderModel(this, Display);
 	}
 	
 	public void draw()
 	{
-		drawShip();
 		drawShots();
+		drawShip();
 	}
-	
+
 	public String toString()
 	{
 		return  String.valueOf(ID);
 	}
 	
+	public void zoneIn()
+	{
+		shipScaleGrow = true;
+	}
+	
 	private void drawShots()
 	{
+		Display.fill(255);
+		
+		if(!arrayShots.isEmpty() && arrayShots.get(0).getTTL()<1)
+		{	arrayShots.remove(0);  }
+		
+		//System.out.println("arrayShots"+arrayShots.size());
 		for/*each*/ (Shot fire: arrayShots)
 		{
-			Display.pushMatrix();
-			//Display.rotateZ(fire.heading -1.6f);
-			Display.strokeWeight(shotLineSize);
-			Display.line(fire.x1, fire.y1, fire.x1+shotLineSize, fire.y1+shotLineSize);
-			fire.move();
-			//Spaceship.draw();
-			Display.popMatrix();
+				fire.setXY(Perent.spaceReset(fire.getXY()));
+				Display.ellipse(fire.getXY()[0], fire.getXY()[1], Shot.SIZE, Shot.SIZE);
+				fire.move();
 		}
 	}
 	
 	private void drawShip()
 	{
+		Display.pointLight(255,255,255, (float)(.9*shipXY[0]),(float)(.9*shipXY[1]), 90);
+		Display.pointLight(150,150,150, (float)(1.1*shipXY[0]),(float)(1.1*shipXY[1]), 90);
+		
+		//Display.ellipse(20,20,20,20);
+		
 		Display.pushMatrix();
 		
-		Display.translate(shipX,shipY);//(Display.getWidth()/2, Display.getHeight()/2);
-		Display.scale(10);
-					//R    G   B   A
-		Display.fill(204, 102, 0, 125);
-		//count += Display.frameRate/1000;
-		Display.rotateZ(heading-1.6f);
-		
-		//center box
-		/*
-		Display.beginShape();
-			Display.vertex(-0.1f,-0.1f,0);
-			Display.vertex(-0.1f,0.1f,0);
-			Display.vertex(0.1f,0.1f,0);
-			Display.vertex(0.1f,-0.1f,0);
-		Display.endShape();
-		*/
-		//Ship to center
-		Display.translate(-1,-2.5f);
-		
-		
-		Display.beginShape();
-			Display.vertex(1,0,0);
-			Display.vertex(0,4,0);
-			Display.vertex(1,3,1);
-		Display.endShape();
-		
-		Display.fill(204, 202, 0, 125);
-		Display.beginShape();
-			Display.vertex(1,0,0);
-			Display.vertex(2,4,0);
-			Display.vertex(1,3,1);
-		Display.endShape();
-		
-		Display.fill(104, 102, 0, 125);
-		Display.beginShape();
-			Display.vertex(1,3,1);
-			Display.vertex(0,4,0);
-			Display.vertex(1,3,0);
-		Display.endShape();
-		
-		Display.fill(104, 102, 100, 125);
-		Display.beginShape();
-			Display.vertex(1,3,1);
-			Display.vertex(2,4,0);
-			Display.vertex(1,3,0);
-		Display.endShape();
-
-		//System.out.println("X"+Display.mouseX+" Y"+Display.mouseY);
-		
-		if(0.1<drift)
-		{
-			Display.fill(255, 255, 255, 125);
-			Display.beginShape();
-				Display.vertex(1,3,0);
-				Display.vertex(0.5f,3.5f,0);
-				Display.vertex(1,3+(2*drift),0);
-				Display.vertex(1.5f,3.5f,0);
-			Display.endShape();
-		}
-		
-		if(!Display.keyPressed /*PApplet.UP != Display.keyCode*/ && 0.1<drift)
-		{
-			shipX -= PApplet.cos(heading)*(stepsize*drift);
-			shipY -= PApplet.sin(heading)*(stepsize*drift);
-			drift = drift *.95f;
+			Display.translate(shipXY[0],shipXY[1]);
 			
-		   //System.out.println(drift);
-		}
-		
+			if(shipScaleGrow)
+			{
+				if(shipScale<16)
+				{shipScale += 0.25f;}
+				else
+				{shipScaleGrow = false;}
+			}
+			else
+			{
+				if(shipScale>7.5)
+				{shipScale -= 0.25f;}
+			}
+			
+			Display.scale(shipScale);
+			
+			// ========= move ship to center
+			Display.rotateZ(heading-1.6f);
+			Display.translate(-1,-2.5f);
+			
+			// ========= draw ship
+			model.draw();
+			
+			if(0.1<drift && !model.getkilled())
+			{	model.drawDrift(drift);  
+			
+			}
+
 		Display.popMatrix();
+
+		// ========= if the ship is moving why stop it?
+		if(!Display.keyPressed && 0.1<drift)
+		{ drift(); }
 		
+	}
+	
+	private void drift()
+	{
+		shipXY = Perent.spaceReset(shipXY);
+		
+		shipXY[0] -= PApplet.cos(heading)*(stepsize*drift);
+		shipXY[1] -= PApplet.sin(heading)*(stepsize*drift);
+		drift = drift *0.975f;
+		Perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading);
 	}
 	
 	public void moveDefender(int inputMove)
 	{
-		if(RIGHT == inputMove)
+		shipXY = Perent.spaceReset(shipXY);
+		
+		switch (inputMove)
 		{
-			heading += 0.3f;
-		}
-		else if(LEFT == inputMove)
-		{
-			heading -= 0.3f;
-		}
-		else if (FORWARE == inputMove)
-		{
-			shipX -= PApplet.cos(heading)*stepsize;
-			shipY -= PApplet.sin(heading)*stepsize; 
-
-			//a cap on the drift
-			if(1.0f > drift)
-			{
-				drift += 0.2f;
-			}
-
-		}/*
-		else if(BACK == inputMove)
-		{
-			shipX += PApplet.cos(heading)*stepsize;
-			shipY += PApplet.sin(heading)*stepsize; 
-		}*/
+			case RIGHT:
+				heading += rotate;
+			break;
 			
+			case LEFT:
+				heading -= rotate;
+			break;
+			
+			case FORWARE:
+				shipXY[0] -= PApplet.cos(heading)*stepsize;
+				shipXY[1] -= PApplet.sin(heading)*stepsize; 
+
+				//a cap on the drift
+				if(1.0f > drift)
+				{ drift += 0.2f; }
+			break;
+			
+			case BACK:
+				shipXY[0] += PApplet.cos(heading)*stepsize;
+				shipXY[1] += PApplet.sin(heading)*stepsize;
+			break;	
+		}
+		Perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading);
+		//System.out.println("heading"+heading);
 	}
 	
 	public void fireDefender()
 	{
-		arrayShots.add(new Shot(heading,shipX,shipY,shotLineSpeed));
+		arrayShots.add(new Shot(heading,shipXY[0],shipXY[1],shotLineSpeed));
 	}
 	
-	class Shot
+	public void killDefender()
 	{
-		public float heading;
-		public float x1,y1;
-		public float speed;
-		
-		public Shot(float heading, float x1, float y1, float speed)
-		{
-			this.heading = heading;
-			this.x1 = x1;
-			this.y1 = y1;
-			this.speed = speed;
-		}
-		public void move()
-		{
-			x1 -= PApplet.cos(heading)*speed;
-			y1 -= PApplet.sin(heading)*speed;
-		}
+		model.setKilled();
 	}
+	
+	public boolean getkilled()
+	{
+		return model.getkilled();
+	}
+}
+class Shot
+{
+	private float heading;
+	private float[] xy;
+	private float speed;
+	public static final int SIZE = 5;
+	private int TTL;
+	
+	public Shot(float heading, float x1, float y1, float speed)
+	{
+		TTL = 75;
+		this.heading = heading;
+		xy = new float[]{x1,y1};
+		this.speed = speed;
+	}
+	
+	public void move()
+	{
+		xy[0] -= PApplet.cos(heading)*speed;
+		xy[1] -= PApplet.sin(heading)*speed;
+		TTL--;
+	}
+	
+	public float getHeading()
+	{
+		return heading;
+	}
+	
+	public float[] getXY()
+	{
+		return xy;
+	}
+	public void setXY(float[] inputXY)
+	{
+		xy = inputXY;
+	}
+	public float getSpeed()
+	{
+		return speed;
+	}
+	
+	public void setTTL(int inputnum)
+	{
+		TTL = inputnum;
+	}
+	
+	public int getTTL()
+	{
+		return TTL;
+	}
+	
 }
 
