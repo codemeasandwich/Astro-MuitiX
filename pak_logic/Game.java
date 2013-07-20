@@ -24,18 +24,22 @@ public class Game
 	private Menu mainMenu;
 	private int crazyLandCount;
 	private float[] crazyRotate;
+	private String myGameName;
 	
 	public Game(Core inputPerent, PApplet inputDisplay)
 	{
 		Perent = inputPerent;
 		Display = inputDisplay;
+		
 		rn = new Random();
+		
 		score = 100;
 		netIn = new byte[50];
 		netOut = new byte[50];
 		crazyRotate = new float[]{100,100,100};
 		Menushow = true;
 		crazyLandCount = 0;
+		myGameName = "";
 		
 		fontA = Display.loadFont("Silkscreen-16.vlw");
 		fontB = inputDisplay.loadFont("BlueHighwayBold-18.vlw");
@@ -52,11 +56,16 @@ public class Game
 	
 	public void draw()
 	{
+		Display.background(0);
+		Display.stroke(255,255,0);
+		Display.line(Display.width/2,0,Display.width/2,Display.height);
+		Display.line(0,Display.height/2,Display.width,Display.height/2);
+		
 		if(Menushow)
 		{Display.pushMatrix();
-			crazyLand();}
+		 crazyLand();}
 		
-		myLevel.draw();
+				myLevel.draw();
 			
 		if(Menushow)
 		{Display.popMatrix();}
@@ -68,7 +77,23 @@ public class Game
 		{		score++;		}
 		
 		mainMenu.draw();
+	}
+	
+	public void setGameName(String Name)
+	{
+		myGameName = Name;
+		startGame();
 		
+	}
+	public String getGameName()
+	{
+		return myGameName;
+	}
+	
+	private void startGame()
+	{
+		Perent.refreshGameMulticastPort();
+		myLevel.setInGame(true);
 	}
 	
 	public int[] spaceReset_Int(int[] XY)
@@ -161,7 +186,7 @@ public class Game
 		return setMenuVisible(!Menushow);
 	}
 	
-	private boolean setMenuVisible(boolean val)
+	public boolean setMenuVisible(boolean val)
 	{
 		if(val)
 		{

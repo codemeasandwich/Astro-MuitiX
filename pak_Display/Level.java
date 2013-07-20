@@ -10,6 +10,7 @@ public class Level
 {
 	private PApplet Display;
 	private Game Perent;
+	private boolean inGame;
 
 	private ArrayList<DefenderShot> arrayShots;
 	private ArrayList<Defender> arrayDefender;
@@ -17,31 +18,38 @@ public class Level
 	
 	public Level(Game inputPerent, PApplet inputDisplay)
 	{		
+		inGame 		  = false;
 		Perent        = inputPerent;
 		Display       = inputDisplay;
 		arrayDefender = new ArrayList<Defender>();
 		arrayShots    = new ArrayList<DefenderShot>();
-		//fontB = inputDisplay.loadFont("BlueHighwayBold-18.vlw");
 	}
 	
 	public void draw()
-	{	
+	{
 		Display.pushMatrix();
-		Display.background(0);
-		
-		
-		Display.fill(255);
-		Display.textAlign(PApplet.LEFT);
-		Display.textFont(Perent.getFont('B'), 18);
-		Display.text("score: "+Perent.getScore(), 20, 20);
+
+		if(inGame)
+		{
+			Display.fill(255);
+			Display.textAlign(PApplet.LEFT);
+			Display.textFont(Perent.getFont('B'), 18);
+			Display.text("score: "+Perent.getScore(), 20, 20);
+		}
 		
 		Display.rotateX(0.4f);
 		Display.translate(0,-80,-150);
-		
-		
-		
 		drawGameBorde();
 		
+		if(inGame)
+		{
+			inGamedraw();
+		}
+		Display.popMatrix();
+	}
+	
+	private void inGamedraw()
+	{	
 		for (Defender Spaceship: arrayDefender)
 		{	Spaceship.draw();}
 		
@@ -63,12 +71,17 @@ public class Level
 					fire.move();
 			}
 		}
-		Display.popMatrix();
+		
 	}
 	
 	public void addDefender(Defender inputDefender)
 	{
 		arrayDefender.add(inputDefender);
+	}
+	
+	public void setInGame(boolean val)
+	{
+		inGame = val;
 	}
 	
 	public synchronized void addShot(String[] inputLocation)

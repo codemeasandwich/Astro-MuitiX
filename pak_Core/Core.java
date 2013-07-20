@@ -5,7 +5,6 @@ package pak_Core;
  
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-//import java.util.Random;
 import processing.core.*;
 import pak_Display.*;
 import pak_Net.*;
@@ -15,9 +14,11 @@ public class Core
 {
 	private PApplet perent;
 	public final static String GroupIP = "224.0.41.0";
-//	http://www.iana.org/assignments/multicast-addresses
-	public final static int GroupPort = 9574;
+	//	http://www.iana.org/assignments/multicast-addresses
+	public final static int PublicMulticastPort = 9580;
 	public final static int socketPort = 9575;
+	
+	private int GamePort;
 
 	private KeyboardInput myKeyboard;
 
@@ -29,15 +30,17 @@ public class Core
 	private String CompName;
 	private Game myGame;
 	private boolean commandkeyInput;
+	private int PCNum;
 	
 	public Core(PApplet inputPerent)
 	{
 			//1st
 			perent = inputPerent;
-			version = "012";
+			version = "013";
 			Title = "Astro-MultiX";
 			userName = System.getProperty("user.name");
 			commandkeyInput = true;
+			PCNum = 1 + PublicMulticastPort;
 			
 			try// throws UnknownHostException
 			{
@@ -55,21 +58,9 @@ public class Core
 			myKeyboard = new KeyboardInput(this, inputPerent);
 	}
 	
-	public String getLocalAddress()
-	{
-		return LocalAddress;
-	}
 	public void setCommandkeyInput(boolean val)
 	{
 		commandkeyInput = val;
-	}
-	public String getUserName()
-	{
-		return userName;
-	}
-	public String getCompName()
-	{
-		return CompName;
 	}
 	
 	public void draw()
@@ -84,6 +75,7 @@ public class Core
 		myGame.draw();
 	}
 
+	//My Ship
 	public void moveDefender(byte inputMove)
 	{
 		myGame.moveDefender(inputMove);
@@ -93,6 +85,7 @@ public class Core
 	{
 		myGame.fireDefender();
 	}
+	
 	public void killDefender()
 	{
 		myGame.killDefender();
@@ -108,11 +101,15 @@ public class Core
 		return myGame.getDefender();
 	}
 
-	public String version()
+	public int getPCNum()
 	{
-		return Title + " " + version;
+		return PCNum;
 	}
-	
+	public void setPCNum(int num)
+	{
+		PCNum = num;
+	}
+	//My Game
 	public void addScore(int points)
 	{
 		myGame.addScore(points);
@@ -122,24 +119,56 @@ public class Core
 	{
 		return myGame.getScore();
 	}
-	public void updateNet(boolean Incoming)
-	{
-		myGame.updateNet(Incoming);
-	}
-	
+
 	public void addDefender(Defender inputDefender,boolean rebuild)
 	{
 		myGame.addDefender(inputDefender,rebuild);
 	}
 	
+	public boolean showMenuToggle()
+	{
+		return myGame.showMenuToggle();
+	}
+	
+	//Network Stuff
+	public void updateNet(boolean Incoming)
+	{
+		myGame.updateNet(Incoming);
+	}
+	
+	public int getGameMulticastPort()
+	{
+		return GamePort;
+	}
+	
+	public void setGameMulticastPort(int port)
+	{
+		System.out.println(port);
+		GamePort = port;
+	}
+	
+	public void refreshGameMulticastPort()
+	{
+		net.sent("PCNum:"+getPCNum());
+		try
+		{
+			Thread.sleep(2000);//give time for repleces
+		}
+        catch(Exception ex)
+        {
+        	System.out.println("refreshGameMulticastPort "+ex.toString());
+        }
+	}
+
+	public String getLocalAddress()
+	{
+		return LocalAddress;
+	}
+	
+	//Out
 	public void SendDefenderLocation(int x, int y, float heading)
 	{
 		net.SendDefenderLocation(x, y, heading);
-	}
-	
-	public void ReceiveDefenderLocation(String[] inputLocation)
-	{
-		myGame.ReceiveDefenderLocation(inputLocation);
 	}
 	
 	public void SendShotLocation(int x, int y, float heading)
@@ -147,12 +176,30 @@ public class Core
 		net.SendShotLocation(x, y, heading);
 	}
 	
+	//IN
 	public void ReceiveShotLocation(String[] inputLocation)
 	{
 		myGame.ReceiveShotLocation(inputLocation);
 	}
-	public boolean showMenuToggle()
+	
+	public void ReceiveDefenderLocation(String[] inputLocation)
 	{
-		return myGame.showMenuToggle();
+		myGame.ReceiveDefenderLocation(inputLocation);
+	}
+	
+	//Other
+	public String version()
+	{
+		return Title + " " + version;
+	}
+	
+	public String getUserName()
+	{
+		return userName;
+	}
+	
+	public String getCompName()
+	{
+		return CompName;
 	}
 }
