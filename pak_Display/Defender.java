@@ -52,7 +52,7 @@ public class Defender
 		heading = 1.599f;
 		stepsize = 3.2f;
 		rotate = 0.1f;
-		shipScale = 7.5f;
+		shipScale = 2;
 		shipScaleGrow = false;
 		arrayShots = new ArrayList<DefenderShot>();
 		
@@ -93,25 +93,25 @@ public class Defender
 	
 	private void drawShip()
 	{
-		Display.pointLight(255,255,255, (float)(.9*shipXY[0]),(float)(.9*shipXY[1]), 90);
-		Display.pointLight(150,150,150, (float)(1.1*shipXY[0]),(float)(1.1*shipXY[1]), 90);
+		//Display.pointLight(255,255,255, (float)(.9*shipXY[0]),(float)(.9*shipXY[1]), 90);
+		//Display.pointLight(150,150,150, (float)(1.1*shipXY[0]),(float)(1.1*shipXY[1]), 90);
 		
 		//Display.ellipse(20,20,20,20);
 		
 		Display.pushMatrix();
 		
 			Display.translate(shipXY[0],shipXY[1]);
-			
+			//Display.rotateX(Display.frameCount /100.0f);
 			if(shipScaleGrow)
 			{
-				if(shipScale<16)
+				if(shipScale<6)
 				{shipScale += 0.25f;}
-				else
+				else if(shipScaleGrow)
 				{shipScaleGrow = false;}
 			}
 			else
 			{
-				if(shipScale>7.5)
+				if(shipScale>2)
 				{shipScale -= 0.25f;}
 			}
 			
@@ -125,9 +125,7 @@ public class Defender
 			model.draw();
 			
 			if(0.1<drift && !model.getkilled())
-			{	model.drawDrift(drift);  
-			
-			}
+			{	model.drawDrift(drift);  }
 
 		Display.popMatrix();
 

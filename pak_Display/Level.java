@@ -27,7 +27,7 @@ public class Level
 	public void draw()
 	{		
 		Display.background(10);
-		
+		Display.noStroke();
 		Display.fill(255);
 		Display.text("processing & eclipsenthe dynamic duo", 30, 30);
 		
@@ -40,9 +40,11 @@ public class Level
 		{
 			Spaceship.draw();
 		}
+		
 		Display.fill(255);
 		if(!arrayShots.isEmpty() && arrayShots.get(0).getTTL()<1)
 		{	arrayShots.remove(0);  }
+		
 		for/*each*/ (DefenderShot fire: arrayShots)
 		{
 				fire.setXY(Perent.spaceReset_Int(fire.getXY()));

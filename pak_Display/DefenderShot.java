@@ -7,7 +7,7 @@ public class DefenderShot
 	private float heading;
 	private int[] xy;
 	public static final int SIZE = 5;
-	public static final float speed = 8.0f;
+	public static final float speed = 15;
 	private byte TTL;//-128 to 128
 	
 	

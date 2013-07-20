@@ -18,10 +18,12 @@ public class NetworkInterface
 	private String SendDefenderLocation_ID;
 	private String SendShotLocation_ID;
 	private String lastDefenderLocation;
+	private boolean error;
 	
 	public NetworkInterface(Core inputPerent)
 	{
 		Perent = inputPerent;
+		error = false;
 		 try
 		 {
 			 SendDefenderLocation_ID = "ship:";
@@ -39,6 +41,7 @@ public class NetworkInterface
 		 catch (IOException e) 
 		 {
 			 System.out.println("NetworkInterface():"+e.toString());
+			 error = true;
 		 }
 		 
 		 Listen4broadcasts();
@@ -48,36 +51,38 @@ public class NetworkInterface
 	
 	public void SendDefenderLocation(int x, int y, float heading)
 	{
-		Location = new StringBuilder();
-		Location.append(SendDefenderLocation_ID);
-		Location.append(x);
-		Location.append(":");
-		Location.append(y);
-		Location.append(":");
-		Location.append((String.valueOf(heading)).substring(0, 4));//0.49
-		
-		//with in the rounding of numbers it may not show any change
-		if(false == lastDefenderLocation.equals(Location.toString()))
-		{	
-			lastDefenderLocation = Location.toString();
-			sent(lastDefenderLocation);
-		}
+			Location = new StringBuilder();
+			Location.append(SendDefenderLocation_ID);
+			Location.append(x);
+			Location.append(":");
+			Location.append(y);
+			Location.append(":");
+			Location.append((String.valueOf(heading)).substring(0, 4));//0.49
+			
+			//with in the rounding of numbers it may not show any change
+			if(false == lastDefenderLocation.equals(Location.toString()))
+			{	
+				lastDefenderLocation = Location.toString();
+				sent(lastDefenderLocation);
+			}
 	}
 	
 	public void SendShotLocation(int x, int y, float heading)
 	{
-		Location = new StringBuilder();
-		Location.append(SendShotLocation_ID);
-		Location.append(x);
-		Location.append(":");
-		Location.append(y);
-		Location.append(":");
-		Location.append((String.valueOf(heading)).substring(0, 4));//0.49
-		sent(Location.toString());
+			Location = new StringBuilder();
+			Location.append(SendShotLocation_ID);
+			Location.append(x);
+			Location.append(":");
+			Location.append(y);
+			Location.append(":");
+			Location.append((String.valueOf(heading)).substring(0, 4));//0.49
+			sent(Location.toString());
 	}
 	
 	public void sent(String ver)// throws IOException
 	{
+		if(!error)
+		{
 		try
 		 {
 			 DatagramPacket Message = new DatagramPacket(
@@ -91,7 +96,9 @@ public class NetworkInterface
 		 catch (IOException e) 
 		 {
 			 System.out.println("Sending broadcast"+e.toString());
+		 error = true;
 		 }
+		}
 	}
 	
 	
