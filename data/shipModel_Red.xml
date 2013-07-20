@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+ 
+<Defender>
+<color R="0" G="255" B="255"/>
+
+<shapes>
+
+<shape>
+<point xyz="10:5:4"/>
+<point xyz="3:25:2"/>
+<point xyz="10:20:8"/>
+</shape>
+
+<shape>
+<point xyz="10:5:4"/>
+<point xyz="17:25:5"/>
+<point xyz="10:20:8"/>
+</shape>
+
+<shape>
+<point xyz="3:25:4"/>
+<point xyz="10:20:8"/>
+<point xyz="10:20:4"/>
+</shape>
+
+<shape>
+<point xyz="10:20:8"/>
+<point xyz="10:20:4"/>
+<point xyz="17:25:4"/>
+</shape>
+</shapes>
+
+<Drift>
+<Jet>
+<point Go="10:20:4" Stop="10:20:4"/>
+<point Go="7:22:4" Stop="7:22:4"/>
+<point Go="10:30:4" Stop="10:20:4"/>
+<point Go="14:22:4" Stop="14:22:4"/>
+</Jet>
+</Drift>
+</Defender>

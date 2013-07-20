@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8' standalone='yes'?>
  
 <Defender>
-<colour R = "0" G = "0" B = "250"/>
+<color R="30" G="30" B="250"/>
 
 <shapes>
 
@@ -117,4 +117,23 @@
 </shape>
 
 </shapes>
+
+<Drift>
+<Jet>
+<point Go="3:20:5" Stop="3:20:5"/>
+<point Go="4:23:5" Stop="4:21:5"/>
+<point Go="5:28:5" Stop="5:22:5"/>
+<point Go="6:24:5" Stop="4:23:5"/>
+<point Go="8:23:5" Stop="8:23:5"/>
+<point Go="6:23:5" Stop="6:23:5"/>
+</Jet>
+<Jet>
+<point Go="17:20:5" Stop="17:20:5"/>
+<point Go="16:23:5" Stop="16:21:5"/>
+<point Go="15:28:5" Stop="15:22:5"/>
+<point Go="14:24:5" Stop="16:23:5"/>
+<point Go="12:23:5" Stop="12:23:5"/>
+<point Go="14:23:5" Stop="14:23:5"/>
+</Jet>
+</Drift>
 </Defender>

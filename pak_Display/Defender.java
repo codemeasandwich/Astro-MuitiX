@@ -52,8 +52,8 @@ public class Defender implements Serializable
 							Perent.getRandom(Display.getHeight())};
 		//{Display.getWidth()/2,Display.getHeight()/2};
 		drift 	 	  = 0.0f;
-		heading 	  = 1.599f;
-		stepsize 	  = 1.1f;
+		heading 	  = 1.570796325f;
+		stepsize 	  = 1.2f;
 		rotate 		  = 0.1f;
 		shipScale     = 1.5f;
 		shipScaleGrow = false;
@@ -115,7 +115,7 @@ public class Defender implements Serializable
 		Display.pushMatrix();
 		
 			Display.translate(shipXY[0],shipXY[1]);
-			//Display.rotateX(Display.frameCount /100.0f);
+			
 			if(shipScaleGrow)
 			{
 				if(shipScale<5)
@@ -132,15 +132,16 @@ public class Defender implements Serializable
 			Display.scale(shipScale);
 			
 			// ========= move ship to center
-			Display.rotateZ(heading-1.6f);
+			Display.rotateZ(heading);
+			Display.rotateZ(-1.570796325f);
 			Display.translate(-10,-20);
 			
 			// ========= draw ship
 			model.draw();
-			/*
+			
 			if(0.1<drift && !model.getkilled())
-			{	model.drawDrift(drift);  }
-			*/
+			{	model.drawDrift(drift,stepsize+0.15f);  }
+			
 		Display.popMatrix();
 
 		// ========= if the ship is moving why stop it?

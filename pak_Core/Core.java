@@ -1,3 +1,6 @@
+//1 degrees = 0.0174532925 radians
+//ctrl + 1
+
 package pak_Core;
  
 import java.net.InetAddress;
@@ -22,6 +25,7 @@ public class Core
 	private String LocalAddress;
 	private final String Title;
 	private final String version;
+	private PFont fontA;
 	
 	public Core(PApplet inputPerent)
 	{
@@ -29,17 +33,18 @@ public class Core
 			perent = inputPerent;
 			rn = new Random();
 
-			version = "007";
+			version = "008";
 			Title = "Astro-MultiX";
-			
+			fontA = inputPerent.loadFont("Silkscreen-16.vlw");
+			inputPerent.textFont(fontA, 18);
+			//inputPerent.textAlign(PApplet.CENTER);
 			setLocalAddress();
 			
 			myLevel = new Level(this, inputPerent);
 			myDefender = new Defender(this, inputPerent,LocalAddress);
 			net = new NetworkInterface(this);
 			myKeyboard = new KeyboardInput(this, inputPerent);
-			
-			
+
 			addDefender(myDefender,false);
 
 	}
@@ -64,6 +69,14 @@ public class Core
 		perent.pushMatrix();
 		myLevel.draw();
 		perent.popMatrix();
+		
+		perent.translate(perent.width - 10, perent.height/2);
+		perent.rotateZ(1.570796325f);
+		//perent.rotateX(perent.frameCount /100.f);
+		//System.out.println(perent.frameCount/100.0f);
+		perent.textAlign(PApplet.CENTER);
+		perent.textFont(fontA, 16);
+		perent.text("Brian Shannon: 07127154 NDS07",10,10);
 	}
 	
 	public int getRandom(int range)

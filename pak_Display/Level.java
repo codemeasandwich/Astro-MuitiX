@@ -9,12 +9,13 @@ public class Level
 {
 	private PApplet Display;
 	private Core Perent;
-	private PFont fontA;
+
 	private ArrayList<DefenderShot> arrayShots;
 	private ArrayList<Defender> arrayDefender;
 	private byte[] netIn;
 	private byte[] netOut;
 	private int score;
+	private PFont fontB;
 	
 	public Level(Core inputPerent, PApplet inputDisplay)
 	{
@@ -26,8 +27,7 @@ public class Level
 		score 		  = 100;
 		arrayDefender = new ArrayList<Defender>();
 		arrayShots    = new ArrayList<DefenderShot>();
-		fontA         = Display.loadFont("BlueHighwayBold-18.vlw");
-		Display.textFont(fontA, 18);
+		fontB = inputDisplay.loadFont("BlueHighwayBold-18.vlw");
 	}
 	
 	public void draw()
@@ -37,6 +37,8 @@ public class Level
 		
 		drawNet();
 		Display.fill(255);
+		Display.textAlign(PApplet.LEFT);
+		Display.textFont(fontB, 18);
 		Display.text("score: "+score, 20, 20);
 		
 		Display.rotateX(0.4f);
