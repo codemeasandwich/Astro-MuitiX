@@ -2,6 +2,8 @@ package pak_Gui;
 
 import java.awt.Color;
 
+import processing.core.PApplet;
+
 public class Button
 {
 	  private int x, y, w, h;	// the size of the button
@@ -11,14 +13,27 @@ public class Button
 	  private boolean couserBool;	// true if the cursor is a HAND & false is arrow
 	  private int alphOver;		// temp transparencie value
 	  private int alph, alphTemp;	// transparencie values
+	  private Menu Perent;
+	  private PApplet Display;
+	  
 
 //	=============================================================================== constructor
 	  
-	  public Button(int x_input, int y_input, int width_input, int height_input, String text_input, Color color_input, boolean rollover_input)
+	  public Button(
+			  Menu inputPerent,
+			  PApplet inputDisplay,
+			  int x_input, 
+			  int y_input, 
+			  int width_input, 
+			  int height_input, 
+			  String text_input,
+			  Color color_input, 
+			  boolean rollover_input)
 	  {
 
 			//================================== assign values
-
+		Perent = inputPerent;
+		Display = inputDisplay;
 	    x = x_input;
 	    y = y_input;
 	    w = width_input;
@@ -51,13 +66,13 @@ public class Button
 //	===============================================================================
 //	=============================================================================== Draw
 
-	  void Display()
+	  void draw()
 	  {
 	    if(rollover)			//======================== Do this if the rollover is enabled
 	    {
-	      if(test(mouseX,mouseY))		// is the couser over the button
+	      if(test(Display.mouseX,Display.mouseY))		// is the couser over the button
 	      {
-	        fill(colour[0],colour[1],colour[2],alphOver);// show high lighted colour
+	    	  Display.fill(colour[0],colour[1],colour[2],alphOver);// show high lighted colour
 
 	        alphTemp = alphOver;		// get ready to return colour
 	      }
@@ -67,21 +82,21 @@ public class Button
 	        {
 	          alphTemp -= 3;		//lower the val
 	        }
-	        fill(colour[0],colour[1],colour[2],alphTemp);// apply the colour
+	        Display.fill(colour[0],colour[1],colour[2],alphTemp);// apply the colour
 	      }
 	    }
 	    else				//======================== Else
 	    {
-	      fill(colour[0],colour[1],colour[2],alph);// no rollover colour
+	    	Display.fill(colour[0],colour[1],colour[2],alph);// no rollover colour
 	    }
 
 
-	    stroke(255);			//button border color
-	    rect(x,y,w,h);			//draw button			
-	    fill(255);				// text colour
-	    textFont(fontA,16);			// font type and size
-	    textAlign(CENTER);			// center the text on the button
-	    text(txt,x+w*.5,y+h*.75);		// Add text to the button
+	    Display.stroke(255);			//button border color
+	    Display.rect(x,y,w,h);			//draw button			
+	    Display.fill(255);				// text colour
+	    Display.textFont(Perent.getFont('A'),16);			// font type and size
+	    Display.textAlign(PApplet.CENTER);			// center the text on the button
+	    Display.text(txt,x+w*.5f,y+h*.75f);		// Add text to the button
 	  }
 
 //	===============================================================================
@@ -89,7 +104,7 @@ public class Button
 	  
 	  boolean test()			//asume the buttons have not been Translated
 	  {
-	    return test(mouseX,mouseY);
+	    return test(Display.mouseX,Display.mouseY);
 	  }
 
 //	===============================================================================
@@ -100,7 +115,7 @@ public class Button
 	    {
 	        if(!couserBool)			//if the test is true than show a hand set hit to true
 	        {
-	          cursor(HAND);
+	        	Display.cursor(Display.HAND);
 	          couserBool = true;
 	        }
 	    }
@@ -108,7 +123,7 @@ public class Button
 	    {
 	      if(couserBool)			//if the last test was true then reset
 	      {
-	        cursor(ARROW);
+	    	  Display.cursor(Display.ARROW);
 	        couserBool = false;
 	      }
 	    }

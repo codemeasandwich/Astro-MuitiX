@@ -91,7 +91,7 @@ public class DefenderModel implements Serializable
 
 		if(killed)
 		{
-			if(shipColour.getAlpha()>0)
+			if(shipColour.getAlpha()>4)
 			{	
 				shipColour = new Color(
 						shipColour.getRed(),
@@ -164,13 +164,12 @@ public class DefenderModel implements Serializable
 			}
 		}
 	}
-	
 
 	
 	//Functions=============================
 
 	
-	public void setKilled()//(boolean inputVal)
+	public void setKilled()
 	{
 		killed = true;
 		drawLines = false;

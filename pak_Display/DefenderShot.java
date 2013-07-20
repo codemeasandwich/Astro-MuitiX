@@ -55,12 +55,7 @@ public class DefenderShot
 	{
 		return speed;
 	}
-	/*
-	public void setTTL(int inputnum)
-	{
-		TTL = (byte)inputnum;
-	}
-	*/
+
 	public int getTTL()
 	{
 		return TTL;

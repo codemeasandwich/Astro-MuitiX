@@ -49,7 +49,7 @@ public class Defender implements Serializable
 		returnShip = false;
 		shipXY = new float[]{Perent.getRandom(Display.getWidth()),
 							 Perent.getRandom(Display.getHeight())};
-		//{Display.getWidth()/2,Display.getHeight()/2};
+
 		drift 	 	  = 0.0f;
 		heading 	  = 1.570796325f;
 		stepsize 	  = 1.2f;
@@ -107,12 +107,7 @@ public class Defender implements Serializable
 	}
 	
 	private void drawShip()
-	{
-		//Display.pointLight(255,255,255, (float)(.9*shipXY[0]),(float)(.9*shipXY[1]), 90);
-		//Display.pointLight(150,150,150, (float)(1.1*shipXY[0]),(float)(1.1*shipXY[1]), 90);
-		
-		//Display.ellipse(20,20,20,20);
-		
+	{		
 		Display.pushMatrix();
 		
 			Display.translate(shipXY[0],shipXY[1]);
@@ -211,18 +206,22 @@ public class Defender implements Serializable
 	{
 		return model.getkilled();
 	}
+	
 	public int[] getXY()
 	{
 		return new int[]{(int)shipXY[0],(int)shipXY[1]};
 	}
+	
 	public void setXY(int[] inputXY)
 	{
 		shipXY = new float[]{inputXY[0],inputXY[1]};
 	}
+	
 	public float getHeading()
 	{
 		return heading;
 	}
+	
 	public void setHeading(float inputHeading)
 	{
 		heading = inputHeading;

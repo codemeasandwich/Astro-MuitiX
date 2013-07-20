@@ -25,7 +25,6 @@ public class Core
 	private String LocalAddress;
 	private final String Title;
 	private final String version;
-	//private PFont fontA;
 	private Game myGame;
 	
 	public Core(PApplet inputPerent)
@@ -34,7 +33,6 @@ public class Core
 			perent = inputPerent;
 			version = "010";
 			Title = "Astro-MultiX";
-
 			setLocalAddress();
 			
 			//2nd
@@ -57,6 +55,7 @@ public class Core
 			System.out.println(uHE.toString());
 		}
 	}
+	
 	public String getLocalAddress()
 	{
 		return LocalAddress;
@@ -67,28 +66,9 @@ public class Core
 		if(perent.keyPressed && !myGame.getDefender().getkilled())
 		{ myKeyboard.test(); }
 
-		//perent.pushMatrix();
 		myGame.draw();
-		//perent.popMatrix();
-		
-		/*
-		perent.translate(perent.width - 10, perent.height/2);
-		perent.rotateZ(1.570796325f);
-		//perent.rotateX(perent.frameCount /100.f);
-		//System.out.println(perent.frameCount/100.0f);
-		perent.textAlign(PApplet.CENTER);
-		perent.textFont(fontA, 16);
-		perent.text("Brian Shannon: 07127154 NDS07",10,10);
-		*/
 	}
-	
-/*
-	public void addDefender(Defender inputDefender,boolean rebuild)
-	{
-		if(rebuild)
-		{	inputDefender.reBuild(this, perent);	}
-		myGame.addDefender(inputDefender);
-	}*/
+
 	public void moveDefender(byte inputMove)
 	{
 		myGame.moveDefender(inputMove);
@@ -102,27 +82,27 @@ public class Core
 	{
 		myGame.killDefender();
 	}
+	
 	public void zoneInDefender()
 	{
 		myGame.zoneInDefender();
 	}
+	
 	public Defender getDefender()
 	{
 		return myGame.getDefender();
 	}
-/*
-	public void setLocalAddress(String inputString)
-	{
-		LocalAddress = inputString;
-	}*/
+
 	public String version()
 	{
 		return Title + " " + version;
 	}
+	
 	public void addScore(int points)
 	{
 		myGame.addScore(points);
 	}
+	
 	public int getScore()
 	{
 		return myGame.getScore();
@@ -131,22 +111,27 @@ public class Core
 	{
 		myGame.updateNet(Incoming);
 	}
+	
 	public void addDefender(Defender inputDefender,boolean rebuild)
 	{
 		myGame.addDefender(inputDefender,rebuild);
 	}
+	
 	public void SendDefenderLocation(int x, int y, float heading)
 	{
 		net.SendDefenderLocation(x, y, heading);
 	}
+	
 	public void ReceiveDefenderLocation(String[] inputLocation)
 	{
 		myGame.ReceiveDefenderLocation(inputLocation);
 	}
+	
 	public void SendShotLocation(int x, int y, float heading)
 	{
 		net.SendShotLocation(x, y, heading);
 	}
+	
 	public void ReceiveShotLocation(String[] inputLocation)
 	{
 		myGame.ReceiveShotLocation(inputLocation);

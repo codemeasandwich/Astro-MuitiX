@@ -13,22 +13,15 @@ public class Level
 
 	private ArrayList<DefenderShot> arrayShots;
 	private ArrayList<Defender> arrayDefender;
-	//private byte[] netIn;
-	//private byte[] netOut;
-	//private int score;
-	private PFont fontB;
+	//private PFont fontB;
 	
 	public Level(Game inputPerent, PApplet inputDisplay)
-	{
-		//netIn = new byte[50];
-		//netOut = new byte[50];
-		
+	{		
 		Perent        = inputPerent;
 		Display       = inputDisplay;
-		//score 		  = 100;
 		arrayDefender = new ArrayList<Defender>();
 		arrayShots    = new ArrayList<DefenderShot>();
-		fontB = inputDisplay.loadFont("BlueHighwayBold-18.vlw");
+		//fontB = inputDisplay.loadFont("BlueHighwayBold-18.vlw");
 	}
 	
 	public void draw()
@@ -39,13 +32,13 @@ public class Level
 		
 		Display.fill(255);
 		Display.textAlign(PApplet.LEFT);
-		Display.textFont(fontB, 18);
+		Display.textFont(Perent.getFont('B'), 18);
 		Display.text("score: "+Perent.getScore(), 20, 20);
 		
 		Display.rotateX(0.4f);
 		Display.translate(0,-80,-150);
 		
-		//crazyLand();
+		
 		
 		drawGameBorde();
 		
@@ -100,23 +93,7 @@ public class Level
 			}
 		}
 	}
-	/*
-	public void updateNetOutgoing()
-	{
-		if((netOut.length/4)>netOut[netOut.length - 1])
-		{
-			netOut[netOut.length - 1]++;
-		}
-	}
-	
-	public void updateNetIncoming()
-	{
-		if((netIn.length/4)>netIn[netIn.length - 1])
-		{
-			netIn[netIn.length - 1]++;
-		}
-	}
-	*/
+
 	public int[] spaceReset_Int(int[] XY)
 	{
 		float[] temp = spaceReset_Float(new float[]{XY[0],XY[1]});
@@ -137,56 +114,6 @@ public class Level
 		
 		return XY;
 	}
-	/*
-	public int getScore()
-	{
-		return score;
-	}
-	public void addScore(int points)
-	{
-		score += points;
-	}
-	
-	private void drawNet()
-	{
-		Display.pushMatrix();
-		Display.translate(Display.width - (20 + netOut.length), Display.height * 0.05f);
-
-		Display.noStroke();
-		Display.fill(255,0,0);
-		for(byte counter = 1; counter<netOut.length; counter++)
-		{
-			// rect(x, y, width, height)
-			Display.rect(counter,netOut.length/4,1,-netOut[counter]);
-			
-			if((Display.frameCount %2) == 0)
-			{
-				if(counter  + 1 !=netOut.length)
-				{	netOut[counter] = netOut[1+counter];	}
-				else
-				{	netOut[counter] = 0;		}
-			}
-		}
-		
-		Display.fill(255,255,0);
-		for(byte counter = 1; counter<netIn.length; counter++)
-		{
-			Display.rect(counter,netIn.length/4,1,netIn[counter]);
-			
-			if((Display.frameCount %2) == 0)
-			{
-				if(counter  + 1 !=netIn.length)
-				{	netIn[counter] = netIn[1+counter];	}
-				else
-				{	netIn[counter] = 0;		}
-			}
-		}
-		Display.stroke(255);
-		Display.noFill();
-		Display.rect(0, 0, netOut.length, netOut.length / 2);
-		
-		Display.popMatrix();
-	}*/
 	
 	private void drawGameBorde()
 	{
@@ -221,15 +148,6 @@ public class Level
 		//rotateY(0.5);
 		Display.box(Display.width, 20, 50);
 		Display.popMatrix();
-	}
-	
-	private void crazyLand()
-	{
-		Display.translate(Display.width/2,Display.height/2);
-		Display.rotateZ(Display.frameCount/100.0f);
-		Display.rotateY(Display.frameCount/100.0f);
-		Display.rotateX(Display.frameCount/100.0f);
-		Display.translate(-Display.width/2,-Display.height/2);
 	}
 	
 }
