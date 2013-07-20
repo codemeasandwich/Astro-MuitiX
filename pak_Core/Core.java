@@ -1,5 +1,7 @@
 package pak_Core;
  
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Random;
 import processing.core.*;
 import pak_Display.*;
@@ -8,8 +10,10 @@ import pak_Net.*;
 public class Core
 {
 	private PApplet perent;
-	private final String GroupIP;
-	private final int GroupPort;
+	public final static String GroupIP = "224.0.41.0";
+//	http://www.iana.org/assignments/multicast-addresses
+	public final static int GroupPort = 9574;
+	public final static int socketPort = 9575;
 	private Level myLevel;
 	private Defender myDefender;
 	private KeyboardInput myKeyboard;
@@ -24,22 +28,32 @@ public class Core
 
 			perent = inputPerent;
 			rn = new Random();
-			
-			GroupIP = "224.0.41.0";
-			//http://www.iana.org/assignments/multicast-addresses
-			GroupPort = 9574;
-			
+
 			version = "007";
 			Title = "Astro-MultiX";
-
+			
+			setLocalAddress();
+			
 			myLevel = new Level(this, inputPerent);
-			
 			myDefender = new Defender(this, inputPerent,LocalAddress);
-			myKeyboard = new KeyboardInput(this, inputPerent);
 			net = new NetworkInterface(this);
+			myKeyboard = new KeyboardInput(this, inputPerent);
 			
-			addDefender(myDefender);
+			
+			addDefender(myDefender,false);
 
+	}
+	
+	private void setLocalAddress()// throws UnknownHostException
+	{
+		try
+		{
+		LocalAddress = "/"+InetAddress.getLocalHost().getHostAddress();
+		}
+		catch (UnknownHostException uHE)
+		{
+			System.out.println(uHE.toString());
+		}
 	}
 	
 	public void draw()
@@ -56,13 +70,11 @@ public class Core
 	{
 		return rn.nextInt(range);
 	}
-	public void addDefender(Defender newDefender)
+	public void addDefender(Defender inputDefender,boolean rebuild)
 	{
-		myLevel.addDefender(myDefender);
-	}
-	public void addDefender(String ID)
-	{
-		myLevel.addDefender(new Defender(this,perent,ID));
+		if(rebuild)
+		{	inputDefender.reBuild(this, perent);	}
+		myLevel.addDefender(inputDefender);
 	}
 	public void moveDefender(byte inputMove)
 	{
@@ -89,14 +101,11 @@ public class Core
 	{
 		myDefender.zoneIn();
 	}
-	public String getGroupIP()
+	public Defender getDefender()
 	{
-		return GroupIP;
+		return myDefender;
 	}
-	public int getGroupPort()
-	{
-		return GroupPort;
-	}
+
 	public void setLocalAddress(String inputString)
 	{
 		LocalAddress = inputString;

@@ -47,30 +47,32 @@ public class Level
 		drawGameBorde();
 		
 		for (Defender Spaceship: arrayDefender)
-		{	Spaceship.draw();	 }
+		{	Spaceship.draw();}
 		
 		if(!arrayShots.isEmpty() && arrayShots.get(0).getTTL()<1)
 		{	arrayShots.remove(0);}
 
 		Display.fill(255);
 		
-		for (DefenderShot fire: arrayShots)
-		{
-				fire.setXY(Perent.spaceReset_Int(fire.getXY()));
-				Display.ellipse(
-						fire.getXY()[0], 
-						fire.getXY()[1], 
-						DefenderShot.SIZE, 
-						DefenderShot.SIZE);
-				fire.move();
-		}
+		//synchronized (arrayShots)
+	//	{
+			for (DefenderShot fire: arrayShots)
+			{
+					fire.setXY(Perent.spaceReset_Int(fire.getXY()));
+					Display.ellipse(
+							fire.getXY()[0], 
+							fire.getXY()[1], 
+							DefenderShot.SIZE, 
+							DefenderShot.SIZE);
+					fire.move();
+			}
+	//	}
 		
 		//if the score is around 5 give a shot ever 5 sec
 		if(5>score && (Display.frameCount %(2*Display.frameRate))< 1)
 		{
 			score++;
 		}
-		
 	}
 	
 	public void addDefender(Defender inputDefender)
@@ -78,7 +80,7 @@ public class Level
 		arrayDefender.add(inputDefender);
 	}
 	
-	public void addShot(String[] inputLocation)
+	public /*synchronized*/ void addShot(String[] inputLocation)
 	{
 		arrayShots.add(
 				new DefenderShot(
@@ -94,7 +96,7 @@ public class Level
 		
 		for(Defender Spaceship: arrayDefender)
 		{
-			if(Spaceship.toString().equals(inputLocation[0]))
+			if(Spaceship.getID().equals(inputLocation[0]))//.toString().equals(inputLocation[0]))
 			{
 				//Spaceship.setXY(new String[]{});
 				Spaceship.setXY(new int[]{Integer.parseInt(inputLocation[1]),Integer.parseInt(inputLocation[2])});
@@ -105,7 +107,7 @@ public class Level
 	
 	public void updateNetOutgoing()
 	{
-		if((netOut.length/2)>netOut[netOut.length - 1])
+		if((netOut.length/4)>netOut[netOut.length - 1])
 		{
 			netOut[netOut.length - 1]++;
 		}
@@ -113,7 +115,7 @@ public class Level
 	
 	public void updateNetIncoming()
 	{
-		if((netIn.length/2)>netIn[netIn.length - 1])
+		if((netIn.length/4)>netIn[netIn.length - 1])
 		{
 			netIn[netIn.length - 1]++;
 		}

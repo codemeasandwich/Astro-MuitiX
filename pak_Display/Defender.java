@@ -1,13 +1,15 @@
 package pak_Display;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import pak_Core.Core;
 import processing.core.PApplet;
 
-public class Defender
+public class Defender implements Serializable
 {
-	private PApplet Display;
-	private Core Perent;
+	private static final long serialVersionUID = 1L;
+	private transient PApplet Display;
+	private transient Core Perent;
 	private String ID;
 	private float drift;
 	private float heading;
@@ -17,6 +19,7 @@ public class Defender
 	private float shipScale;
 	private ArrayList<DefenderShot> arrayShots;
 	private boolean shipScaleGrow;
+	public boolean returnShip;
 	
 	
 	private DefenderModel model;
@@ -43,6 +46,7 @@ public class Defender
 		Perent = inputPerent;
 		Display = inputDisplay;
 		ID = inputID;
+		returnShip = false;
 		shipXY = new float[]
 		                   {Perent.getRandom(Display.getWidth()),
 							Perent.getRandom(Display.getHeight())};
@@ -55,7 +59,14 @@ public class Defender
 		shipScaleGrow = false;
 		arrayShots 	  = new ArrayList<DefenderShot>();
 		
-		model = new DefenderModel(this, Display);
+		model = new DefenderModel(Display);
+	}
+	
+	public void reBuild(Core inputPerent, PApplet inputDisplay)
+	{
+		Perent = inputPerent;
+		Display = inputDisplay;
+		model.reBuild(Display);
 	}
 	
 	public void draw()
@@ -67,14 +78,17 @@ public class Defender
 	@Override
 	public String toString()
 	{
-		return  String.valueOf(ID);
+		return  "Defender";
 	}
 	
 	public void zoneIn()
 	{
 		shipScaleGrow = true;
 	}
-	
+	public String getID()
+	{
+		return ID;
+	}
 	private void drawShots()
 	{
 		Display.fill(255);

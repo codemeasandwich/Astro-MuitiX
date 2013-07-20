@@ -1,8 +1,9 @@
 package pak_Display;
 
+import java.io.Serializable;
 import processing.core.PApplet;
 
-public class DefenderShot
+public class DefenderShot implements Serializable
 { 
 	private float heading;
 	private int[] xy;
@@ -11,7 +12,7 @@ public class DefenderShot
 	public static final float speed = 10;
  
 	private byte TTL;//-128 to 128
-        private static short count = 0;
+    private static short count = 0;
 	private short myCount;
 	private final String IP;
 	

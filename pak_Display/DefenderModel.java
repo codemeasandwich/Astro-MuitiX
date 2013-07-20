@@ -4,15 +4,18 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Random;
 import processing.core.PApplet;
 import java.io.File;
 import java.util.ArrayList;
 
-public class DefenderModel
+public class DefenderModel implements Serializable
 {
-	private PApplet Display;
-	private Defender Perent;
+
+	private static final long serialVersionUID = 1L;
+	private transient PApplet Display;
+	//private Defender Perent;
 	private final String modelFileName;
 	private boolean killed;
 	private String comment;
@@ -22,17 +25,21 @@ public class DefenderModel
 	private int jetColour[];
 	
 	//Default Ship=============================
-	private float explosionNums[];//explosion random vals
+	private float explosionNums[][];//explosion random vals
 	private int explosionCount;//explosion desticion
-	private final int MODECELLS = 4;//used to loop true all cell if not killed
  
 	//New Ship=============================
 	private byte[/*num of cells*/][/*num of points*/][/*xyz*/] shipCells_int;
 	//private int[/*num of Jets*/][/*num of points*/][/*xyz*/] shipJets_int;
 	
-	public DefenderModel(Defender inputPerent, PApplet inputDisplay)
+	public void reBuild(PApplet inputDisplay)
 	{
-		Perent = inputPerent;
+		Display = inputDisplay;
+	}
+	
+	public DefenderModel(PApplet inputDisplay)
+	{
+		//Perent = inputPerent;
 		Display = inputDisplay;
 		
 		comment = "~";
@@ -44,7 +51,6 @@ public class DefenderModel
 		
 		explosionCount = 0;
 		killed = false;
-		explosionNums = new float[6];
 		
 		loadModelFile();
 	}
@@ -69,6 +75,8 @@ public class DefenderModel
 		shipCells_int[3][0] = new byte[]{10,20,8};
 		shipCells_int[3][1] = new byte[]{10,20,4};
 		shipCells_int[3][2] = new byte[]{17,25,4};
+		
+		explosionNums = new float[4][5];
 	}
 	
 	private void loadModelFile()
@@ -150,6 +158,7 @@ public class DefenderModel
 									shipCells_int[count1][count2] = Shape;
 								}
 							}
+							explosionNums = new float[shipCells_int.length][5];
 					}
 				}
 			}
@@ -176,13 +185,17 @@ public class DefenderModel
 		drawLines = false;
 		
 		Random rn = new Random(Display.frameCount);
-		for(int count = 0; count<explosionNums.length; count++)
+		
+		for(int count1 = 0; count1<explosionNums.length; count1++)
 		{
-			explosionNums[count] = (float)(rn.nextInt(25)/100.0);//max val of 5
-			
-			if(0 == rn.nextInt(2))
+			float[] view3 = new float[5];
+			for (int count2 = 0; count2<view3.length; count2++)
 			{
-				explosionNums[count] = -explosionNums[count];
+				explosionNums[count1][count2] = (float)(rn.nextInt(25)/100.0);
+				if(0 == rn.nextInt(2))
+				{
+					explosionNums[count1][count2] = -explosionNums[count1][count2];
+				}
 			}
 		}
 		
@@ -203,133 +216,43 @@ public class DefenderModel
 		else
 		{	Display.noStroke();	}
 		
-		byte[] xyzPoint = new byte[3];
-		
-		for(int count1 = 0; count1<shipCells_int.length; count1++)
-		{
-			Display.beginShape();
-			for(int count2 = 0; count2<shipCells_int[count1].length; count2++)
-			{
-				xyzPoint = shipCells_int[count1][count2];
-				Display.vertex(
-						xyzPoint[0], 
-						xyzPoint[1], 
-						xyzPoint[2]);
-			}
-			Display.endShape();
-		}
-	}
-	
-	private void drawDefaultShip()
-	{
 		if(killed)
 		{
 			if(colour[colour.length - 1]>0)
-			{
-				colour[colour.length - 1] = (short) (colour[colour.length - 1] - 4);
-			}
+			{	colour[colour.length - 1] = (short)(colour[colour.length - 1] - 4);}
 			else
-			{
-				colour[colour.length - 1] = 0;
-			}
+			{	colour[colour.length - 1] = 0;	}
+
 			explosionCount++;
-				
-			Display.pushMatrix();
-			Display.translate(
-					(explosionNums[0]*explosionCount),
-					(explosionNums[1]*explosionCount),
-					((explosionNums[2]*2)*explosionCount));
-			Display.rotateY((explosionNums[3]*explosionCount)/5);
-			Display.rotateX((explosionNums[4]*explosionCount)/5);
-		
-		drawCell(0);
-
-			Display.popMatrix();
-			Display.pushMatrix();
-			Display.translate(
-					(explosionNums[1]*explosionCount),
-					(explosionNums[2]*explosionCount),
-					((explosionNums[3]*2)*explosionCount));
-			Display.rotateY((explosionNums[4]*explosionCount)/5);
-			Display.rotateX((explosionNums[5]*explosionCount)/5);
-		
-		drawCell(1);
-
-			Display.popMatrix();
-			Display.pushMatrix();
-			Display.translate(
-					(explosionNums[2]*explosionCount),
-					(explosionNums[3]*explosionCount),
-					((explosionNums[4]*2)*explosionCount));
-			Display.rotateY((explosionNums[5]*explosionCount)/5);
-			Display.rotateX((explosionNums[0]*explosionCount)/5);
-		
-		drawCell(2);
-
-			Display.popMatrix();
-			Display.pushMatrix();
-			Display.translate(
-					(explosionNums[3]*explosionCount),
-					(explosionNums[4]*explosionCount),
-					((explosionNums[5]*2)*explosionCount));
-			Display.rotateY((explosionNums[0]*explosionCount)/5);
-			Display.rotateX((explosionNums[1]*explosionCount)/5);
-
-		drawCell(3);
-
-			Display.popMatrix();
 		}
-		else
+		
+		for(int count1 = 0; count1<shipCells_int.length; count1++)
 		{
-			for(int count = 0; count<MODECELLS; count++)
+			if(killed)
 			{
-				drawCell(count);
+				Display.pushMatrix();
+				Display.translate(
+						(explosionNums[count1][0]*explosionCount),
+						(explosionNums[count1][1]*explosionCount),
+						((explosionNums[count1][2]*5)*explosionCount));
+				Display.rotateY((explosionNums[count1][3]*explosionCount)/5);
+				Display.rotateX((explosionNums[count1][4]*explosionCount)/5);
 			}
-		}
-	}
-	
-	public void drawCell(int inputNum)
-	{
-		switch (inputNum)
-		{
-			case 0:
-				Display.beginShape();
-					Display.vertex(10,0,0);
-					Display.vertex(0,40,0);
-					Display.vertex(10,30,10);
-				Display.endShape();
-			break;
-			case 1:
-				Display.beginShape();
-					Display.vertex(10,0,0);
-					Display.vertex(20,40,0);
-					Display.vertex(10,30,10);
-				Display.endShape();
-			break;	
-			case 2:
-				Display.beginShape();
-					Display.vertex(10,30,10);
-					Display.vertex(0,40,0);
-					Display.vertex(10,30,0);
-				Display.endShape();
-			break;	
-			case 3:
-				Display.beginShape();
-					Display.vertex(10,30,10);
-					Display.vertex(20,40,0);
-					Display.vertex(10,30,0);
-				Display.endShape();
-			break;
-			
-			/* Ships Area
 			Display.beginShape();
-				Display.vertex(1,0,0);
-				Display.vertex(0,4,0);
-				Display.vertex(1,3,0);
-				Display.vertex(2,4,0);
-			Display.endShape();
-			*/
 			
+			for(int count2 = 0; count2<shipCells_int[count1].length; count2++)
+			{
+
+
+				Display.vertex(
+						shipCells_int[count1][count2][0], 
+						shipCells_int[count1][count2][1], 
+						shipCells_int[count1][count2][2]);
+				
+			}
+			Display.endShape();
+			if(killed)
+			{	Display.popMatrix();	}
 		}
 	}
 	
