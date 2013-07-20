@@ -1,44 +1,32 @@
 package pak_Net;
 
-//import java.io.DataInputStream;
 import java.io.IOException;
-//import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ConnectException;
+//import java.io.ObjectOutputStream;
+//import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-//import java.net.ServerSocket;
-import java.net.Socket;
+//import java.net.Socket;
 import java.util.ArrayList;
 
 import pak_Display.Defender;
-//import pak_Display.Rock;
-//import pak_logic.RockManager;
-//import pak_Display.DefenderShot;
 
 import pak_Core.Core;
 
 public class NetworkInterface
 {
-	private MulticastSocket broadcastSocket;
+	public MulticastSocket broadcastSocket;
 	private Core Perent;
-	private Thread ListenThread;
 	private InetAddress netGroup;
 	private StringBuilder Location;
-	private String SendDefenderLocation_ID;
-	private String SendShotLocation_ID;
-	private String SendShotRemove_ID;
+	public static final String SendDefenderLocation_ID = "DP:";
+	public static final String SendShotLocation_ID = "SL:";
+	public static final String SendShotRemove_ID = "SR:";
 	private String lastDefenderLocation;
 	private boolean error;
-	//private Thread Thread4Return2NetWap;
-	private Thread Thread4Send2NetWap;
-	//private ServerSocket ServerSocket4ReturnShip;
-	//private Socket incomingListen2User;
-	private ArrayList<InetAddress> aLiveAddresses;
-	//private boolean[] aLiveBool;
+	public ArrayList<InetAddress> aLiveAddresses;
 	private Defender myDefender;
-	private ListenSocket Listen4NetWrap;
+	private Send2NetWap send2NetWap;
 	
 	public static final byte STRING = -1;
 	public static final byte HIT_TEST = 0;
@@ -50,65 +38,20 @@ public class NetworkInterface
 	public static final byte ROCKSResponse = 6;
 	public static final byte ROCKHIT = 7;
 	
-	public String typeConveter(byte val)
-	{
-		String rString = "?";
-		
-		switch(val)
-		{
-			case STRING:
-				rString = "String";
-			break;
-			
-			case HIT_TEST:
-				rString = "Hit Test";
-			break;
-			
-			case SHIP:
-				rString = "Ship";
-			break;
-			
-			case SHIPKILLED:
-				rString = "Ship Killed";
-			break;
-			
-			case SHIPALIVE:
-				rString = "Ship Alive";
-			break;
-			
-			case ROCKSRequest:
-				rString = "Rocks Request";
-			break;
-			
-			case ROCKSResponse:
-				rString = "Rocks Response";
-			break;
-			
-			case ROCKHIT:
-				rString = "Rocks Hit";
-			break;
-		}
-		
-		return rString;
-	}
-	
-	public NetworkInterface(Core inputPerent)
+	public NetworkInterface(Core inputPerent,Defender inputDefender)
 	{
 		System.out.print("NetworkInterface:");
 		Perent = inputPerent;
+		myDefender = inputDefender;
 		error = false;
 		aLiveAddresses = new ArrayList<InetAddress>();
 		
 		 try
 		 {
-			SendDefenderLocation_ID = "DP:";
-			SendShotLocation_ID = "SL:";
-			SendShotRemove_ID = "SR:";
 			lastDefenderLocation = "";
 			netGroup = InetAddress.getByName(Core.GroupIP);
 			broadcastSocket = new MulticastSocket(Core.GroupPort);//send & recive on this
 			broadcastSocket.joinGroup(netGroup);
-			//ServerSocket4ReturnShip = new ServerSocket(Core.socketPort);
 
 		 }
 		 catch (IOException e) 
@@ -118,19 +61,24 @@ public class NetworkInterface
 			 error = true;
 		 }
 		 
-		 Listen4broadcasts();
-		 Listen4NetWrap = new ListenSocket(this,Perent,myDefender);
-		 Listen4NetWrap.start();
-		// Listen4NetWrap();
+			ListenBroadcastsThread listenThread = new ListenBroadcastsThread(this, Perent,myDefender);
+			listenThread.start();
+			Listen4NetWrap Thread4Return2NetWap = new Listen4NetWrap(this, Perent,myDefender);
+			Thread4Return2NetWap.start();
+			send2NetWap = new Send2NetWap(this, Perent);
+
 		 sent(Perent.version());
 		 System.out.println("Done");
 	}
-	/*
-	public void aLiveTest()
+	
+	public void Send2NetWap(//like client
+			final InetAddress Address,
+			final Object objToSend,
+			final byte Type,
+			final boolean returnThis)
 	{
-		 
+		send2NetWap.Send(Address, objToSend, Type, returnThis);
 	}
-	*/
 	
 	public boolean setMyDefender(Defender inputDefender)
 	{
@@ -214,77 +162,7 @@ public class NetworkInterface
 		}
 	}
 
-	public void Send2NetWap(//like client
-			final InetAddress Address,
-			final Object objToSend,
-			final byte Type,
-			final boolean returnThis)
-	{
-		Thread4Send2NetWap
-		 = new Thread(new Runnable()
-			{
-				public void run()
-	            {
-					try
-					{
-						if(Perent.getLocalAddress() == Address)//if send to me.. then send to every one BUT me
-						{
-                			for(InetAddress address: aLiveAddresses)
-                			{
-                				Send2NetWap(address,objToSend,Type,returnThis);
-                			}
-						}
-						else
-						{
-							Perent.updateNet(false);
-							System.out.println("OUT NetWap:"+typeConveter(Type)+" "+Address.toString());
-							
-							Socket socket_SendMyShip = 
-								new Socket(Address,Core.socketPort);
-							
-							ObjectOutputStream outputStream = 
-								new ObjectOutputStream(socket_SendMyShip.getOutputStream());
-							
-							NetWrap wrap = new NetWrap(objToSend,Type,returnThis);
-							
-							outputStream.writeObject(wrap);
-									outputStream.flush();
-									outputStream.close();
-								socket_SendMyShip.close();
-								//System.out.println("Send2NetWap:Sent"+" "+Address.toString());
-						}
-					}
-					catch(ConnectException e)
-					{
-            			for(int count = 0; count > aLiveAddresses.size(); count++)
-            			{
-            				if(aLiveAddresses.get(count).equals(Address))
-            				{
-            					aLiveAddresses.remove(count);
-            					break;
-            				}
-            			}
-						Perent.killDefender(Address);
-						System.out.println("SendShip("+Address.toString()+") "+ e.toString());
-					}
-					catch(Exception ex)
-			        {
-						//Perent.setError("SendShip("+Address.toString()+") "+ ex.toString());
-						Perent.killDefender(Address);
-						System.out.println("SendShip("+Address.toString()+") "+ ex.toString());
-			        }
-	            }
-			});
-		Thread4Send2NetWap.start();
-	}
-	
-	
 	//====================================================
-	
-	public boolean aLiveAddressesisEmpty()
-	{
-		return aLiveAddresses.isEmpty();
-	}
 	
 	public boolean addIP(InetAddress inputIP)
 	{
@@ -307,68 +185,49 @@ public class NetworkInterface
 		return found;
 	}
 	
-	private void Listen4broadcasts()
+	public boolean IPListIsEmpty()
 	{
-		ListenThread = new Thread(new Runnable()
+		return aLiveAddresses.isEmpty();
+	}
+	
+	public String typeConveter(byte val)
+	{
+		String rString = "?";
+		
+		switch(val)
 		{
-			public void run()
-            {
-	        	while(true)
-	            {
-	        		byte[] buf = new byte[32];// will need to find the byte leagn of this???
-	        		//Frames with fewer than 64 bytes are padded out to 64 bytes with the Pad field.
-
-	                DatagramPacket incomingPacket = new DatagramPacket(buf, buf.length);
-	                String incomingData = "";
-	                try
-	                {
-	                	broadcastSocket.receive(incomingPacket);
-	                	incomingData = new String(incomingPacket.getData());
-	                	incomingData = incomingData.trim();
-	                	
-	                	if(false == incomingPacket.getAddress().equals(Perent.getLocalAddress()))
-	                	{
-	                		Perent.updateNet(true);
-	                		
-	                		if(incomingData.startsWith(SendDefenderLocation_ID))
-	                		{
-	                			//incomingData ship: x : y : heading
-	                			String[] inputLocation = incomingData.split(":");
-	                			inputLocation[0] = incomingPacket.getAddress().toString();
-	                			//inputLocation [0]=ID [1]=X  [2]=Y  [3]=heading
-	                			Perent.ReceiveDefenderLocation(inputLocation);
-	                		}
-	                		else if(incomingData.startsWith(SendShotLocation_ID))
-	                		{
-	                			String[] inputLocation = incomingData.split(":");
-	                			inputLocation[0] = incomingPacket.getAddress().toString();
-	                			Perent.ReceiveShotLocation(inputLocation);
-	                		}
-	                		else if(incomingData.equals(Perent.version()))
-	                		{
-	                			addIP(incomingPacket.getAddress());
-	                			
-	                			System.out.println(Perent.version()+" : "+incomingPacket.getAddress().toString());
-
-	                			Send2NetWap(
-	                					incomingPacket.getAddress(),
-	                					myDefender,//Perent.getDefender(),
-	                					NetworkInterface.SHIP,
-	                					true);
-		            		}
-	                	}
-	                	else
-	                	{
-	                		Perent.updateNet(false);
-	                	}
-	                }
-	                catch(Exception ex)
-	                {
-	                	Perent.setError("Sending Listen for broadcasts: "+ex.toString());
-	                	System.out.println("Sending Listen for broadcasts("+incomingData+"): "+ex.toString());
-	                } 	
-	            }
-            }});
-		ListenThread.start();
+			case STRING:
+				rString = "String";
+			break;
+			
+			case HIT_TEST:
+				rString = "Hit Test";
+			break;
+			
+			case SHIP:
+				rString = "Ship";
+			break;
+			
+			case SHIPKILLED:
+				rString = "Ship Killed";
+			break;
+			
+			case SHIPALIVE:
+				rString = "Ship Alive";
+			break;
+			
+			case ROCKSRequest:
+				rString = "Rocks Request";
+			break;
+			
+			case ROCKSResponse:
+				rString = "Rocks Response";
+			break;
+			
+			case ROCKHIT:
+				rString = "Rocks Hit";
+			break;
+		}
+		return rString;
 	}
 }

@@ -34,7 +34,7 @@ public class Core
 		System.out.println("Core..");
 			//1st
 			perent = inputPerent;
-			version = "022c";
+			version = "025d";
 			Title = "Astro-MultiX";
 			userName = System.getProperty("user.name");
 			Error = "";
@@ -52,8 +52,8 @@ public class Core
 			
 			//2nd
 			myGame = new Game(this,perent);
-			net = new NetworkInterface(this);
-				net.setMyDefender(myGame.getDefender());
+			net = new NetworkInterface(this,myGame.getDefender());
+				//net.setMyDefender(myGame.getDefender());
 				myKeyboard = new KeyboardInput();//(this, inputPerent);
 				myKeyboard.setMyDefender(myGame.getDefender());
 			System.out.println("Core..Done");
