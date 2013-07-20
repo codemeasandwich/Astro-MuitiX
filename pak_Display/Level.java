@@ -11,8 +11,8 @@ public class Level
 	private Core Perent;
 	private PFont fontA;
 	private ArrayList<DefenderShot> arrayShots;
+
 	private ArrayList<Defender> arrayDefender;
-	private float rotateX;
 	
 	public Level(Core inputPerent, PApplet inputDisplay)
 	{
@@ -22,7 +22,6 @@ public class Level
 		arrayShots   = new ArrayList<DefenderShot>();
 		fontA  = Display.loadFont("Infobubble-24.vlw");
 		Display.textFont(fontA, 12);
-		rotateX = 0.4f;
 	}
 	
 	public void draw()
@@ -32,8 +31,8 @@ public class Level
 		Display.fill(255);
 		Display.text("processing & eclipsenthe dynamic duo", 30, 30);
 		
-		Display.rotateX(rotateX);
-		Display.translate(0,-120,-250);
+		Display.rotateX(0.4f);
+		Display.translate(0,-80,-150);
 		
 		drawGameBorde();
 		
@@ -61,25 +60,7 @@ public class Level
 	{
 		arrayShots.add(new DefenderShot(Float.parseFloat(inputLocation[3]),Integer.parseInt(inputLocation[1]),Integer.parseInt(inputLocation[2])));
 	}
-	public void setRotateX(boolean more)
-	{
-		if(more)
-		{
-			if(rotateX<4.0f)
-			{
-				System.out.print("+");
-				rotateX +=0.001f;
-			}
-		}
-		else
-		{
-			if(rotateX>0.0f)
-			{
-				System.out.print("-");
-				rotateX -=0.001f;
-			}
-		}
-	}
+	
 	public void updateDefender(String[] inputLocation)
 	{
 		//inputLocation [0]=ID [1]=X  [2]=Y  [3]=heading

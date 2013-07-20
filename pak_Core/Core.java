@@ -18,13 +18,13 @@ public class Core
 	private String LocalAddress;
 	private final String Title;
 	private final String version;
-	private boolean keyPressed;
 	
 	public Core(PApplet inputPerent)
 	{
+
 			perent = inputPerent;
 			rn = new Random();
-			keyPressed = false;
+			
 			GroupIP = "224.0.41.0";
 			//http://www.iana.org/assignments/multicast-addresses
 			GroupPort = 9574;
@@ -39,18 +39,13 @@ public class Core
 			myKeyboard = new KeyboardInput(this, inputPerent);
 			
 			addDefender(myDefender);
+
 	}
 	
 	public void draw()
 	{
-		keyPressed = false;
-		
 		if(perent.keyPressed && !myDefender.getkilled())
-		{
-			myKeyboard.test(); 
-			perent.keyPressed = false;
-			keyPressed = true;
-		}
+		{ myKeyboard.test(); }
 		
 		myLevel.draw();
 	}
@@ -71,6 +66,7 @@ public class Core
 	{
 		myDefender.moveDefender(inputMove);
 	}
+	
 	public void fireDefender()
 	{
 		myDefender.fireDefender();
@@ -111,14 +107,12 @@ public class Core
 	{
 		return Title + " " + version;
 	}
-	public void setRotateX(boolean more)
-	{
-		myLevel.setRotateX(more);
-	}
+	
 	public void SendDefenderLocation(int x, int y, float heading)
 	{
 		net.SendDefenderLocation(x, y, heading);
 	}
+	
 	public void ReceiveDefenderLocation(String[] inputLocation)
 	{
 		myLevel.updateDefender(inputLocation);
@@ -130,9 +124,5 @@ public class Core
 	public void ReceiveShotLocation(String[] inputLocation)
 	{
 		myLevel.addShot(inputLocation);
-	}
-	public boolean getKeyPressed()
-	{
-		return keyPressed;
 	}
 }

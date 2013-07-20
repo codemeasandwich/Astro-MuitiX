@@ -132,9 +132,9 @@ public class Defender
 		Display.popMatrix();
 
 		// ========= if the ship is moving why stop it?
-		//System.out.println(Display.keyPressed + " && " + drift);
 		if(!Display.keyPressed && 0.1<drift)
 		{ drift(); }
+		
 	}
 	
 	private void drift()
@@ -144,8 +144,6 @@ public class Defender
 		shipXY[0] -= PApplet.cos(heading)*(stepsize*drift);
 		shipXY[1] -= PApplet.sin(heading)*(stepsize*drift);
 		drift = drift *0.975f;
-		Perent.setRotateX(false);
-		//System.out.print("drift");
 		Perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading);
 	}
 	
@@ -170,7 +168,6 @@ public class Defender
 				//a cap on the drift
 				if(1.0f > drift)
 				{ drift += 0.2f; }
-				Perent.setRotateX(true);
 			break;
 			
 			case BACK:
