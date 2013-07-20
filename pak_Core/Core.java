@@ -34,7 +34,7 @@ public class Core
 		System.out.println("Core..");
 			//1st
 			perent = inputPerent;
-			version = "025d";
+			version = "029c";
 			Title = "Astro-MultiX";
 			userName = System.getProperty("user.name");
 			Error = "";
@@ -51,11 +51,15 @@ public class Core
 			}
 			
 			//2nd
-			myGame = new Game(this,perent);
+			float[] levelAng = new float[]{0.0f,-80.0f,-150.0f,0.4f};
+			//float[] levelAng = new float[]{0.0f,-80.0f,-150.0f,0.4f};//3D
+			
+			
+			myGame = new Game(this,perent,levelAng);
+			myKeyboard = new KeyboardInput(myGame.getDefender(),levelAng);//(this, inputPerent);
 			net = new NetworkInterface(this,myGame.getDefender());
 				//net.setMyDefender(myGame.getDefender());
-				myKeyboard = new KeyboardInput();//(this, inputPerent);
-				myKeyboard.setMyDefender(myGame.getDefender());
+
 			System.out.println("Core..Done");
 	}
 	

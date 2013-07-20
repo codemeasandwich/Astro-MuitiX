@@ -28,7 +28,7 @@ public class Game
 	private String message;
 	private Sound gameSound;
 	
-	public Game(Core inputPerent, PApplet inputDisplay)
+	public Game(Core inputPerent, PApplet inputDisplay,float[] inputLevelAng)
 	{
 		System.out.println("Game..");
 		Perent = inputPerent;
@@ -52,7 +52,7 @@ public class Game
 		defenderStore = new DefenderManager();
 		defenderStore.setMyDefender(new Defender(this, Display,Perent.getLocalAddress()));
 		//myDefender = new Defender(this, Display,Perent.getLocalAddress());
-		myLevel = new Level(this, Display);
+		myLevel = new Level(this, Display,inputLevelAng);
 		
 		addDefender(defenderStore.getMymyDefender(),false);
 		System.out.println("Game..Done");

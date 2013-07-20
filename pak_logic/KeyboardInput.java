@@ -6,9 +6,14 @@ import pak_Display.Defender;
 public class KeyboardInput
 {
 	private Defender myDefender;
+	private float[] levelAng;
+	private float arg = 0.3f;
+	private boolean print = true;
 	
-	public KeyboardInput()
+	public KeyboardInput(Defender inputDefender,float[] inputLevelAng)
 	{
+		myDefender = inputDefender;
+		levelAng = inputLevelAng;
 	}
 	
 	public boolean test(int keyCode)
@@ -49,19 +54,71 @@ public class KeyboardInput
 			System.exit(1);
 		break;
 		
+		case(113)://F2
+			levelAng[0] += arg;
+			foundKey = true;
+			if(print)
+				System.out.println("X+");
+		break;
+		
+		case(114)://F3
+			levelAng[0] -= arg;
+			foundKey = true;
+			if(print)
+				System.out.println("X-");
+		break;
+		
+		case(115)://F4
+			levelAng[1] += arg;
+			foundKey = true;
+			if(print)
+				System.out.println("Y+");
+		break;
+		
+		case(116)://F5
+			levelAng[1] -= arg;
+			foundKey = true;
+			if(print)
+				System.out.println("Y-");
+		break;
+		
+		case(117)://F6
+			levelAng[2] += arg;
+			foundKey = true;
+			if(print)
+				System.out.println("Z+");
+		break;
+		
+		case(118)://F7
+			levelAng[2] -= arg;
+			foundKey = true;
+			if(print)
+				System.out.println("Z-");
+		break;
+		
+		case(119)://F8
+			levelAng[3] += arg/10.0f;
+			foundKey = true;
+			if(print)
+				System.out.println("RX+");
+		break;
+		
+		case(120)://F9
+			levelAng[3] -= arg/10.0f;
+			foundKey = true;
+			if(print)
+				System.out.println("RX-");
+		break;
+		
+		case(121)://F10
+			levelAng[3] += arg;
+			foundKey = true;
+		break;
+		
 		}
+		//System.out.println("{"+levelAng[0]+","+levelAng[1]+","+levelAng[2]+","+levelAng[3]+"}");
 		return foundKey;
 		
-	}
-	public boolean setMyDefender(Defender inputDefender)
-	{
-		if(null == myDefender)
-		{
-			myDefender = inputDefender;
-			return true;
-		}
-		else
-		{	return false;	}
 	}
 	
 	public void KeyMap()

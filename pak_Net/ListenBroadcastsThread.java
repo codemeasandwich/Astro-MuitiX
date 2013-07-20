@@ -10,7 +10,7 @@ public class ListenBroadcastsThread extends Thread
 	private NetworkInterface net;
 	private Core Perent;
 	private Defender myDefender;
-	private boolean showHeartbeat = true;
+	private boolean showHeartbeat = false;
 	
 	public ListenBroadcastsThread(NetworkInterface inputNet, Core inputPerent, Defender inputDefender)
 	{

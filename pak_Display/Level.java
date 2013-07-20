@@ -14,13 +14,15 @@ public class Level
 	private ArrayList<DefenderShot> arrayShots;
 	private ArrayList<Defender> arrayDefender;
 	private RockManager myRockManager;
+	private float[] levelAng;
 	
-	public Level(Game inputPerent, PApplet inputDisplay)
+	public Level(Game inputPerent, PApplet inputDisplay,float[] inputLevelAng)
 	{		
 		System.out.println("Level..");
 		
 		Perent        = inputPerent;
 		Display       = inputDisplay;
+		levelAng  = inputLevelAng;
 		arrayDefender = new ArrayList<Defender>();
 		arrayShots    = new ArrayList<DefenderShot>();
 		myRockManager = new RockManager(this,Display);
@@ -71,8 +73,8 @@ public class Level
 		//Display.textFont(Perent.getFont('B'), 18);
 		//Display.text("score: "+Perent.getScore(), 20, 20);
 		
-		Display.rotateX(0.4f);
-		Display.translate(0,-80,-150);
+		Display.rotateX(levelAng[3]);
+		Display.translate(levelAng[0],levelAng[1],levelAng[2]);//-80,-150);
 		
 		drawGameBorde();
 		
