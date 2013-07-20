@@ -2,7 +2,7 @@ package pak_Display;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import pak_Core.Core;
+//import pak_Core.Core;
 import pak_logic.*;
 import processing.core.PApplet;
 

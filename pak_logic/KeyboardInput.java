@@ -8,49 +8,58 @@ import pak_Display.Defender;
 public class KeyboardInput
 {
 	private Core perent;
-	private PApplet Display;
 	
 	public KeyboardInput(Core inputPerent, PApplet inputDisplay)
 	{
 		perent = inputPerent;
-		Display = inputDisplay;
 	}
 	
-	public boolean test()
+	public boolean test(int keyCode)
 	{
-		//System.out.println("KeyboardInput.test() "+Display.keyCode);
+		//System.out.println("KeyboardInput.test() "+keyCode);
 		
-		if(PConstants.RIGHT == Display.keyCode)
+		boolean foundKey = false;
+		
+		switch(keyCode)
 		{
+		case(PConstants.RIGHT):
 			perent.moveDefender(Defender.RIGHT);
-		}
-		else if(PConstants.LEFT == Display.keyCode)
-		{
+			foundKey = true;
+		break;
+		
+		case(PConstants.LEFT):
 			perent.moveDefender(Defender.LEFT);
-		}
-		else if(PConstants.UP == Display.keyCode)
-		{
+			foundKey = true;
+		break;
+		
+		case(PConstants.UP):
 			perent.moveDefender(Defender.FORWARE);
-		}/*
-		else if(PApplet.DOWN == Display.keyCode)
-		{
-			perent.moveDefender(Defender.BACK);
-		}*/
-		else if(PConstants.CONTROL == Display.keyCode || 17 == Display.keyCode)//space
-		{
+			foundKey = true;
+		break;
+		
+		//case(17)://space
+		case(PConstants.CONTROL):
 			perent.fireDefender();
-		}
-		//Display.keyCode = -1;
-		else if(90 == Display.keyCode)//z
-		{
+			foundKey = true;
+		break;
+		
+		case(90):
 			perent.killDefender();
-		}
-		else if(81 == Display.keyCode)//q
-		{
+			foundKey = true;
+		break;
+		
+		case(81):
 			perent.zoneInDefender();
+			foundKey = true;
+		break;
+		
+		case(112)://F1
+			perent.showMenuToggle();
+			foundKey = true;
+		break;
+		
 		}
-		Display.keyPressed = false;
-		return false;
+		return foundKey;
 		
 	}
 	

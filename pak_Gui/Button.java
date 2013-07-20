@@ -66,7 +66,7 @@ public class Button
 //	===============================================================================
 //	=============================================================================== Draw
 
-	  void draw()
+	 public void draw()
 	  {
 	    if(rollover)			//======================== Do this if the rollover is enabled
 	    {
@@ -90,7 +90,6 @@ public class Button
 	    	Display.fill(colour[0],colour[1],colour[2],alph);// no rollover colour
 	    }
 
-
 	    Display.stroke(255);			//button border color
 	    Display.rect(x,y,w,h);			//draw button			
 	    Display.fill(255);				// text colour
@@ -102,20 +101,20 @@ public class Button
 //	===============================================================================
 //	===============================================================================
 	  
-	  boolean test()			//asume the buttons have not been Translated
+	 public boolean test()			//asume the buttons have not been Translated
 	  {
 	    return test(Display.mouseX,Display.mouseY);
 	  }
 
 //	===============================================================================
 	  
-	  boolean test(int x_input, int y_input)//user if the button has been Translated
+	 public boolean test(int x_input, int y_input)//user if the button has been Translated
 	  {
 	    if((x_input>x && x_input<x+w) && (y_input>y && y_input<y+h))//test input agent this button
 	    {
 	        if(!couserBool)			//if the test is true than show a hand set hit to true
 	        {
-	        	Display.cursor(Display.HAND);
+	        	Display.cursor(PApplet.HAND);
 	          couserBool = true;
 	        }
 	    }
@@ -123,10 +122,16 @@ public class Button
 	    {
 	      if(couserBool)			//if the last test was true then reset
 	      {
-	    	  Display.cursor(Display.ARROW);
+	    	  Display.cursor(PApplet.ARROW);
 	        couserBool = false;
 	      }
 	    }
 	    return couserBool;			//return the test result
 	  }
+	 
+	 @Override
+	 public String toString()
+	 {
+		 return txt;
+	 }
 	}

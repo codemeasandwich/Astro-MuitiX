@@ -5,7 +5,7 @@ package pak_Core;
  
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Random;
+//import java.util.Random;
 import processing.core.*;
 import pak_Display.*;
 import pak_Net.*;
@@ -23,48 +23,63 @@ public class Core
 
 	private NetworkInterface net;
 	private String LocalAddress;
-	private final String Title;
-	private final String version;
+	private String Title;
+	private String version;
+	private String userName;
+	private String CompName;
 	private Game myGame;
+	private boolean commandkeyInput;
 	
 	public Core(PApplet inputPerent)
 	{
 			//1st
 			perent = inputPerent;
-			version = "010";
+			version = "012";
 			Title = "Astro-MultiX";
-			setLocalAddress();
+			userName = System.getProperty("user.name");
+			commandkeyInput = true;
+			
+			try// throws UnknownHostException
+			{
+				LocalAddress = "/"+InetAddress.getLocalHost().getHostAddress();
+				CompName = InetAddress.getLocalHost().getHostName();
+			}
+			catch (UnknownHostException uHE)
+			{
+				System.out.println(uHE.toString());
+			}
 			
 			//2nd
 			myGame = new Game(this,perent);
 			net = new NetworkInterface(this);
 			myKeyboard = new KeyboardInput(this, inputPerent);
-
-			
-
-	}
-	
-	private void setLocalAddress()// throws UnknownHostException
-	{
-		try
-		{
-		LocalAddress = "/"+InetAddress.getLocalHost().getHostAddress();
-		}
-		catch (UnknownHostException uHE)
-		{
-			System.out.println(uHE.toString());
-		}
 	}
 	
 	public String getLocalAddress()
 	{
 		return LocalAddress;
 	}
+	public void setCommandkeyInput(boolean val)
+	{
+		commandkeyInput = val;
+	}
+	public String getUserName()
+	{
+		return userName;
+	}
+	public String getCompName()
+	{
+		return CompName;
+	}
 	
 	public void draw()
 	{
-		if(perent.keyPressed && !myGame.getDefender().getkilled())
-		{ myKeyboard.test(); }
+		if(commandkeyInput)
+		{
+			if(perent.keyPressed && !myGame.getDefender().getkilled())
+			{ perent.keyPressed = !myKeyboard.test(perent.keyCode); }
+		}
+		//true if key found so set pessed to false i.e. not need any more
 
 		myGame.draw();
 	}
@@ -135,5 +150,9 @@ public class Core
 	public void ReceiveShotLocation(String[] inputLocation)
 	{
 		myGame.ReceiveShotLocation(inputLocation);
+	}
+	public boolean showMenuToggle()
+	{
+		return myGame.showMenuToggle();
 	}
 }

@@ -17,11 +17,13 @@ public class Game
 	private Defender myDefender;
 	private Random rn;
 	private int score;
-	private PFont fontA;
-	private PFont fontB;
+	private PFont fontA,fontB,fontC;
 	private byte[] netIn;
 	private byte[] netOut;
+	private boolean Menushow;
 	private Menu mainMenu;
+	private int crazyLandCount;
+	private float[] crazyRotate;
 	
 	public Game(Core inputPerent, PApplet inputDisplay)
 	{
@@ -31,8 +33,13 @@ public class Game
 		score = 100;
 		netIn = new byte[50];
 		netOut = new byte[50];
+		crazyRotate = new float[]{100,100,100};
+		Menushow = true;
+		crazyLandCount = 0;
+		
 		fontA = Display.loadFont("Silkscreen-16.vlw");
 		fontB = inputDisplay.loadFont("BlueHighwayBold-18.vlw");
+		fontC = inputDisplay.loadFont("Swinkydad-42.vlw");
 		Display.textFont(fontA, 18);
 		
 		mainMenu = new Menu(this, Display);
@@ -45,28 +52,22 @@ public class Game
 	
 	public void draw()
 	{
-		Display.pushMatrix();
-			crazyLand();
-			myLevel.draw();
-		Display.popMatrix();
+		if(Menushow)
+		{Display.pushMatrix();
+			crazyLand();}
+		
+		myLevel.draw();
+			
+		if(Menushow)
+		{Display.popMatrix();}
 		
 		drawNet();
 		
-		Display.pushMatrix();
-		Display.translate(Display.width - 10, Display.height/2);
-		Display.rotateZ(1.570796325f);
-		Display.textAlign(PApplet.CENTER);
-		Display.textFont(fontA, 16);
-		Display.text("Brian Shannon: 07127154 NDS07",10,10);
-		Display.popMatrix();
 		//if the score is around 5 give a shot ever 5 sec
 		if(5>score && (Display.frameCount %(2*Display.frameRate))< 1)
-		{
-			score++;
-		}
+		{		score++;		}
 		
 		mainMenu.draw();
-		
 		
 	}
 	
@@ -79,7 +80,10 @@ public class Game
 	{
 		return myLevel.spaceReset_Float(XY);
 	}
-	
+	public void setCommandkeyInput(boolean val)
+	{
+		Perent.setCommandkeyInput(val);
+	}
 	public int getRandom(int range)
 	{
 		return rn.nextInt(range);
@@ -147,26 +151,50 @@ public class Game
 	public void updateNet(boolean Incoming)
 	{
 		if(Incoming)
-		{
-			updateNetIncoming();
-		}
+		{	updateNetIncoming();	}
 		else
-		{
-			updateNetOutgoing();
-		}
+		{	updateNetOutgoing();	}
 	}
+	
+	public boolean showMenuToggle()
+	{
+		return setMenuVisible(!Menushow);
+	}
+	
+	private boolean setMenuVisible(boolean val)
+	{
+		if(val)
+		{
+			crazyLandCount = 0;
+			crazyRotate = new float[]{
+					(getRandom(500)-250),
+					(getRandom(500)-250),
+					(getRandom(500)-250)};
+		}
+		
+		Menushow = val;
+		mainMenu.setVisible(val);
+		
+		return Menushow;
+	}
+	
 	public PFont getFont(char type)
 	{
 		type = Character.toUpperCase(type);
 		PFont toReturn;
 		switch(type)
 		{
+		
 			case 'A':
 				toReturn = fontA;
 			break;
 			
 			case 'B':
 				toReturn = fontB;
+			break;
+			
+			case 'C':
+				toReturn = fontC;
 			break;
 			
 			default:
@@ -179,17 +207,13 @@ public class Game
 	public void updateNetOutgoing()
 	{
 		if((netOut.length/4)>netOut[netOut.length - 1])
-		{
-			netOut[netOut.length - 1]++;
-		}
+		{		netOut[netOut.length - 1]++;		}
 	}
 	
 	public void updateNetIncoming()
 	{
 		if((netIn.length/4)>netIn[netIn.length - 1])
-		{
-			netIn[netIn.length - 1]++;
-		}
+		{		netIn[netIn.length - 1]++;			}
 	}
 	
 	private void drawNet()
@@ -206,7 +230,7 @@ public class Game
 			if((Display.frameCount %2) == 0)
 			{
 				if(counter  + 1 !=netOut.length)
-				{	netOut[counter] = netOut[1+counter];	}
+				{	netOut[counter] = netOut[1+counter];}
 				else
 				{	netOut[counter] = 0;		}
 			}
@@ -233,10 +257,11 @@ public class Game
 	}
 	private void crazyLand()
 	{
+		crazyLandCount++;
 		Display.translate(Display.width/2,Display.height/2);
-		Display.rotateZ(Display.frameCount/100.0f);
-		Display.rotateY(Display.frameCount/100.0f);
-		Display.rotateX(Display.frameCount/100.0f);
+		Display.rotateZ(crazyLandCount/crazyRotate[0]);
+		Display.rotateY(crazyLandCount/crazyRotate[1]);
+		Display.rotateX(crazyLandCount/crazyRotate[2]);
 		Display.translate(-Display.width/2,-Display.height/2);
 	}
 }

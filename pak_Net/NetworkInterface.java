@@ -15,7 +15,7 @@ import pak_Core.Core;
 
 public class NetworkInterface
 {
-	private static MulticastSocket broadcastSocket;
+	private MulticastSocket broadcastSocket;
 	private Core Perent;
 	private Thread ListenThread;
 	private InetAddress netGroup;
@@ -33,13 +33,14 @@ public class NetworkInterface
 	{
 		Perent = inputPerent;
 		error = false;
+		
 		 try
 		 {
 			 SendDefenderLocation_ID = "ship:";
 			 SendShotLocation_ID = "shot:";
 			 lastDefenderLocation = "";
 			netGroup = InetAddress.getByName(Core.GroupIP);
-			broadcastSocket = new MulticastSocket(Core.GroupPort);
+			broadcastSocket = new MulticastSocket(Core.GroupPort);//send & recive on this
 			broadcastSocket.joinGroup(netGroup);
 			ServerSocket4ReturnShip = new ServerSocket(Core.socketPort);
 
@@ -102,7 +103,7 @@ public class NetworkInterface
 		 catch (IOException e) 
 		 {
 			 System.out.println("Sending broadcast"+e.toString());
-		 error = true;
+			 error = true;
 		 }
 		}
 	}
@@ -159,7 +160,9 @@ public class NetworkInterface
             {
 	        	while(true)
 	            {								//			  x   y  hading
-	        		byte[] buf = new byte[24];//num of chars 001-304-0.49
+	        		byte[] buf = new byte[64];// will need to find the byte leagn of this???
+	        		//Frames with fewer than 64 bytes are padded out to 64 bytes with the Pad field.
+
 	                DatagramPacket incomingPacket = new DatagramPacket(buf, buf.length);
 	           
 	                try
