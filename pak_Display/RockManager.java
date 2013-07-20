@@ -1,12 +1,10 @@
-package pak_logic;
+package pak_Display;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
-import pak_Display.DefenderShot;
-import pak_Display.Level;
-import pak_Display.Rock;
+import pak_logic.Sound;
 
 import processing.core.PApplet;
 
@@ -17,12 +15,14 @@ public class RockManager implements Serializable
 	private transient PApplet Display;
 	private int deadRocksNum;
 	private transient Level Perent;
+	private Random generator;
 	
 	public RockManager(Level inputPerent,PApplet inputDisplay)
 	{
 		System.out.print("RockManager");
 		Perent = inputPerent;
 		Display = inputDisplay;
+		generator = new Random();
 		deadRocksNum = 0;
 		arrayRocks = new ArrayList<Rock>();
 		creatRocks();
@@ -35,9 +35,7 @@ public class RockManager implements Serializable
 		Display = inputDisplay;
 		
 		for(Rock rock: arrayRocks)
-		{
-			rock.reBuild(this,Display);
-		}
+		{	rock.reBuild(this,Display);		}
 	}
 	
 	public void creatRocks()
@@ -46,9 +44,8 @@ public class RockManager implements Serializable
 		{
 			arrayRocks.clear();
 			deadRocksNum = 0;
-			Random generator = new Random();
 			int rn = generator.nextInt(5)+5;
-			rn = 1;
+			//rn = 1;
 			for(int count =0; count < rn; count++)
 			{
 				arrayRocks.add(new Rock(this,Display));
@@ -61,9 +58,7 @@ public class RockManager implements Serializable
 		synchronized(arrayRocks)
 		{
 			for(Rock rock: arrayRocks)//ConcurrentModificationException Need to fix
-			{
-				rock.draw();
-			}
+			{	rock.draw();	}
 		}
 	}
 	public boolean hitTest(float[] inputXY, boolean takeAction)
@@ -96,13 +91,21 @@ public class RockManager implements Serializable
 					
 					if(rock.getSize() != Rock.DELETE)
 					{
-						Rock myRock = new Rock(this,Display);
-						myRock.setSize(rock.getSize());
-						myRock.setXY(rock.getXY());
-						
-						synchronized(arrayRocks)
+						int rn = generator.nextInt(3);//0 to 2
+						//System.out.println("generator:"+rn);
+						if(0<rn)
 						{
-							arrayRocks.add(myRock);
+							synchronized(arrayRocks)
+							{
+								for(int count = 0; count<rn; count++)
+								{
+									Rock myRock = new Rock(this,Display);
+									myRock.setSize(rock.getSize());
+									myRock.setXY(rock.getXY());
+									
+									arrayRocks.add(myRock);
+								}
+							}
 						}
 					}
 					else if(arrayRocks.size()-1 == deadRocksNum)
@@ -113,15 +116,13 @@ public class RockManager implements Serializable
 					{
 						deadRocksNum++;
 					}
-					System.out.println("deadRocksNum:"+deadRocksNum);
-					System.out.println("arrayRocks.size:"+arrayRocks.size());
+					//System.out.println("deadRocksNum:"+deadRocksNum);
+					//System.out.println("arrayRocks.size:"+arrayRocks.size());
 					
 					synchronized(arrayRocks)
 					{
 						Perent.SendRockManager();
 					}
-
-					
 					break;
 				}
 			}

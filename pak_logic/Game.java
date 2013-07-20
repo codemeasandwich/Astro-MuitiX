@@ -1,13 +1,12 @@
 package pak_logic;
 
 import java.net.InetAddress;
-import java.util.Random;
-
 import pak_Core.Core;
 import pak_Display.Defender;
 import pak_Display.DefenderShot;
 import pak_Display.Level;
 import pak_Display.Rock;
+import pak_Display.RockManager;
 import pak_Net.NetworkInterface;
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -19,7 +18,7 @@ public class Game
 	private Level myLevel;
 	//private Defender myDefender;
 	private DefenderManager defenderStore; 
-	private Random generator;
+	
 	private PFont fontA,fontB,fontC,fontD;
 	private byte[] netIn;
 	private byte[] netOut;
@@ -36,7 +35,7 @@ public class Game
 		Display = inputDisplay;
 		gameSound = new Sound();
 		//gameSound.playSound(Sound.START);
-		generator = new Random();
+		
 		txtFade = 255;
 		netIn = new byte[50];
 		netOut = new byte[50];
@@ -79,12 +78,12 @@ public class Game
 	{
 		return myLevel.spaceReset_Float(XY);
 	}
-
+/*
 	public Random getRandom()
 	{
 		return generator;
 	}
-
+*/
 	public void addDefender(Defender inputDefender,boolean rebuild)
 	{
 		System.out.println("Defender~"+inputDefender.getID().toString()+":ADDED");

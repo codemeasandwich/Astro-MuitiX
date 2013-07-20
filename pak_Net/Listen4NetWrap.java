@@ -8,7 +8,7 @@ import java.net.Socket;
 import pak_Core.Core;
 import pak_Display.Defender;
 import pak_Display.Rock;
-import pak_logic.RockManager;
+import pak_Display.RockManager;
 
 public class Listen4NetWrap extends Thread
 {
@@ -69,7 +69,7 @@ class NetWrapConnection extends Thread // Inner Class
 							incomingListen2User.getInputStream()));
 			
 			NetWrap incomingWrap = (NetWrap)ois.readObject();
-			
+			ois.close();
 			System.out.println("IN NetWap:"+net.typeConveter(incomingWrap.getType())+" "+incomingListen2User.getInetAddress().toString());
 
 			if(incomingWrap.getType() == NetworkInterface.SHIP)

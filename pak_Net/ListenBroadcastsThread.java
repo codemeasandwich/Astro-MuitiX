@@ -10,6 +10,7 @@ public class ListenBroadcastsThread extends Thread
 	private NetworkInterface net;
 	private Core Perent;
 	private Defender myDefender;
+	private boolean showHeartbeat = true;
 	
 	public ListenBroadcastsThread(NetworkInterface inputNet, Core inputPerent, Defender inputDefender)
 	{
@@ -35,6 +36,7 @@ public class ListenBroadcastsThread extends Thread
             	
             	if(false == incomingPacket.getAddress().equals(Perent.getLocalAddress()))
             	{
+            		if(showHeartbeat || !incomingData.startsWith(NetworkInterface.HeartbeatFlag))
             		Perent.updateNet(true);
             		
             		if(incomingData.startsWith(NetworkInterface.SendDefenderLocation_ID))
@@ -74,6 +76,7 @@ public class ListenBroadcastsThread extends Thread
             	}
             	else
             	{
+            		if(showHeartbeat || !incomingData.startsWith(NetworkInterface.HeartbeatFlag))
             		Perent.updateNet(false);
             	}
             }

@@ -3,7 +3,6 @@ package pak_Display;
 import processing.core.PApplet;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Random;
 
 import pak_Net.NetworkInterface;
 import pak_logic.*;
@@ -12,7 +11,6 @@ public class Level
 {
 	private PApplet Display;
 	private Game Perent;
-
 	private ArrayList<DefenderShot> arrayShots;
 	private ArrayList<Defender> arrayDefender;
 	private RockManager myRockManager;
@@ -39,9 +37,7 @@ public class Level
 				Addr = Spaceship.getID();
 			}
 		}
-		
 		myRockManager.hitTest(fire, true);
-		
 		return Addr;
 	}
 	
@@ -61,9 +57,7 @@ public class Level
 		if(!hit)
 		{
 			if(myRockManager.hitTest(inputXY, true))
-			{
-				hit = true;
-			}
+			{	hit = true;		}
 		}
 		return hit;
 	}
@@ -117,12 +111,12 @@ public class Level
 		}
 		Display.popMatrix();
 	}
-	
+	/*
 	public Random getRandom()
 	{
 		return Perent.getRandom();
 	}
-	
+	*/
 	public void addDefender(Defender inputDefender)
 	{
 		synchronized (arrayDefender)
@@ -249,7 +243,30 @@ public class Level
 
 		Display.fill(140,90);
 		Display.stroke(0);
-		Display.rect(0,0,Display.width,Display.height);
+		
+		Display.pushMatrix();
+			Display.translate(0,0,-10);
+			Display.rect(0,0,Display.width,Display.height);
+		Display.popMatrix();
+		/*
+		final int gridCells = 10;
+		
+		for(int countOuter = 0; gridCells>countOuter; countOuter++)
+		{
+			for(int countInner = 0; gridCells>countInner; countInner++)
+			{
+				Display.pushMatrix();
+				
+				Display.translate(countInner*Display.width/gridCells,
+						countOuter*Display.height/gridCells);
+				Display.rotateX(Display.frameCount/50.0f);
+				Display.rect(
+						0,0,
+						Display.width/gridCells,
+						Display.height/gridCells);
+				Display.popMatrix();
+			}
+		}*/
 		drawGameWalls();
 		
 	}

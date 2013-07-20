@@ -1,6 +1,5 @@
 package pak_Display;
 
-import pak_logic.RockManager;
 import processing.core.PApplet;
 //import processing.core.PFont;
 
@@ -16,7 +15,7 @@ public class Rock implements Serializable
 	public final static byte TINY = 1;
 	public final static byte DELETE = 0;
 	
-	private static int RockCount = 0; 
+	public static int RockCount = 0; 
 	private int [][][] astrido;
 	private transient PApplet Display;
 	private float[] xy;
@@ -83,51 +82,36 @@ public class Rock implements Serializable
 		if(DELETE != size)
 		{
 			Display.pushMatrix();
-			Display.translate(xy[0], xy[1]);
-
-			//showXYZ();
-			Display.scale(size2scale(size));
-			//perent.txt(ID+"",255);
-			Display.noStroke();
 			
-			for(int countOuter = 0; countOuter<astrido.length; countOuter++)
-			{
-				//Display.pushMatrix();
-				Display.rotateX(rX*rCount);
-				Display.rotateY(rY*rCount);
+				Display.translate(xy[0], xy[1]);
+				Display.scale(size2scale(size));
+				Display.noStroke();
 				
-				Display.beginShape();
-				Display.fill(astrido[countOuter][0][2]*25);//255 max ;)
-				
-				for(int countInner = 0; countInner<astrido[countOuter].length; countInner++)
+				for(int countOuter = 0; countOuter<astrido.length; countOuter++)
 				{
-					//Display.rect(0,0,40,40);
-					Display.vertex(
-							astrido[countOuter][countInner][0], 
-							astrido[countOuter][countInner][1],
-							astrido[countOuter][countInner][2]);
+					Display.rotateX(rX*rCount);
+					Display.rotateY(rY*rCount);
+					
+					Display.beginShape();
+					Display.fill(astrido[countOuter][0][2]*25);
+					//Display.noFill();
+					//Display.stroke(255,255,0);
+					for(int countInner = 0; countInner<astrido[countOuter].length; countInner++)
+					{
+						Display.vertex(
+								astrido[countOuter][countInner][0], 
+								astrido[countOuter][countInner][1],
+								astrido[countOuter][countInner][2]);
+					}
+					Display.endShape();
 				}
-				Display.endShape();
-				//Display.popMatrix();
-			}
-			move();
-			rCount++;
+				move();
+				rCount++;
+				
 			Display.popMatrix();
 		}
-		
 	}
-	/*
-	private void showXYZ()
-	{
-		Display.stroke(255,0,0);
-		Display.line(-40, 0, 0, 40, 0, 0); //X is red
-		Display.stroke(0,255,0);
-		Display.line(0, -40, 0, 0, 40, 0); //Y is green
-		Display.stroke(0,0,255);
-		Display.line(0, 0, -40, 0, 0, 40); //Z is Blue
-		Display.stroke(0);
-	}
-	*/
+
 	private float size2scale(byte inputSize)
 	{
 		float scale = 1;
@@ -159,7 +143,6 @@ public class Rock implements Serializable
 		return size;
 	}
 	
-	
 	public void setSize(byte inputSize)
 	{
 		Random generator = new Random();
@@ -173,7 +156,6 @@ public class Rock implements Serializable
 	
 	public float[] getXY()
 	{
-		//System.out.println("rock:"+heading);
 		return xy;
 	}
 	

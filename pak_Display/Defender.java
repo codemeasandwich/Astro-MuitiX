@@ -3,6 +3,7 @@ package pak_Display;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Random;
 //import java.util.Iterator;
 //import pak_Core.Core;
 import pak_Net.NetworkInterface;
@@ -26,7 +27,7 @@ public class Defender implements Serializable
 	private transient ArrayList<DefenderShot> arrayShots;
 	private boolean shipScaleGrow;
 	private boolean isFake;
-
+	private Random generator;
 	private DefenderModel model;
 	
 	public static final byte FORWARE = 1;
@@ -47,10 +48,11 @@ public class Defender implements Serializable
 		System.out.println("Defender..");
 		perent = inputPerent;
 		Display = inputDisplay;
+		generator = new Random();
 		ID = inputID;
 		isFake = false;
-		shipXY = new float[]{perent.getRandom().nextInt(Display.getWidth()),
-							 perent.getRandom().nextInt(Display.getHeight())};
+		shipXY = new float[]{generator.nextInt(Display.getWidth()),
+							 generator.nextInt(Display.getHeight())};
 
 		hitArea		  = 15;
 		drift 	 	  = 0.0f;
@@ -257,9 +259,10 @@ public class Defender implements Serializable
 		}
 		else if(model.KeyBoardSpawn())
 		{
-			shipXY = new float[]{perent.getRandom().nextInt(Display.getWidth()),
-					 perent.getRandom().nextInt(Display.getHeight())};
+			shipXY = new float[]{generator.nextInt(Display.getWidth()),
+								 generator.nextInt(Display.getHeight())};
 			model.ReSpawn();
+			zoneIn();
 			perent.SendDefenderLocation((int)shipXY[0], (int)shipXY[1], heading,drift);
 			perent.sendSocketMessage(ID, null, NetworkInterface.SHIPALIVE, false);
 		}

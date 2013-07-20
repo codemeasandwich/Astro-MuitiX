@@ -85,7 +85,7 @@ public class NetworkInterface
 							
 							count++;
 							if(count >= 3)//test every 1.5 Sec
-							{ LiveTest(); }
+							{ LiveTest(); count = 0;}
 						}
 					}
 					catch(Exception ex)
@@ -108,6 +108,7 @@ public class NetworkInterface
 			if(address.aLive() == false)
 			{
 				Perent.killDefender(address.getAddress());
+				System.out.println("TimedOut:"+address.getAddress().toString());
 				delAddr.add(address);
 			}
 			else
@@ -116,6 +117,7 @@ public class NetworkInterface
 		for(AliveAddr address: delAddr)
 		{
 			aLiveAddresses.remove(address);
+			System.out.println("Removed:"+address.getAddress().toString());
 		}
 			
 
