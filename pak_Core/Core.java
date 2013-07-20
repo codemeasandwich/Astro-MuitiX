@@ -34,7 +34,7 @@ public class Core
 		System.out.println("Core..");
 			//1st
 			perent = inputPerent;
-			version = "";
+			version = "021c";
 			Title = "Astro-MultiX";
 			userName = System.getProperty("user.name");
 			Error = "";

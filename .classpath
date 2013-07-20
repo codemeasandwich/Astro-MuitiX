@@ -4,6 +4,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/Program Files/processing-0132/lib/core.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/processing-0132/lib/apple.jar"/>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Administrator/Desktop/workspace/Asteroids 020c/data/fullscreen.jar"/>
 	<classpathentry kind="output" path=""/>
 </classpath>
